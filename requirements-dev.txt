@@ -1,0 +1,21 @@
+# Development + testing dependencies for MedRisk AI.
+# Installs runtime dependencies too, so `pip install -r requirements-dev.txt` is enough for local dev.
+# Pinned to the exact versions verified working together (see README "Dependencies").
+#
+# pytest            - test runner
+# pytest-asyncio    - allows async def test functions (session-scoped event loop, see pyproject.toml)
+# pytest-cov        - coverage integration for pytest
+# httpx             - async HTTP client, used with ASGITransport against the app in tests
+# asgi-lifespan     - triggers FastAPI startup/shutdown (lifespan) events inside async tests
+# ruff              - linter + formatter
+# mypy              - static type checker
+
+-r requirements.txt
+
+pytest==8.4.2
+pytest-asyncio==1.4.0
+pytest-cov==6.3.0
+httpx==0.27.2
+asgi-lifespan==2.1.0
+ruff==0.7.4
+mypy==1.13.0

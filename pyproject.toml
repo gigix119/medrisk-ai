@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medrisk-ai"
+version = "0.1.0"
+description = "MedRisk AI - educational/research backend foundation for a future oncology AI platform. Not a medical device."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "Proprietary - portfolio/educational project, all rights reserved" }
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+# ---------------------------------------------------------------------------
+# Ruff: linting + formatting + import sorting
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["app", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort (import sorting)
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear (common bugs/footguns)
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+    "ASYNC",  # flake8-async (blocking calls in async code)
+    "N",      # pep8-naming
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "E501",  # line length is enforced by the formatter, not the linter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+"tests/conftest.py" = ["E402"]
+"alembic/versions/*" = ["E501", "N999"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ---------------------------------------------------------------------------
+# mypy: static type checking
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+mypy_path = "."
+exclude = "^(alembic/|tests/)"
+
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unused_configs = true
+warn_return_any = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+# One event loop for the whole test session: app/db/session.py creates a
+# single module-level AsyncEngine, whose pooled connections are bound to
+# the loop active when they were opened. Function-scoped loops (the
+# pytest-asyncio default) would tear down between tests/fixtures and break
+# that pool with "attached to a different loop" errors - both fixtures and
+# test functions must share the same loop.
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+filterwarnings = [
+    "error",
+]
+
+# ---------------------------------------------------------------------------
+# coverage.py
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+source = ["app"]
+branch = true
+# SQLAlchemy's async engine bridges to its sync DBAPI driver via greenlet
+# switches. Without this, coverage.py's tracer doesn't follow code that runs
+# after a greenlet switch, under-reporting any function that awaits a DB call.
+concurrency = ["greenlet"]
+omit = [
+    "app/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "def __repr__",
+]

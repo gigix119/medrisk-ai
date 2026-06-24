@@ -1,0 +1,12 @@
+-- Runs once, automatically, the first time the postgres container starts
+-- with an empty data directory (official postgres image entrypoint
+-- behavior for files under /docker-entrypoint-initdb.d/).
+--
+-- The primary database (named by the POSTGRES_DB env var, default
+-- "medrisk") and its owning role (POSTGRES_USER) already exist by the time
+-- this script runs - the image creates those itself. This script only adds
+-- the second database used by the test suite.
+--
+-- If you change POSTGRES_TEST_DB away from the default, update this file
+-- (and rebuild the volume) to match - it is not templated from the env var.
+CREATE DATABASE medrisk_test;
