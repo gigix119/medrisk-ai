@@ -1,0 +1,9 @@
+# Type stubs needed by `mypy medrisk_ml` that aren't bundled with their runtime packages.
+# (torchvision and scikit-learn ship no stubs at all - see the ignore_missing_imports
+# override in pyproject.toml for those two instead of a stub package, since none exists.)
+#
+#   pip install -r requirements-dev.txt -r requirements-ml.txt -r requirements-ml-dev.txt
+
+pandas-stubs==3.0.3.260530
+types-PyYAML==6.0.12.20260518
+types-tqdm==4.68.0.20260608

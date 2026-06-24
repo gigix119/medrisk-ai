@@ -11,7 +11,7 @@ import sys
 CHECKS: list[tuple[str, list[str]]] = [
     ("ruff format --check", [sys.executable, "-m", "ruff", "format", "--check", "."]),
     ("ruff check", [sys.executable, "-m", "ruff", "check", "."]),
-    ("mypy", [sys.executable, "-m", "mypy", "app", "scripts"]),
+    ("mypy", [sys.executable, "-m", "mypy", "app", "scripts", "medrisk_ml"]),
     ("pytest", [sys.executable, "-m", "pytest", "--cov=app", "--cov-report=term-missing"]),
 ]
 

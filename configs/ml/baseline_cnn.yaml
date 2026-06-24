@@ -1,0 +1,67 @@
+# Baseline CNN trained from scratch on the REAL PatchCamelyon (PCam) dataset.
+# Requires PCam already downloaded (see docs/dataset-card-pcam.md and
+# `python -m medrisk_ml.cli data download --download`, gated by
+# MEDRISK_ALLOW_DATA_DOWNLOAD=1). This config is not auto-executed - running it is a
+# deliberate, explicit command, and a full run is many minutes even on a GPU.
+
+experiment:
+  name: baseline-cnn-pcam
+  description: "Baseline CNN trained from scratch on real PatchCamelyon (PCam) data."
+  seed: 42
+  output_dir: artifacts/experiments
+  tags: [baseline_cnn, pcam, full]
+
+data:
+  dataset_name: pcam
+  data_dir: data/external/pcam
+  download: false
+  synthetic: false
+  smoke_mode: false
+  train_subset_size: null
+  validation_subset_size: null
+  test_subset_size: null
+  image_size: 96
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+
+model:
+  architecture: baseline_cnn
+  pretrained: false
+  num_classes: 1
+  dropout: 0.3
+  freeze_backbone: false
+  unfreeze_from_layer: null
+
+training:
+  epochs: 30
+  batch_size: 128
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  optimizer: adamw
+  scheduler: reduce_on_plateau
+  warmup_epochs: 0
+  mixed_precision: true
+  gradient_clip_norm: 1.0
+  accumulation_steps: 1
+  early_stopping_patience: 5
+  monitored_metric: roc_auc
+  monitored_mode: max
+
+evaluation:
+  default_threshold: 0.5
+  threshold_strategy: youden_j
+  calibration: true
+  bootstrap_samples: 1000
+  confidence_level: 0.95
+
+logging:
+  log_level: INFO
+  tensorboard: true
+  save_predictions: true
+
+runtime:
+  device: auto
+  deterministic: false
+  benchmark: true

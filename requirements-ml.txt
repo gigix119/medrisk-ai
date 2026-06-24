@@ -1,0 +1,41 @@
+# ML dependencies for the MedRisk AI Phase 2 histopathology pipeline.
+# Installed separately from requirements.txt/requirements-dev.txt - the production API
+# runtime does not need PyTorch in this phase. For local ML development, install both:
+#   pip install -r requirements-dev.txt -r requirements-ml.txt
+#
+# torch / torchvision  - model definitions, training, autograd, Grad-CAM
+# numpy                - array math throughout the data/evaluation layers
+# pandas               - per-sample prediction tables, error analysis
+# pillow               - image loading/generation (synthetic dataset, Grad-CAM overlays)
+# scikit-learn         - ROC/PR curves, ROC-AUC, PR-AUC
+# matplotlib           - all evaluation plots (Agg backend, no GUI required)
+# tqdm                 - training/evaluation progress bars
+# tensorboard          - training curve logging (medrisk_ml.training.trainer)
+# h5py                 - required by torchvision.datasets.PCAM to read the official HDF5 files
+# PyYAML               - experiment config files (medrisk_ml.config)
+# pydantic             - experiment config validation (medrisk_ml.config) and the registry
+#                        manifest schema (medrisk_ml.registry.manifest) - medrisk_ml depends on
+#                        this directly, independent of the app/ backend's own pydantic usage
+#
+# Pinned here to the plain CPU-compatible build (works everywhere: CI, Dockerfile.ml, any
+# dev machine). If you have a CUDA-capable NVIDIA GPU, install the matching CUDA build
+# instead/in addition - pip will keep it (it satisfies the same `torch==2.11.0` pin, the
+# "+cuXXX" part is a local version label) rather than downgrading to CPU-only:
+#
+#   pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
+#
+# (cu128 was verified on this project's RTX 50-series/Blackwell GPU; use whichever CUDA
+# tag at https://pytorch.org/get-started/locally/ matches your own GPU/driver.)
+
+torch==2.11.0
+torchvision==0.26.0
+numpy==2.4.4
+pandas==3.0.3
+pillow==12.2.0
+scikit-learn==1.9.0
+matplotlib==3.11.0
+tqdm==4.68.3
+tensorboard==2.20.0
+h5py==3.16.0
+PyYAML==6.0.3
+pydantic==2.13.4

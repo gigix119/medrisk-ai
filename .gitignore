@@ -59,7 +59,7 @@ Thumbs.db
 *.db
 pgdata/
 
-# --- ML / data (forbidden in Phase 1, ignored defensively) ---
+# --- ML / data ---
 *.h5
 *.pt
 *.pth
@@ -70,6 +70,12 @@ pgdata/
 /models/weights/
 *.dcm
 *.svs
+
+# Phase 2 generated experiment/registry/model-bundle output - never committed, regenerated
+# by `medrisk_ml.cli train/evaluate/explain/register`. Keep the top-level placeholder so the
+# directory itself can still exist in a fresh checkout.
+/artifacts/*
+!/artifacts/.gitkeep
 
 # --- Uploads ---
 /uploads/
