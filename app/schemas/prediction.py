@@ -67,6 +67,12 @@ class PredictionRead(BaseModel):
     error_code: str | None
     safe_error_message: str | None
 
+    dataset_id: uuid.UUID | None
+    dataset_sample_id: uuid.UUID | None
+    split: str | None
+    ground_truth_label: str | None
+    is_correct: bool | None
+
     input_metadata: dict[str, Any] | None
     result: dict[str, Any] | None
     created_at: datetime

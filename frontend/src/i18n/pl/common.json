@@ -18,7 +18,8 @@
   "landing": {
     "kicker": "Projekt portfolio badawczy · Wyłącznie do celów edukacyjnych",
     "heroTitle": "Zrozum predykcję AI — nie tylko końcowy wynik.",
-    "howItWorksCta": "Zobacz, jak to działa"
+    "howItWorksCta": "Zobacz, jak to działa",
+    "noUploadNotice": "Platforma analizuje wyłącznie przygotowane próbki datasetów. Przesyłanie prywatnych obrazów medycznych nie jest obsługiwane."
   },
   "auth": {
     "login": {
@@ -59,7 +60,7 @@
     "model": "Model",
     "safety": "Bezpieczeństwo",
     "login": "Zaloguj się",
-    "tryDemo": "Zobacz demonstrację",
+    "tryDemo": "Eksploruj datasety",
     "language": "Język",
     "menu": "Menu",
     "openMenu": "Otwórz menu",
@@ -75,8 +76,8 @@
   },
   "appNav": {
     "home": "Strona główna",
-    "analyze": "Analiza",
-    "history": "Historia",
+    "datasets": "Datasety",
+    "researchRuns": "Przebiegi badawcze",
     "more": "Więcej",
     "model": "Model",
     "help": "Pomoc",
@@ -84,8 +85,8 @@
     "logout": "Wyloguj się"
   },
   "analysis": {
-    "title": "Nowa analiza",
-    "intro": "Wgraj jeden wycinek histopatologiczny, aby przeprowadzić go przez model badawczy.",
+    "title": "Inferencja badawcza",
+    "intro": "Inferencja badawcza działa wyłącznie na znanych próbkach datasetu z etykietą referencyjną - wybierz dataset, aby zacząć.",
     "disclaimer": "To narzędzie jest projektem edukacyjnym i badawczym, a nie wyrobem medycznym. Nie stawia diagnozy i nie może być podstawą decyzji klinicznych.",
     "tryAgain": "Spróbuj ponownie",
     "analyzeCta": "Analizuj obraz",
@@ -142,7 +143,35 @@
       "interpretationGuidance": "Model przypisał najwyższe prawdopodobieństwo tej kategorii. Ten wynik wymaga interpretacji specjalisty i nie jest diagnozą medyczną.",
       "limitationNotice": "To narzędzie nie stawia diagnozy medycznej. Jest demonstracją badawczą i może się mylić, zwłaszcza dla obrazów odmiennych od danych treningowych.",
       "analyzeAnother": "Analizuj kolejny obraz",
+      "runAnotherSample": "Uruchom kolejną próbkę",
       "predictedTag": "Przewidywana",
+      "groundTruth": {
+        "title": "Porównanie z etykietą referencyjną",
+        "groundTruthLabel": "Etykieta referencyjna",
+        "predictedLabel": "Etykieta przewidywana",
+        "legacyNotice": "To analiza historyczna z wgranego obrazu - nie ma etykiety referencyjnej do porównania.",
+        "match": {
+          "correct": "Predykcja prawidłowa",
+          "correctExplanation": "Etykieta przewidywana przez model zgadza się z etykietą referencyjną tej próbki.",
+          "incorrect": "Predykcja nieprawidłowa",
+          "incorrectExplanation": "Etykieta przewidywana przez model nie zgadza się z etykietą referencyjną tej próbki."
+        },
+        "errorAnalysis": {
+          "title": "Analiza błędu",
+          "predicted": "Przewidywana",
+          "actual": "Referencyjna",
+          "probabilityGap": "Różnica prawdopodobieństwa",
+          "note": "Pojedyncza nieprawidłowa predykcja sama w sobie nie oznacza, że model jest ogólnie niewiarygodny - sprawdź zbiorcze metryki ewaluacji."
+        },
+        "reproducibility": {
+          "title": "Szczegóły reprodukowalności",
+          "dataset": "Dataset",
+          "datasetVersion": "Wersja datasetu",
+          "sampleKey": "Identyfikator próbki",
+          "split": "Split",
+          "checksum": "Suma kontrolna (sha-256, skrócona)"
+        }
+      },
       "decision": {
         "negative": "Negatywny",
         "positive": "Pozytywny",
@@ -182,13 +211,128 @@
       }
     },
     "history": {
-      "title": "Historia analiz",
-      "intro": "Twoje wcześniejsze analizy. Obrazy i wizualne wyjaśnienia nie są przechowywane - tylko wynik.",
-      "loading": "Wczytywanie historii…",
-      "error": "Nie udało się wczytać historii analiz. Spróbuj ponownie.",
-      "empty": "Nie wykonałeś jeszcze żadnej analizy.",
-      "emptyCta": "Zacznij nową analizę",
-      "unknownClass": "Nieznana"
+      "title": "Przebiegi badawcze",
+      "intro": "Poprzednie przebiegi inferencji badawczej na próbkach datasetów oraz analizy historyczne. Obrazy i wizualne wyjaśnienia nie są przechowywane - tylko wynik.",
+      "loading": "Wczytywanie przebiegów badawczych…",
+      "error": "Nie udało się wczytać przebiegów badawczych. Spróbuj ponownie.",
+      "empty": "Brak przebiegów badawczych.",
+      "emptyCta": "Przeglądaj datasety",
+      "unknownClass": "Nieznana",
+      "legacyTag": "Historyczna (bez etykiety referencyjnej)",
+      "matchCorrect": "Prawidłowa",
+      "matchIncorrect": "Nieprawidłowa",
+      "filters": {
+        "dataset": "Dataset",
+        "split": "Split",
+        "predictedClass": "Klasa przewidywana",
+        "correctness": "Poprawność",
+        "allDatasets": "Wszystkie datasety",
+        "allSplits": "Wszystkie splity",
+        "allClasses": "Wszystkie klasy",
+        "any": "Każda",
+        "correct": "Prawidłowa",
+        "incorrect": "Nieprawidłowa"
+      }
+    }
+  },
+  "datasets": {
+    "explorer": {
+      "title": "Eksplorator datasetów",
+      "intro": "Przygotowane datasety badawcze do kontrolowanej inferencji. Każda próbka ma znaną etykietę referencyjną - brak dowolnego wgrywania obrazów.",
+      "loading": "Wczytywanie datasetów…",
+      "error": "Nie udało się wczytać datasetów. Spróbuj ponownie.",
+      "empty": "Brak dostępnych datasetów.",
+      "viewCta": "Eksploruj dataset",
+      "syntheticBadge": "Syntetyczny",
+      "publicBadge": "Publiczny",
+      "samplesCount": "{{count}} próbek",
+      "classesCount": "{{count}} klas"
+    },
+    "detail": {
+      "loading": "Wczytywanie datasetu…",
+      "error": "Nie udało się wczytać tego datasetu.",
+      "notFound": "Dataset nie został znaleziony.",
+      "backToExplorer": "Wróć do datasetów",
+      "overview": {
+        "title": "Przegląd datasetu",
+        "samples": "Próbki",
+        "classes": "Klasy",
+        "dimensions": "Wymiary",
+        "channels": "Kanały",
+        "splits": "Splity",
+        "preprocessing": "Przetwarzanie wstępne"
+      },
+      "intendedUse": {
+        "title": "Przeznaczenie",
+        "allowed": "Dozwolone zastosowanie",
+        "prohibited": "Niedozwolone zastosowanie",
+        "limitations": "Znane ograniczenia",
+        "ethics": "Uwagi etyczne"
+      },
+      "source": {
+        "title": "Źródło i licencja",
+        "source": "Źródło",
+        "license": "Licencja",
+        "citation": "Cytowanie"
+      },
+      "browser": {
+        "title": "Przeglądarka próbek",
+        "filterSplit": "Split",
+        "filterClass": "Klasa",
+        "allSplits": "Wszystkie splity",
+        "allClasses": "Wszystkie klasy",
+        "inspectCta": "Sprawdź próbkę",
+        "empty": "Brak próbek spełniających wybrane filtry.",
+        "previous": "Poprzednia",
+        "next": "Następna",
+        "pageInfo": "{{from}}–{{to}} z {{total}}"
+      }
+    },
+    "sampleDetail": {
+      "loading": "Wczytywanie próbki…",
+      "error": "Nie udało się wczytać tej próbki.",
+      "notFound": "Próbka nie została znaleziona.",
+      "backToDataset": "Wróć do datasetu",
+      "groundTruth": "Etykieta referencyjna",
+      "split": "Split",
+      "dimensions": "Wymiary",
+      "checksum": "Suma kontrolna (sha-256, skrócona)",
+      "syntheticBadge": "Syntetyczny",
+      "publicBadge": "Publiczny",
+      "beforeRun": {
+        "title": "Przed uruchomieniem inferencji",
+        "model": "Model",
+        "inputSize": "Wymagany rozmiar wejścia",
+        "preprocessing": "Przetwarzanie wstępne",
+        "notice": "Analizowana jest znana próbka datasetu, nie wgrany obraz - wynik zostanie porównany z etykietą referencyjną tej próbki."
+      },
+      "runCta": "Uruchom inferencję",
+      "running": "Uruchamianie inferencji…",
+      "runError": "Nie udało się przeprowadzić inferencji na tej próbce. Spróbuj ponownie."
+    }
+  },
+  "dashboard": {
+    "welcomeBack": "Witaj z powrotem, {{name}}",
+    "welcomeBackGeneric": "Witaj z powrotem",
+    "subtitle": "Eksploruj datasety badawcze i przeglądaj poprzednie przebiegi inferencji.",
+    "datasetsCard": {
+      "title": "Eksploruj datasety",
+      "body": "Przeglądaj przygotowane próbki z etykietami referencyjnymi i uruchamiaj na nich kontrolowaną inferencję badawczą.",
+      "cta": "Otwórz eksplorator datasetów"
+    },
+    "modelCard": {
+      "title": "Aktywny model",
+      "loading": "Sprawdzanie statusu modelu…",
+      "unavailable": "Żaden model histopatologiczny nie jest obecnie aktywny.",
+      "model": "Model",
+      "architecture": "Architektura"
+    },
+    "statsCard": {
+      "title": "Aktywność badawcza",
+      "datasetsAvailable": "Dostępne datasety",
+      "totalRuns": "Łączna liczba przebiegów badawczych",
+      "correct": "Prawidłowe",
+      "incorrect": "Nieprawidłowe"
     }
   }
 }

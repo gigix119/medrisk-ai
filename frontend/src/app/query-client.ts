@@ -24,7 +24,6 @@ export const queryKeys = {
   authMe: ['auth', 'me'] as const,
   modelActive: ['model', 'active'] as const,
   modelHealth: ['model', 'health'] as const,
-  predictionsHistory: (filters: Record<string, unknown>) =>
-    ['predictions', 'history', filters] as const,
+  predictionsHistory: (filters: object) => ['predictions', 'history', filters] as const,
   predictionDetail: (id: string) => ['predictions', 'detail', id] as const,
 }

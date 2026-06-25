@@ -7,15 +7,19 @@ import { ApiError } from '@/api/errors'
 import { queryKeys } from '@/app/query-client'
 import { DecisionBadge } from '@/components/prediction-result/DecisionBadge'
 import { GradCamPanel } from '@/components/prediction-result/GradCamPanel'
+import { GroundTruthPanel } from '@/components/prediction-result/GroundTruthPanel'
 import { ProbabilityBars } from '@/components/prediction-result/ProbabilityBars'
 import { SyntheticModelNotice } from '@/components/prediction-result/SyntheticModelNotice'
 import { Button } from '@/components/ui/Button'
 import { routes } from '@/config/routes'
+import type { PredictOnSampleResponse } from '@/features/datasets/api'
+import { useSampleImageUrl } from '@/features/datasets/sample-image'
 import { modelApi } from '@/features/model/api'
 import { predictionsApi, type HistopathologyPredictionResponse } from '@/features/predictions/api'
 import {
   fromHistoryRead,
   fromRichResult,
+  fromSampleResult,
   type PredictionResultViewModel,
 } from '@/features/predictions/result-view-model'
 import { formatDateTime, formatPercent } from '@/lib/format'
@@ -26,10 +30,22 @@ interface FreshResultState {
   originalFileName: string
 }
 
+interface SampleResultState {
+  sampleResult: PredictOnSampleResponse
+  datasetId: string
+  sampleId: string
+}
+
 function readFreshState(state: unknown, predictionId: string): FreshResultState | null {
   if (typeof state !== 'object' || state === null || !('result' in state)) return null
   const candidate = state as FreshResultState
   return candidate.result?.prediction_id === predictionId ? candidate : null
+}
+
+function readSampleResultState(state: unknown, predictionId: string): SampleResultState | null {
+  if (typeof state !== 'object' || state === null || !('sampleResult' in state)) return null
+  const candidate = state as SampleResultState
+  return candidate.sampleResult?.prediction_id === predictionId ? candidate : null
 }
 
 export function PredictionResultPage() {
@@ -40,6 +56,9 @@ export function PredictionResultPage() {
   const revokedRef = useRef(false)
 
   const freshState = predictionId ? readFreshState(location.state, predictionId) : null
+  const sampleResultState = predictionId
+    ? readSampleResultState(location.state, predictionId)
+    : null
 
   useEffect(() => {
     return () => {
@@ -54,10 +73,15 @@ export function PredictionResultPage() {
 
   const modelQuery = useQuery({ queryKey: queryKeys.modelActive, queryFn: modelApi.active })
 
+  const sampleImageUrl = sampleResultState
+    ? `/api/v1/datasets/${sampleResultState.datasetId}/samples/${sampleResultState.sampleId}/image`
+    : undefined
+  const { url: sampleImagePreviewUrl } = useSampleImageUrl(sampleImageUrl)
+
   const detailQuery = useQuery({
     queryKey: queryKeys.predictionDetail(predictionId ?? ''),
     queryFn: () => predictionsApi.detail(predictionId ?? ''),
-    enabled: !freshState && Boolean(predictionId),
+    enabled: !freshState && !sampleResultState && Boolean(predictionId),
   })
 
   if (!predictionId) return null
@@ -68,6 +92,17 @@ export function PredictionResultPage() {
       previewUrl: freshState.previewUrl,
       fileName: freshState.originalFileName,
     })
+    return <ResultView viewModel={viewModel} />
+  }
+
+  if (sampleResultState) {
+    const viewModel = fromSampleResult(
+      sampleResultState.sampleResult,
+      modelQuery.data?.class_names ?? null,
+      sampleImagePreviewUrl
+        ? { kind: 'available', previewUrl: sampleImagePreviewUrl, fileName: null }
+        : { kind: 'not-stored' },
+    )
     return <ResultView viewModel={viewModel} />
   }
 
@@ -135,6 +170,13 @@ function ResultView({ viewModel }: { viewModel: PredictionResultViewModel }) {
 
       <SyntheticModelNotice syntheticOnly={viewModel.syntheticOnly} />
 
+      {viewModel.groundTruth && (
+        <GroundTruthPanel
+          groundTruth={viewModel.groundTruth}
+          classProbabilities={viewModel.classProbabilities}
+        />
+      )}
+
       <div className="rounded-(--radius-lg) border border-border bg-surface p-5">
         <h2 className="text-h3 text-text-primary">{t('analysis.result.probabilities.title')}</h2>
         {viewModel.classProbabilities ? (
@@ -199,8 +241,15 @@ function ResultView({ viewModel }: { viewModel: PredictionResultViewModel }) {
       <p className="text-sm text-text-muted">{t('analysis.result.limitationNotice')}</p>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button size="full" onClick={() => navigate(routes.analyze)}>
-          {t('analysis.result.analyzeAnother')}
+        <Button
+          size="full"
+          onClick={() => navigate(viewModel.groundTruth ? routes.datasets : routes.analyze)}
+        >
+          {t(
+            viewModel.groundTruth
+              ? 'analysis.result.runAnotherSample'
+              : 'analysis.result.analyzeAnother',
+          )}
         </Button>
         <Button size="full" variant="secondary" onClick={() => navigate(routes.predictions)}>
           {t('analysis.result.backToHistory')}

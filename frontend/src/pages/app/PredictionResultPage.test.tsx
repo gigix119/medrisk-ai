@@ -4,7 +4,14 @@ import { describe, expect, it } from 'vitest'
 
 import { routes } from '@/config/routes'
 import { renderWithProviders } from '@/test/render'
-import { MOCK_PREDICTION_ID } from '@/test/handlers'
+import {
+  MOCK_DATASET_ID,
+  MOCK_PREDICT_ON_SAMPLE_RESPONSE,
+  MOCK_PREDICT_ON_SAMPLE_RESPONSE_INCORRECT,
+  MOCK_PREDICTION_ID,
+  MOCK_SAMPLE_ID_CORRECT,
+  MOCK_SAMPLE_ID_INCORRECT,
+} from '@/test/handlers'
 
 import { PredictionResultPage } from './PredictionResultPage'
 
@@ -14,6 +21,25 @@ function renderResultPage(predictionId: string) {
       <Route path={routes.predictionDetail(':predictionId')} element={<PredictionResultPage />} />
     </Routes>,
     { initialEntries: [routes.predictionDetail(predictionId)] },
+  )
+}
+
+function renderSampleResultPage(
+  sampleResult: typeof MOCK_PREDICT_ON_SAMPLE_RESPONSE,
+  sampleId: string,
+) {
+  return renderWithProviders(
+    <Routes>
+      <Route path={routes.predictionDetail(':predictionId')} element={<PredictionResultPage />} />
+    </Routes>,
+    {
+      initialEntries: [
+        {
+          pathname: routes.predictionDetail(sampleResult.prediction_id),
+          state: { sampleResult, datasetId: MOCK_DATASET_ID, sampleId },
+        },
+      ],
+    },
   )
 }
 
@@ -53,5 +79,38 @@ describe('PredictionResultPage (loaded by id, no fresh in-memory result)', () =>
     renderResultPage('99999999-9999-9999-9999-999999999999')
 
     expect(await screen.findByText(/analysis not found/i)).toBeInTheDocument()
+  })
+})
+
+describe('PredictionResultPage (fresh dataset-sample result, in-memory state)', () => {
+  it('renders a correct-match ground truth comparison and the "run another sample" CTA', async () => {
+    renderSampleResultPage(MOCK_PREDICT_ON_SAMPLE_RESPONSE, MOCK_SAMPLE_ID_CORRECT)
+
+    expect(await screen.findByText('Ground truth comparison')).toBeInTheDocument()
+    expect(screen.getByText('Correct prediction')).toBeInTheDocument()
+    expect(screen.queryByText('Error analysis')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /run another sample/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /analyze another image/i })).not.toBeInTheDocument()
+  })
+
+  it('renders an incorrect-match comparison with error analysis', async () => {
+    renderSampleResultPage(MOCK_PREDICT_ON_SAMPLE_RESPONSE_INCORRECT, MOCK_SAMPLE_ID_INCORRECT)
+
+    expect(await screen.findByText('Incorrect prediction')).toBeInTheDocument()
+    expect(screen.getByText('Error analysis')).toBeInTheDocument()
+  })
+
+  it('shows the Grad-CAM explanation returned with the sample result', async () => {
+    renderSampleResultPage(MOCK_PREDICT_ON_SAMPLE_RESPONSE, MOCK_SAMPLE_ID_CORRECT)
+
+    expect(await screen.findByText('Visual explanation (Grad-CAM)')).toBeInTheDocument()
+  })
+
+  it('exposes the reproducibility details (dataset, version, sample id, split)', async () => {
+    renderSampleResultPage(MOCK_PREDICT_ON_SAMPLE_RESPONSE, MOCK_SAMPLE_ID_CORRECT)
+
+    expect(await screen.findByText('Reproducibility details')).toBeInTheDocument()
+    expect(screen.getByText(MOCK_PREDICT_ON_SAMPLE_RESPONSE.dataset_name)).toBeInTheDocument()
+    expect(screen.getByText(MOCK_PREDICT_ON_SAMPLE_RESPONSE.dataset_version)).toBeInTheDocument()
   })
 })

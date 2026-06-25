@@ -29,6 +29,7 @@ export function LandingPage() {
           </Link>
         </div>
         <p className="text-sm text-text-muted">{t('common.disclaimer')}</p>
+        <p className="text-sm font-medium text-text-secondary">{t('landing.noUploadNotice')}</p>
       </div>
     </div>
   )

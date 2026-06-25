@@ -19,6 +19,10 @@ export interface HistoryFilters {
   status?: PredictionRead['status']
   decision?: string
   modelVersion?: string
+  datasetId?: string
+  split?: string
+  predictedClass?: string
+  isCorrect?: boolean
 }
 
 export const predictionsApi = {
@@ -49,6 +53,10 @@ export const predictionsApi = {
         status: filters.status,
         decision: filters.decision,
         model_version: filters.modelVersion,
+        dataset_id: filters.datasetId,
+        split: filters.split,
+        predicted_class: filters.predictedClass,
+        is_correct: filters.isCorrect,
       },
     })
   },

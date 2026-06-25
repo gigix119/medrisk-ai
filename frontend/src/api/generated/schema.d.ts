@@ -237,6 +237,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/datasets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available research datasets */
+        get: operations["list_datasets_api_v1_datasets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/{dataset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one dataset's metadata */
+        get: operations["get_dataset_api_v1_datasets__dataset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/{dataset_id}/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List a dataset's research samples */
+        get: operations["list_dataset_samples_api_v1_datasets__dataset_id__samples_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/{dataset_id}/samples/{sample_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one research sample's metadata */
+        get: operations["get_dataset_sample_api_v1_datasets__dataset_id__samples__sample_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/{dataset_id}/samples/{sample_id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fetch a research sample's image bytes */
+        get: operations["get_dataset_sample_image_api_v1_datasets__dataset_id__samples__sample_id__image_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/{dataset_id}/samples/{sample_id}/predict": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run research inference on a known dataset sample */
+        post: operations["predict_on_sample_api_v1_datasets__dataset_id__samples__sample_id__predict_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/": {
         parameters: {
             query?: never;
@@ -340,6 +442,122 @@ export interface components {
              * @description Optional non-sensitive client-side reference. Must not contain patient-identifying information.
              */
             client_reference?: string | null;
+        };
+        /** DatasetRead */
+        DatasetRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Version */
+            version: string;
+            /** Description */
+            description: string;
+            /** Source Name */
+            source_name: string;
+            /** Source Url */
+            source_url: string | null;
+            /** License Name */
+            license_name: string;
+            /** License Url */
+            license_url: string | null;
+            /** Citation */
+            citation: string | null;
+            /** Intended Use */
+            intended_use: string;
+            /** Prohibited Use */
+            prohibited_use: string;
+            /** Modality */
+            modality: string;
+            /** Task Type */
+            task_type: string;
+            /** Classes */
+            classes: string[];
+            /** Sample Count */
+            sample_count: number;
+            /** Image Width */
+            image_width: number;
+            /** Image Height */
+            image_height: number;
+            /** Image Channels */
+            image_channels: number;
+            /** Split Names */
+            split_names: string[];
+            /** Class Distribution */
+            class_distribution: {
+                [key: string]: unknown;
+            };
+            /** Preprocessing Summary */
+            preprocessing_summary: string | null;
+            /** Known Limitations */
+            known_limitations: string;
+            /** Ethical Notes */
+            ethical_notes: string;
+            /** Is Synthetic */
+            is_synthetic: boolean;
+            /** Is Public */
+            is_public: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** DatasetSampleRead */
+        DatasetSampleRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Dataset Id
+             * Format: uuid
+             */
+            dataset_id: string;
+            /** Sample Key */
+            sample_key: string;
+            /** Split */
+            split: string;
+            /** Filename */
+            filename: string;
+            /** Ground Truth Label */
+            ground_truth_label: string;
+            /** Class Index */
+            class_index: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Mime Type */
+            mime_type: string;
+            /** Checksum Sha256 */
+            checksum_sha256: string;
+            /** Source Reference */
+            source_reference: string | null;
+            /** License Reference */
+            license_reference: string | null;
+            /** Is Synthetic */
+            is_synthetic: boolean;
+            /** Notes */
+            notes: string | null;
+            /**
+             * Image Url
+             * @description Relative URL to GET the sample image; built by the endpoint, not a DB column.
+             */
+            image_url: string;
         };
         /** ExplanationSchema */
         ExplanationSchema: {
@@ -501,6 +719,28 @@ export interface components {
             /** Eligible For Demo */
             eligible_for_demo: boolean;
         };
+        /** Page[DatasetRead] */
+        Page_DatasetRead_: {
+            /** Items */
+            items: components["schemas"]["DatasetRead"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /** Page[DatasetSampleRead] */
+        Page_DatasetSampleRead_: {
+            /** Items */
+            items: components["schemas"]["DatasetSampleRead"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
         /** Page[PredictionRead] */
         Page_PredictionRead_: {
             /** Items */
@@ -511,6 +751,81 @@ export interface components {
             limit: number;
             /** Offset */
             offset: number;
+        };
+        /** PredictOnSampleRequest */
+        PredictOnSampleRequest: {
+            /**
+             * Include Explanation
+             * @default false
+             */
+            include_explanation: boolean;
+            /** Client Reference */
+            client_reference?: string | null;
+        };
+        /** PredictOnSampleResponse */
+        PredictOnSampleResponse: {
+            /**
+             * Prediction Id
+             * Format: uuid
+             */
+            prediction_id: string;
+            /**
+             * Dataset Id
+             * Format: uuid
+             */
+            dataset_id: string;
+            /**
+             * Dataset Sample Id
+             * Format: uuid
+             */
+            dataset_sample_id: string;
+            /** Dataset Name */
+            dataset_name: string;
+            /** Dataset Slug */
+            dataset_slug: string;
+            /** Dataset Version */
+            dataset_version: string;
+            /** Sample Key */
+            sample_key: string;
+            /** Split */
+            split: string;
+            /** Ground Truth Label */
+            ground_truth_label: string;
+            /** Predicted Class */
+            predicted_class: string;
+            /** Is Correct */
+            is_correct: boolean;
+            /** Decision */
+            decision: string;
+            /** Raw Probability */
+            raw_probability: number;
+            /** Calibrated Probability */
+            calibrated_probability: number;
+            /** Predicted Class Probability */
+            predicted_class_probability: number;
+            /** Confidence Score */
+            confidence_score: number;
+            /** Positive Class */
+            positive_class: string;
+            /** Threshold */
+            threshold: number;
+            review_policy: components["schemas"]["ReviewPolicySchema"] | null;
+            input: components["schemas"]["InputInfoSchema"];
+            model: components["schemas"]["ModelInfoSchema"];
+            timings: components["schemas"]["TimingsSchema"];
+            explanation: components["schemas"]["ExplanationSchema"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Warnings */
+            warnings?: string[];
+            /**
+             * Research Disclaimer
+             * @default This software is an educational and research portfolio project. It is not a medical device and must not be used for diagnosis, treatment decisions, or emergency medical guidance.
+             */
+            research_disclaimer: string;
         };
         /**
          * PredictionModule
@@ -605,6 +920,16 @@ export interface components {
             error_code: string | null;
             /** Safe Error Message */
             safe_error_message: string | null;
+            /** Dataset Id */
+            dataset_id: string | null;
+            /** Dataset Sample Id */
+            dataset_sample_id: string | null;
+            /** Split */
+            split: string | null;
+            /** Ground Truth Label */
+            ground_truth_label: string | null;
+            /** Is Correct */
+            is_correct: boolean | null;
             /** Input Metadata */
             input_metadata: {
                 [key: string]: unknown;
@@ -1045,6 +1370,10 @@ export interface operations {
                 model_version?: string | null;
                 created_from?: string | null;
                 created_to?: string | null;
+                dataset_id?: string | null;
+                split?: string | null;
+                predicted_class?: string | null;
+                is_correct?: boolean | null;
             };
             header?: never;
             path?: never;
@@ -1119,6 +1448,206 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ActiveModelResponse"];
+                };
+            };
+        };
+    };
+    list_datasets_api_v1_datasets_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_DatasetRead_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dataset_api_v1_datasets__dataset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_dataset_samples_api_v1_datasets__dataset_id__samples_get: {
+        parameters: {
+            query?: {
+                split?: string | null;
+                class_index?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_DatasetSampleRead_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dataset_sample_api_v1_datasets__dataset_id__samples__sample_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetSampleRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dataset_sample_image_api_v1_datasets__dataset_id__samples__sample_id__image_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "image/png": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    predict_on_sample_api_v1_datasets__dataset_id__samples__sample_id__predict_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PredictOnSampleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PredictOnSampleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

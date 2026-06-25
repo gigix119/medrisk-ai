@@ -61,12 +61,12 @@ _STATUS_BY_ERROR_CODE: dict[str, int] = {
     "EXPLANATION_FAILED": 500,
     "INFERENCE_FAILED": 500,
 }
-_GENERIC_SERVER_MESSAGE = "The inference request could not be completed due to an internal error."
+GENERIC_SERVER_MESSAGE = "The inference request could not be completed due to an internal error."
 
 
 def translate_inference_error(exc: InferenceError) -> AppError:
     status_code = _STATUS_BY_ERROR_CODE.get(exc.error_code, 500)
-    message = exc.message if status_code < 500 else _GENERIC_SERVER_MESSAGE
+    message = exc.message if status_code < 500 else GENERIC_SERVER_MESSAGE
     return AppError(message, error_code=exc.error_code, status_code=status_code)
 
 
@@ -133,7 +133,7 @@ async def run_histopathology_prediction(
     await session.commit()
 
     try:
-        result = await _predict_with_concurrency_limit(
+        result = await predict_with_concurrency_limit(
             settings=settings,
             runtime=active_model.runtime,
             semaphore=semaphore,
@@ -161,7 +161,7 @@ async def run_histopathology_prediction(
             session,
             prediction,
             error_code="INFERENCE_FAILED",
-            safe_error_message=_GENERIC_SERVER_MESSAGE,
+            safe_error_message=GENERIC_SERVER_MESSAGE,
         )
         await session.commit()
         logger.exception(
@@ -170,7 +170,7 @@ async def run_histopathology_prediction(
             prediction.id,
         )
         raise AppError(
-            _GENERIC_SERVER_MESSAGE, error_code="INFERENCE_FAILED", status_code=500
+            GENERIC_SERVER_MESSAGE, error_code="INFERENCE_FAILED", status_code=500
         ) from None
 
     final_status = (
@@ -223,7 +223,7 @@ async def run_histopathology_prediction(
     return prediction, result
 
 
-async def _predict_with_concurrency_limit(
+async def predict_with_concurrency_limit(
     *,
     settings: Settings,
     runtime: HistopathologyModelRuntime,
@@ -286,6 +286,10 @@ async def get_history(
     model_version: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
+    dataset_id: uuid.UUID | None = None,
+    split: str | None = None,
+    predicted_class: str | None = None,
+    is_correct: bool | None = None,
 ) -> tuple[list[Prediction], int]:
     return await prediction_repo.list_for_user(
         session,
@@ -298,4 +302,8 @@ async def get_history(
         model_version=model_version,
         created_from=created_from,
         created_to=created_to,
+        dataset_id=dataset_id,
+        split=split,
+        predicted_class=predicted_class,
+        is_correct=is_correct,
     )

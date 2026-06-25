@@ -18,7 +18,8 @@
   "landing": {
     "kicker": "Research portfolio project · Educational use only",
     "heroTitle": "Understand an AI prediction — not just the final number.",
-    "howItWorksCta": "See how it works"
+    "howItWorksCta": "See how it works",
+    "noUploadNotice": "This platform analyzes only curated dataset samples. Uploading private medical images is not supported."
   },
   "auth": {
     "login": {
@@ -59,7 +60,7 @@
     "model": "Model",
     "safety": "Safety",
     "login": "Log in",
-    "tryDemo": "Explore the research demo",
+    "tryDemo": "Explore datasets",
     "language": "Language",
     "menu": "Menu",
     "openMenu": "Open menu",
@@ -75,8 +76,8 @@
   },
   "appNav": {
     "home": "Home",
-    "analyze": "Analyze",
-    "history": "History",
+    "datasets": "Datasets",
+    "researchRuns": "Research runs",
     "more": "More",
     "model": "Model",
     "help": "Help",
@@ -84,8 +85,8 @@
     "logout": "Log out"
   },
   "analysis": {
-    "title": "New analysis",
-    "intro": "Upload a single histopathology patch to run it through the research model.",
+    "title": "Research inference",
+    "intro": "Research inference runs only against known dataset samples with a ground truth label - pick a dataset to begin.",
     "disclaimer": "This tool is an educational and research project, not a medical device. It does not provide a diagnosis and must not be used for clinical decisions.",
     "tryAgain": "Try again",
     "analyzeCta": "Analyze image",
@@ -142,7 +143,35 @@
       "interpretationGuidance": "The model assigned the highest probability to this category. This result requires expert interpretation and is not a medical diagnosis.",
       "limitationNotice": "This tool does not provide a medical diagnosis. It is a research demonstration and may be wrong, especially on images unlike its training data.",
       "analyzeAnother": "Analyze another image",
+      "runAnotherSample": "Run another sample",
       "predictedTag": "Predicted",
+      "groundTruth": {
+        "title": "Ground truth comparison",
+        "groundTruthLabel": "Ground truth label",
+        "predictedLabel": "Predicted label",
+        "legacyNotice": "This is a legacy analysis from an uploaded image - it has no ground truth label to compare against.",
+        "match": {
+          "correct": "Correct prediction",
+          "correctExplanation": "The model's predicted label matches this sample's ground truth label.",
+          "incorrect": "Incorrect prediction",
+          "incorrectExplanation": "The model's predicted label does not match this sample's ground truth label."
+        },
+        "errorAnalysis": {
+          "title": "Error analysis",
+          "predicted": "Predicted",
+          "actual": "Ground truth",
+          "probabilityGap": "Probability gap",
+          "note": "A single incorrect prediction does not, by itself, indicate the model is unreliable overall - review aggregate evaluation metrics for that."
+        },
+        "reproducibility": {
+          "title": "Reproducibility details",
+          "dataset": "Dataset",
+          "datasetVersion": "Dataset version",
+          "sampleKey": "Sample ID",
+          "split": "Split",
+          "checksum": "Checksum (sha-256, truncated)"
+        }
+      },
       "decision": {
         "negative": "Negative",
         "positive": "Positive",
@@ -182,13 +211,128 @@
       }
     },
     "history": {
-      "title": "Analysis history",
-      "intro": "Your past analyses. Images and visual explanations are not stored - only the result.",
-      "loading": "Loading history…",
-      "error": "We could not load your analysis history. Please try again.",
-      "empty": "You haven't analyzed any images yet.",
-      "emptyCta": "Start a new analysis",
-      "unknownClass": "Unknown"
+      "title": "Research runs",
+      "intro": "Past research inference runs against dataset samples, plus any legacy analyses. Images and visual explanations are not stored - only the result.",
+      "loading": "Loading research runs…",
+      "error": "We could not load research runs. Please try again.",
+      "empty": "No research runs yet.",
+      "emptyCta": "Browse datasets",
+      "unknownClass": "Unknown",
+      "legacyTag": "Legacy (no ground truth)",
+      "matchCorrect": "Correct",
+      "matchIncorrect": "Incorrect",
+      "filters": {
+        "dataset": "Dataset",
+        "split": "Split",
+        "predictedClass": "Predicted class",
+        "correctness": "Correctness",
+        "allDatasets": "All datasets",
+        "allSplits": "All splits",
+        "allClasses": "All classes",
+        "any": "Any",
+        "correct": "Correct",
+        "incorrect": "Incorrect"
+      }
+    }
+  },
+  "datasets": {
+    "explorer": {
+      "title": "Dataset Explorer",
+      "intro": "Curated research datasets for controlled inference. Every sample has a known ground truth label - there is no arbitrary image upload.",
+      "loading": "Loading datasets…",
+      "error": "We could not load datasets. Please try again.",
+      "empty": "No datasets are currently available.",
+      "viewCta": "Explore dataset",
+      "syntheticBadge": "Synthetic",
+      "publicBadge": "Public",
+      "samplesCount": "{{count}} samples",
+      "classesCount": "{{count}} classes"
+    },
+    "detail": {
+      "loading": "Loading dataset…",
+      "error": "We could not load this dataset.",
+      "notFound": "Dataset not found.",
+      "backToExplorer": "Back to datasets",
+      "overview": {
+        "title": "Dataset overview",
+        "samples": "Samples",
+        "classes": "Classes",
+        "dimensions": "Dimensions",
+        "channels": "Channels",
+        "splits": "Splits",
+        "preprocessing": "Preprocessing"
+      },
+      "intendedUse": {
+        "title": "Intended use",
+        "allowed": "Intended use",
+        "prohibited": "Prohibited use",
+        "limitations": "Known limitations",
+        "ethics": "Ethical notes"
+      },
+      "source": {
+        "title": "Source & license",
+        "source": "Source",
+        "license": "License",
+        "citation": "Citation"
+      },
+      "browser": {
+        "title": "Sample browser",
+        "filterSplit": "Split",
+        "filterClass": "Class",
+        "allSplits": "All splits",
+        "allClasses": "All classes",
+        "inspectCta": "Inspect sample",
+        "empty": "No samples match the current filters.",
+        "previous": "Previous",
+        "next": "Next",
+        "pageInfo": "{{from}}–{{to}} of {{total}}"
+      }
+    },
+    "sampleDetail": {
+      "loading": "Loading sample…",
+      "error": "We could not load this sample.",
+      "notFound": "Sample not found.",
+      "backToDataset": "Back to dataset",
+      "groundTruth": "Ground truth",
+      "split": "Split",
+      "dimensions": "Dimensions",
+      "checksum": "Checksum (sha-256, truncated)",
+      "syntheticBadge": "Synthetic",
+      "publicBadge": "Public",
+      "beforeRun": {
+        "title": "Before you run inference",
+        "model": "Model",
+        "inputSize": "Expected input size",
+        "preprocessing": "Preprocessing",
+        "notice": "This analyzes a known dataset sample, not an uploaded image - the result will be compared against this sample's ground truth label."
+      },
+      "runCta": "Run inference",
+      "running": "Running inference…",
+      "runError": "We could not complete inference on this sample. Please try again."
+    }
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back, {{name}}",
+    "welcomeBackGeneric": "Welcome back",
+    "subtitle": "Explore research datasets and review past inference runs.",
+    "datasetsCard": {
+      "title": "Explore datasets",
+      "body": "Browse curated, ground-truth-labeled samples and run controlled research inference against them.",
+      "cta": "Open Dataset Explorer"
+    },
+    "modelCard": {
+      "title": "Active model",
+      "loading": "Checking model status…",
+      "unavailable": "No histopathology model is currently active.",
+      "model": "Model",
+      "architecture": "Architecture"
+    },
+    "statsCard": {
+      "title": "Research activity",
+      "datasetsAvailable": "Datasets available",
+      "totalRuns": "Total research runs",
+      "correct": "Correct",
+      "incorrect": "Incorrect"
     }
   },
   "infoPages": {

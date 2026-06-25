@@ -35,7 +35,7 @@ export function AppShell() {
           {appSidebarItems.map((item) => (
             <NavLink key={item.href} to={item.href} className={navLinkClass}>
               <item.icon aria-hidden size={22} />
-              {item.label}
+              {t(item.labelKey)}
             </NavLink>
           ))}
         </nav>
@@ -84,7 +84,7 @@ export function AppShell() {
           {appBottomNavItems.map((item) =>
             item.href ? (
               <NavLink
-                key={item.label}
+                key={item.labelKey}
                 to={item.href}
                 className={({ isActive }) =>
                   isActive
@@ -93,24 +93,26 @@ export function AppShell() {
                 }
               >
                 <item.icon aria-hidden size={24} />
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ) : (
-              <Dialog.Root key={item.label} open={moreOpen} onOpenChange={setMoreOpen}>
+              <Dialog.Root key={item.labelKey} open={moreOpen} onOpenChange={setMoreOpen}>
                 <Dialog.Trigger asChild>
                   <button
                     type="button"
                     className="flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium text-text-muted"
                   >
                     <item.icon aria-hidden size={24} />
-                    {item.label}
+                    {t(item.labelKey)}
                   </button>
                 </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 z-40 bg-(--color-overlay)" />
                   <Dialog.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-2 rounded-t-(--radius-lg) bg-surface p-4 pb-(env(safe-area-inset-bottom))">
                     <div className="mb-2 flex items-center justify-between">
-                      <Dialog.Title className="text-h3 text-text-primary">More</Dialog.Title>
+                      <Dialog.Title className="text-h3 text-text-primary">
+                        {t('appNav.more')}
+                      </Dialog.Title>
                       <Dialog.Close asChild>
                         <button
                           type="button"

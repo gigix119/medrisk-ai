@@ -110,3 +110,24 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   if (response.status === 204) return undefined as T
   return (await response.json()) as T
 }
+
+/** Like apiRequest, but for binary responses (e.g. a dataset sample image) - never tries to
+ * JSON.parse the body. */
+export async function apiRequestBlob(path: string, options: RequestOptions = {}): Promise<Blob> {
+  let response = await performFetch(path, options)
+
+  const shouldRetry =
+    response.status === 401 && !options.skipAuth && options.retryOnUnauthorized !== false
+  if (shouldRetry) {
+    const newAccessToken = await tokenManager.refresh(refreshTokens)
+    if (newAccessToken) {
+      response = await performFetch(path, options)
+    }
+  }
+
+  if (!response.ok) {
+    const detail = await parseErrorBody(response)
+    throw new ApiError(response.status, detail)
+  }
+  return await response.blob()
+}

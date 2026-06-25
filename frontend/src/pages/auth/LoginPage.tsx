@@ -90,7 +90,11 @@ export function LoginPage() {
 
         <p className="text-center text-base text-text-secondary">
           {t('auth.login.noAccount')}{' '}
-          <Link to="/register" state={location.state} className="font-medium text-primary hover:underline">
+          <Link
+            to="/register"
+            state={location.state}
+            className="font-medium text-primary hover:underline"
+          >
             {t('auth.login.createAccount')}
           </Link>
         </p>

@@ -1,3 +1,4 @@
+import type { PredictOnSampleResponse } from '@/features/datasets/api'
 import type { ActiveModelResponse } from '@/features/model/api'
 
 import type { HistopathologyPredictionResponse, PredictionRead } from './api'
@@ -6,6 +7,20 @@ export interface ClassProbability {
   label: string
   probability: number
   isPredicted: boolean
+}
+
+export interface GroundTruthViewModel {
+  label: string
+  predictedLabel: string | null
+  isCorrect: boolean
+  datasetId: string
+  /** Null when this view model was built from a flat, historical PredictionRead (the
+   * dataset's display name/version/sample-key are not denormalized onto that record) -
+   * the reproducibility panel renders those rows as unavailable rather than guessing. */
+  datasetName: string | null
+  datasetVersion: string | null
+  sampleKey: string | null
+  split: string | null
 }
 
 export type GradCamViewModel =
@@ -32,6 +47,9 @@ export interface PredictionResultViewModel {
   classProbabilities: ClassProbability[] | null
   gradCam: GradCamViewModel
   image: OriginalImageViewModel
+  /** Non-null only for predictions that ran against a known dataset sample (Phase 6) - null
+   * for both the legacy upload flow and for historical reads where this wasn't recorded. */
+  groundTruth: GroundTruthViewModel | null
 }
 
 function buildClassProbabilities(
@@ -91,6 +109,7 @@ export function fromRichResult(
     ),
     gradCam: mapExplanation(result.explanation),
     image,
+    groundTruth: null,
   }
 }
 
@@ -121,5 +140,55 @@ export function fromHistoryRead(
       : null,
     gradCam: { kind: 'unavailable', reason: 'never_persisted' },
     image: { kind: 'not-stored' },
+    groundTruth:
+      prediction.dataset_id && prediction.ground_truth_label
+        ? {
+            label: prediction.ground_truth_label,
+            predictedLabel: prediction.predicted_class,
+            isCorrect: Boolean(prediction.is_correct),
+            datasetId: prediction.dataset_id,
+            datasetName: null,
+            datasetVersion: null,
+            sampleKey: null,
+            split: prediction.split,
+          }
+        : null,
+  }
+}
+
+export function fromSampleResult(
+  result: PredictOnSampleResponse,
+  classNames: readonly [string, string] | null,
+  image: OriginalImageViewModel,
+): PredictionResultViewModel {
+  return {
+    predictionId: result.prediction_id,
+    status: 'completed',
+    decision: result.decision,
+    predictedClass: result.predicted_class,
+    confidenceScore: result.confidence_score,
+    calibratedProbability: result.calibrated_probability,
+    modelName: result.model.model_name,
+    modelVersion: result.model.version,
+    syntheticOnly: result.model.synthetic_only,
+    createdAt: result.created_at,
+    classProbabilities: buildClassProbabilities(
+      result.calibrated_probability,
+      result.predicted_class,
+      result.positive_class,
+      classNames,
+    ),
+    gradCam: mapExplanation(result.explanation),
+    image,
+    groundTruth: {
+      label: result.ground_truth_label,
+      predictedLabel: result.predicted_class,
+      isCorrect: result.is_correct,
+      datasetId: result.dataset_id,
+      datasetName: result.dataset_name,
+      datasetVersion: result.dataset_version,
+      sampleKey: result.sample_key,
+      split: result.split,
+    },
   }
 }

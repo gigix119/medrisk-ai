@@ -27,6 +27,10 @@ os.environ["ENVIRONMENT"] = "test"
 
 _MODEL_BUNDLE_DIR = Path(tempfile.mkdtemp(prefix="medrisk-test-bundle-"))
 
+# Not underscore-prefixed: tests/integration/conftest.py imports this to write fixture
+# images under the same root the app's Settings.DATASETS_ROOT is pointed at below.
+TEST_DATASETS_ROOT = Path(tempfile.mkdtemp(prefix="medrisk-test-datasets-"))
+
 
 def _build_integration_test_bundle() -> Path:
     from tests.inference.fixtures.builder import build_constant_output_bundle
@@ -47,3 +51,4 @@ os.environ["MODEL_DEVICE"] = "cpu"
 os.environ["MODEL_WARMUP_ENABLED"] = "true"
 os.environ["GRADCAM_ENABLED"] = "true"
 os.environ["ALLOW_SYNTHETIC_MODEL"] = "true"
+os.environ["DATASETS_ROOT"] = str(TEST_DATASETS_ROOT)

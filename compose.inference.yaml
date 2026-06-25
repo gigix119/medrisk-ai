@@ -60,6 +60,8 @@ services:
     command: >
       sh -c "python -m scripts.wait_for_db &&
              alembic upgrade head &&
+             python -m scripts.seed_dev_user &&
+             python -m scripts.seed_dataset &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"]

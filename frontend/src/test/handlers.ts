@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw'
 
+import type {
+  DatasetRead,
+  DatasetSampleRead,
+  PredictOnSampleResponse,
+} from '@/features/datasets/api'
 import type { ActiveModelResponse } from '@/features/model/api'
 import type { HistopathologyPredictionResponse, PredictionRead } from '@/features/predictions/api'
 
@@ -143,11 +148,171 @@ export const MOCK_PREDICTION_READ: PredictionRead = {
   explanation_status: 'not_requested',
   error_code: null,
   safe_error_message: null,
+  dataset_id: null,
+  dataset_sample_id: null,
+  split: null,
+  ground_truth_label: null,
+  is_correct: null,
   input_metadata: null,
   result: null,
   created_at: '2026-06-20T10:00:05Z',
   updated_at: '2026-06-20T10:00:05Z',
   completed_at: '2026-06-20T10:00:05Z',
+}
+
+export const MOCK_DATASET_ID = '33333333-3333-3333-3333-333333333333'
+export const MOCK_SAMPLE_ID_CORRECT = '44444444-4444-4444-4444-444444444444'
+export const MOCK_SAMPLE_ID_INCORRECT = '55555555-5555-5555-5555-555555555555'
+
+export const MOCK_DATASET: DatasetRead = {
+  id: MOCK_DATASET_ID,
+  slug: 'synthetic-histopathology-demo',
+  name: 'Synthetic Histopathology Demonstration Dataset',
+  version: '1.0.0',
+  description:
+    'A synthetic, procedurally generated dataset used to demonstrate this research platform. It does not contain real tissue images.',
+  source_name: 'Generated in-house (medrisk_ml.data.synthetic)',
+  source_url: null,
+  license_name: 'Project-internal, synthetic-only',
+  license_url: null,
+  citation: null,
+  intended_use: 'Demonstrating the inference and explanation pipeline end to end.',
+  prohibited_use: 'Must never be treated as medical evidence or used for diagnosis.',
+  modality: 'synthetic-histopathology',
+  task_type: 'binary-classification',
+  classes: ['normal', 'tumor'],
+  sample_count: 2,
+  image_width: 96,
+  image_height: 96,
+  image_channels: 3,
+  split_names: ['train', 'val', 'test'],
+  class_distribution: { normal: 1, tumor: 1 },
+  preprocessing_summary: 'Resized to 96x96, normalized per-channel.',
+  known_limitations: 'Synthetic only - not representative of real tissue variability.',
+  ethical_notes: 'No real patient data is involved at any stage.',
+  is_synthetic: true,
+  is_public: true,
+  is_active: true,
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+}
+
+export const MOCK_DATASET_SAMPLE_CORRECT: DatasetSampleRead = {
+  id: MOCK_SAMPLE_ID_CORRECT,
+  dataset_id: MOCK_DATASET_ID,
+  sample_key: 'train-0000',
+  split: 'train',
+  filename: '0000.png',
+  ground_truth_label: 'normal',
+  class_index: 0,
+  width: 96,
+  height: 96,
+  mime_type: 'image/png',
+  checksum_sha256: 'b'.repeat(64),
+  source_reference: null,
+  license_reference: null,
+  is_synthetic: true,
+  notes: null,
+  image_url: `/api/v1/datasets/${MOCK_DATASET_ID}/samples/${MOCK_SAMPLE_ID_CORRECT}/image`,
+}
+
+export const MOCK_DATASET_SAMPLE_INCORRECT: DatasetSampleRead = {
+  id: MOCK_SAMPLE_ID_INCORRECT,
+  dataset_id: MOCK_DATASET_ID,
+  sample_key: 'train-0001',
+  split: 'train',
+  filename: '0001.png',
+  ground_truth_label: 'tumor',
+  class_index: 1,
+  width: 96,
+  height: 96,
+  mime_type: 'image/png',
+  checksum_sha256: 'c'.repeat(64),
+  source_reference: null,
+  license_reference: null,
+  is_synthetic: true,
+  notes: null,
+  image_url: `/api/v1/datasets/${MOCK_DATASET_ID}/samples/${MOCK_SAMPLE_ID_INCORRECT}/image`,
+}
+
+const MOCK_DATASET_SAMPLES = [MOCK_DATASET_SAMPLE_CORRECT, MOCK_DATASET_SAMPLE_INCORRECT]
+
+function predictOnSampleResponse(sample: DatasetSampleRead): PredictOnSampleResponse {
+  const predictedClass = 'normal'
+  return {
+    prediction_id: '66666666-6666-6666-6666-666666666666',
+    dataset_id: MOCK_DATASET_ID,
+    dataset_sample_id: sample.id,
+    dataset_name: MOCK_DATASET.name,
+    dataset_slug: MOCK_DATASET.slug,
+    dataset_version: MOCK_DATASET.version,
+    sample_key: sample.sample_key,
+    split: sample.split,
+    ground_truth_label: sample.ground_truth_label,
+    predicted_class: predictedClass,
+    is_correct: predictedClass === sample.ground_truth_label,
+    decision: 'negative',
+    raw_probability: 0.12,
+    calibrated_probability: 0.12,
+    predicted_class_probability: 0.88,
+    confidence_score: 0.88,
+    positive_class: 'tumor',
+    threshold: 0.5,
+    review_policy: { negative_probability_max: 0.3, positive_probability_min: 0.7 },
+    input: {
+      sha256: 'a'.repeat(64),
+      format: 'PNG',
+      mime_type: 'image/png',
+      size_bytes: 18136,
+      original_width: 96,
+      original_height: 96,
+      processed_width: 96,
+      processed_height: 96,
+    },
+    model: {
+      model_id: 'smoke-baseline-cnn',
+      model_name: 'Smoke Baseline CNN',
+      version: '0.0.1-smoke',
+      architecture: 'baseline_cnn',
+      synthetic_only: true,
+      eligible_for_demo: false,
+    },
+    timings: {
+      validation_ms: 1.1,
+      preprocessing_ms: 0.8,
+      inference_ms: 5.2,
+      calibration_ms: 0.1,
+      explanation_ms: 12.3,
+      total_ms: 19.5,
+    },
+    explanation: {
+      status: 'available',
+      method: 'grad_cam',
+      target_layer: 'features.-1 (last conv block)',
+      mime_type: 'image/png',
+      encoding: 'base64',
+      data: TINY_PNG_BASE64,
+      width: 96,
+      height: 96,
+      generation_time_ms: 12.3,
+      error_code: null,
+      disclaimer:
+        'Grad-CAM highlights regions associated with the model output. It is not a biological explanation and must not be used as a diagnosis.',
+    },
+    created_at: '2026-06-20T10:00:05Z',
+    warnings: ['This dataset is synthetic and demonstrative.'],
+    research_disclaimer: 'This software is an educational and research portfolio project.',
+  }
+}
+
+export const MOCK_PREDICT_ON_SAMPLE_RESPONSE = predictOnSampleResponse(MOCK_DATASET_SAMPLE_CORRECT)
+export const MOCK_PREDICT_ON_SAMPLE_RESPONSE_INCORRECT = predictOnSampleResponse(
+  MOCK_DATASET_SAMPLE_INCORRECT,
+)
+
+function pngBytes(): Uint8Array {
+  const binary = atob(TINY_PNG_BASE64)
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0))
 }
 
 export const handlers = [
@@ -208,5 +373,70 @@ export const handlers = [
       )
     }
     return HttpResponse.json(MOCK_PREDICTION_READ)
+  }),
+
+  http.get(`${API_BASE}/api/v1/datasets`, () => {
+    return HttpResponse.json({ items: [MOCK_DATASET], total: 1, limit: 20, offset: 0 })
+  }),
+
+  http.get(`${API_BASE}/api/v1/datasets/:datasetId`, ({ params }) => {
+    if (params.datasetId !== MOCK_DATASET_ID) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Dataset not found.' } },
+        { status: 404 },
+      )
+    }
+    return HttpResponse.json(MOCK_DATASET)
+  }),
+
+  http.get(`${API_BASE}/api/v1/datasets/:datasetId/samples`, ({ params, request }) => {
+    if (params.datasetId !== MOCK_DATASET_ID) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Dataset not found.' } },
+        { status: 404 },
+      )
+    }
+    const url = new URL(request.url)
+    const split = url.searchParams.get('split')
+    const classIndex = url.searchParams.get('class_index')
+    const items = MOCK_DATASET_SAMPLES.filter(
+      (sample) =>
+        (!split || sample.split === split) &&
+        (classIndex === null || sample.class_index === Number(classIndex)),
+    )
+    return HttpResponse.json({ items, total: items.length, limit: 20, offset: 0 })
+  }),
+
+  http.get(`${API_BASE}/api/v1/datasets/:datasetId/samples/:sampleId`, ({ params }) => {
+    const sample = MOCK_DATASET_SAMPLES.find((item) => item.id === params.sampleId)
+    if (params.datasetId !== MOCK_DATASET_ID || !sample) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Dataset sample not found.' } },
+        { status: 404 },
+      )
+    }
+    return HttpResponse.json(sample)
+  }),
+
+  http.get(`${API_BASE}/api/v1/datasets/:datasetId/samples/:sampleId/image`, ({ params }) => {
+    const sample = MOCK_DATASET_SAMPLES.find((item) => item.id === params.sampleId)
+    if (params.datasetId !== MOCK_DATASET_ID || !sample) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Dataset sample not found.' } },
+        { status: 404 },
+      )
+    }
+    return new HttpResponse(pngBytes(), { headers: { 'Content-Type': 'image/png' } })
+  }),
+
+  http.post(`${API_BASE}/api/v1/datasets/:datasetId/samples/:sampleId/predict`, ({ params }) => {
+    const sample = MOCK_DATASET_SAMPLES.find((item) => item.id === params.sampleId)
+    if (params.datasetId !== MOCK_DATASET_ID || !sample) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Dataset sample not found.' } },
+        { status: 404 },
+      )
+    }
+    return HttpResponse.json(predictOnSampleResponse(sample), { status: 201 })
   }),
 ]

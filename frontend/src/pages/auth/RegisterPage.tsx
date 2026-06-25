@@ -131,7 +131,11 @@ export function RegisterPage() {
 
         <p className="text-center text-base text-text-secondary">
           {t('auth.register.haveAccount')}{' '}
-          <Link to="/login" state={location.state} className="font-medium text-primary hover:underline">
+          <Link
+            to="/login"
+            state={location.state}
+            className="font-medium text-primary hover:underline"
+          >
             {t('auth.register.login')}
           </Link>
         </p>

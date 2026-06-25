@@ -482,6 +482,73 @@
               ],
               "title": "Created To"
             }
+          },
+          {
+            "name": "dataset_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "split",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Split"
+            }
+          },
+          {
+            "name": "predicted_class",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Predicted Class"
+            }
+          },
+          {
+            "name": "is_correct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Correct"
+            }
           }
         ],
         "responses": {
@@ -580,6 +647,401 @@
             "OAuth2PasswordBearer": []
           }
         ]
+      }
+    },
+    "/api/v1/datasets": {
+      "get": {
+        "tags": [
+          "datasets"
+        ],
+        "summary": "List available research datasets",
+        "operationId": "list_datasets_api_v1_datasets_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_DatasetRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/datasets/{dataset_id}": {
+      "get": {
+        "tags": [
+          "datasets"
+        ],
+        "summary": "Get one dataset's metadata",
+        "operationId": "get_dataset_api_v1_datasets__dataset_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/datasets/{dataset_id}/samples": {
+      "get": {
+        "tags": [
+          "datasets"
+        ],
+        "summary": "List a dataset's research samples",
+        "operationId": "list_dataset_samples_api_v1_datasets__dataset_id__samples_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "split",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Split"
+            }
+          },
+          {
+            "name": "class_index",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Index"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_DatasetSampleRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/datasets/{dataset_id}/samples/{sample_id}": {
+      "get": {
+        "tags": [
+          "datasets"
+        ],
+        "summary": "Get one research sample's metadata",
+        "operationId": "get_dataset_sample_api_v1_datasets__dataset_id__samples__sample_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "sample_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Sample Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetSampleRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/datasets/{dataset_id}/samples/{sample_id}/image": {
+      "get": {
+        "tags": [
+          "datasets"
+        ],
+        "summary": "Fetch a research sample's image bytes",
+        "operationId": "get_dataset_sample_image_api_v1_datasets__dataset_id__samples__sample_id__image_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "sample_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Sample Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "image/png": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/datasets/{dataset_id}/samples/{sample_id}/predict": {
+      "post": {
+        "tags": [
+          "datasets"
+        ],
+        "summary": "Run research inference on a known dataset sample",
+        "operationId": "predict_on_sample_api_v1_datasets__dataset_id__samples__sample_id__predict_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "sample_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Sample Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictOnSampleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictOnSampleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/": {
@@ -817,6 +1279,309 @@
           "file"
         ],
         "title": "Body_predict_histopathology_api_v1_predictions_histopathology_post"
+      },
+      "DatasetRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "source_name": {
+            "type": "string",
+            "title": "Source Name"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "license_name": {
+            "type": "string",
+            "title": "License Name"
+          },
+          "license_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Url"
+          },
+          "citation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citation"
+          },
+          "intended_use": {
+            "type": "string",
+            "title": "Intended Use"
+          },
+          "prohibited_use": {
+            "type": "string",
+            "title": "Prohibited Use"
+          },
+          "modality": {
+            "type": "string",
+            "title": "Modality"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type"
+          },
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "sample_count": {
+            "type": "integer",
+            "title": "Sample Count"
+          },
+          "image_width": {
+            "type": "integer",
+            "title": "Image Width"
+          },
+          "image_height": {
+            "type": "integer",
+            "title": "Image Height"
+          },
+          "image_channels": {
+            "type": "integer",
+            "title": "Image Channels"
+          },
+          "split_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Split Names"
+          },
+          "class_distribution": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Class Distribution"
+          },
+          "preprocessing_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preprocessing Summary"
+          },
+          "known_limitations": {
+            "type": "string",
+            "title": "Known Limitations"
+          },
+          "ethical_notes": {
+            "type": "string",
+            "title": "Ethical Notes"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          },
+          "is_public": {
+            "type": "boolean",
+            "title": "Is Public"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "version",
+          "description",
+          "source_name",
+          "source_url",
+          "license_name",
+          "license_url",
+          "citation",
+          "intended_use",
+          "prohibited_use",
+          "modality",
+          "task_type",
+          "classes",
+          "sample_count",
+          "image_width",
+          "image_height",
+          "image_channels",
+          "split_names",
+          "class_distribution",
+          "preprocessing_summary",
+          "known_limitations",
+          "ethical_notes",
+          "is_synthetic",
+          "is_public",
+          "is_active",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DatasetRead"
+      },
+      "DatasetSampleRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Id"
+          },
+          "sample_key": {
+            "type": "string",
+            "title": "Sample Key"
+          },
+          "split": {
+            "type": "string",
+            "title": "Split"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "ground_truth_label": {
+            "type": "string",
+            "title": "Ground Truth Label"
+          },
+          "class_index": {
+            "type": "integer",
+            "title": "Class Index"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "mime_type": {
+            "type": "string",
+            "title": "Mime Type"
+          },
+          "checksum_sha256": {
+            "type": "string",
+            "title": "Checksum Sha256"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference"
+          },
+          "license_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Reference"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url",
+            "description": "Relative URL to GET the sample image; built by the endpoint, not a DB column."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_id",
+          "sample_key",
+          "split",
+          "filename",
+          "ground_truth_label",
+          "class_index",
+          "width",
+          "height",
+          "mime_type",
+          "checksum_sha256",
+          "source_reference",
+          "license_reference",
+          "is_synthetic",
+          "notes",
+          "image_url"
+        ],
+        "title": "DatasetSampleRead"
       },
       "ExplanationSchema": {
         "properties": {
@@ -1286,6 +2051,68 @@
         ],
         "title": "ModelInfoSchema"
       },
+      "Page_DatasetRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[DatasetRead]"
+      },
+      "Page_DatasetSampleRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetSampleRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[DatasetSampleRead]"
+      },
       "Page_PredictionRead_": {
         "properties": {
           "items": {
@@ -1316,6 +2143,175 @@
           "offset"
         ],
         "title": "Page[PredictionRead]"
+      },
+      "PredictOnSampleRequest": {
+        "properties": {
+          "include_explanation": {
+            "type": "boolean",
+            "title": "Include Explanation",
+            "default": false
+          },
+          "client_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Reference"
+          }
+        },
+        "type": "object",
+        "title": "PredictOnSampleRequest"
+      },
+      "PredictOnSampleResponse": {
+        "properties": {
+          "prediction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Prediction Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Id"
+          },
+          "dataset_sample_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Sample Id"
+          },
+          "dataset_name": {
+            "type": "string",
+            "title": "Dataset Name"
+          },
+          "dataset_slug": {
+            "type": "string",
+            "title": "Dataset Slug"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "sample_key": {
+            "type": "string",
+            "title": "Sample Key"
+          },
+          "split": {
+            "type": "string",
+            "title": "Split"
+          },
+          "ground_truth_label": {
+            "type": "string",
+            "title": "Ground Truth Label"
+          },
+          "predicted_class": {
+            "type": "string",
+            "title": "Predicted Class"
+          },
+          "is_correct": {
+            "type": "boolean",
+            "title": "Is Correct"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision"
+          },
+          "raw_probability": {
+            "type": "number",
+            "title": "Raw Probability"
+          },
+          "calibrated_probability": {
+            "type": "number",
+            "title": "Calibrated Probability"
+          },
+          "predicted_class_probability": {
+            "type": "number",
+            "title": "Predicted Class Probability"
+          },
+          "confidence_score": {
+            "type": "number",
+            "title": "Confidence Score"
+          },
+          "positive_class": {
+            "type": "string",
+            "title": "Positive Class"
+          },
+          "threshold": {
+            "type": "number",
+            "title": "Threshold"
+          },
+          "review_policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReviewPolicySchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/InputInfoSchema"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ModelInfoSchema"
+          },
+          "timings": {
+            "$ref": "#/components/schemas/TimingsSchema"
+          },
+          "explanation": {
+            "$ref": "#/components/schemas/ExplanationSchema"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "research_disclaimer": {
+            "type": "string",
+            "title": "Research Disclaimer",
+            "default": "This software is an educational and research portfolio project. It is not a medical device and must not be used for diagnosis, treatment decisions, or emergency medical guidance."
+          }
+        },
+        "type": "object",
+        "required": [
+          "prediction_id",
+          "dataset_id",
+          "dataset_sample_id",
+          "dataset_name",
+          "dataset_slug",
+          "dataset_version",
+          "sample_key",
+          "split",
+          "ground_truth_label",
+          "predicted_class",
+          "is_correct",
+          "decision",
+          "raw_probability",
+          "calibrated_probability",
+          "predicted_class_probability",
+          "confidence_score",
+          "positive_class",
+          "threshold",
+          "review_policy",
+          "input",
+          "model",
+          "timings",
+          "explanation",
+          "created_at"
+        ],
+        "title": "PredictOnSampleResponse"
       },
       "PredictionModule": {
         "type": "string",
@@ -1689,6 +2685,63 @@
             ],
             "title": "Safe Error Message"
           },
+          "dataset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Id"
+          },
+          "dataset_sample_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Sample Id"
+          },
+          "split": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split"
+          },
+          "ground_truth_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ground Truth Label"
+          },
+          "is_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Correct"
+          },
           "input_metadata": {
             "anyOf": [
               {
@@ -1771,6 +2824,11 @@
           "explanation_status",
           "error_code",
           "safe_error_message",
+          "dataset_id",
+          "dataset_sample_id",
+          "split",
+          "ground_truth_label",
+          "is_correct",
           "input_metadata",
           "result",
           "created_at",

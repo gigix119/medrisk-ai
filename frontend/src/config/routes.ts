@@ -15,6 +15,10 @@ export const routes = {
   // Authenticated
   app: '/app',
   analyze: '/app/analyze',
+  datasets: '/app/datasets',
+  datasetDetail: (datasetId: string) => `/app/datasets/${datasetId}`,
+  datasetSampleDetail: (datasetId: string, sampleId: string) =>
+    `/app/datasets/${datasetId}/samples/${sampleId}`,
   predictions: '/app/predictions',
   predictionDetail: (id: string) => `/app/predictions/${id}`,
   appModel: '/app/model',

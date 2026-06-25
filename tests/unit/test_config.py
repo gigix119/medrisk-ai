@@ -25,6 +25,8 @@ def _base_kwargs(**overrides: object) -> dict[str, object]:
         "MODEL_REQUIRED": False,
         "MODEL_BUNDLE_PATH": None,
         "ALLOW_SYNTHETIC_MODEL": False,
+        "DEV_SEED_USER_EMAIL": None,
+        "DEV_SEED_USER_PASSWORD": None,
     }
     kwargs.update(overrides)
     return kwargs
@@ -78,6 +80,30 @@ def test_production_rejects_allow_synthetic_model() -> None:
                 ALLOW_SYNTHETIC_MODEL=True,
             )
         )
+
+
+def test_production_rejects_dev_seed_user_email() -> None:
+    with pytest.raises(ValidationError, match="DEV_SEED_USER"):
+        Settings(
+            **_base_kwargs(
+                ENVIRONMENT="production",
+                JWT_SECRET_KEY="x" * 64,
+                MODEL_REQUIRED=True,
+                DEV_SEED_USER_EMAIL="dev@example.com",
+            )
+        )
+
+
+def test_development_accepts_dev_seed_user_credentials() -> None:
+    settings = Settings(
+        **_base_kwargs(
+            ENVIRONMENT="development",
+            JWT_SECRET_KEY="x" * 64,
+            DEV_SEED_USER_EMAIL="dev@example.com",
+            DEV_SEED_USER_PASSWORD="some-password",
+        )
+    )
+    assert settings.DEV_SEED_USER_EMAIL == "dev@example.com"
 
 
 def test_development_does_not_require_model_required() -> None:

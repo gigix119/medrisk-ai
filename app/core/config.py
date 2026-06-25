@@ -103,6 +103,15 @@ class Settings(BaseSettings):
     GRADCAM_ENABLED: bool = True
     GRADCAM_MAX_OUTPUT_BYTES: int = 500_000
 
+    # --- Dataset registry (Phase 6) ---
+    DATASETS_ROOT: str = "artifacts/datasets"
+
+    # --- Local-dev-only account/data seeding (Phase 6) ---
+    # Never set in production - see validate_dev_seed_not_in_production below. Sourced only
+    # from the untracked .env file; never given a default, never logged.
+    DEV_SEED_USER_EMAIL: str | None = None
+    DEV_SEED_USER_PASSWORD: SecretStr | None = None
+
     @field_validator("CORS_ORIGINS", "ALLOWED_HOSTS", mode="before")
     @classmethod
     def parse_comma_separated_lists(cls, value: Any) -> Any:
@@ -147,6 +156,20 @@ class Settings(BaseSettings):
             raise ValueError("ALLOW_SYNTHETIC_MODEL must be false when ENVIRONMENT=production.")
         if not self.MODEL_REQUIRED:
             raise ValueError("MODEL_REQUIRED must be true when ENVIRONMENT=production.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_dev_seed_not_in_production(self) -> "Settings":
+        """The dev-only account/dataset seed scripts must be structurally incapable of
+        running in production - fail startup loudly rather than silently skip, consistent
+        with this file's fail-fast philosophy."""
+        if self.ENVIRONMENT != "production":
+            return self
+        if self.DEV_SEED_USER_EMAIL is not None or self.DEV_SEED_USER_PASSWORD is not None:
+            raise ValueError(
+                "DEV_SEED_USER_EMAIL/DEV_SEED_USER_PASSWORD must not be set when "
+                "ENVIRONMENT=production."
+            )
         return self
 
 

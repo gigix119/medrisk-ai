@@ -183,6 +183,10 @@ async def get_history(
     model_version: Annotated[str | None, Query(max_length=50)] = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
+    dataset_id: uuid.UUID | None = None,
+    split: Annotated[str | None, Query(max_length=20)] = None,
+    predicted_class: Annotated[str | None, Query(max_length=50)] = None,
+    is_correct: bool | None = None,
 ) -> Page[PredictionRead]:
     items, total = await prediction_service.get_history(
         session,
@@ -195,6 +199,10 @@ async def get_history(
         model_version=model_version,
         created_from=created_from,
         created_to=created_to,
+        dataset_id=dataset_id,
+        split=split,
+        predicted_class=predicted_class,
+        is_correct=is_correct,
     )
     return Page[PredictionRead](
         items=[PredictionRead.model_validate(item) for item in items],

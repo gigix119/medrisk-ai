@@ -7,6 +7,9 @@ import { ScrollToTop } from '@/components/layout/ScrollToTop'
 import { routes } from '@/config/routes'
 import { AnalyzePage } from '@/pages/app/AnalyzePage'
 import { DashboardPage } from '@/pages/app/DashboardPage'
+import { DatasetDetailPage } from '@/pages/app/DatasetDetailPage'
+import { DatasetExplorerPage } from '@/pages/app/DatasetExplorerPage'
+import { DatasetSampleDetailPage } from '@/pages/app/DatasetSampleDetailPage'
 import { PredictionHistoryPage } from '@/pages/app/PredictionHistoryPage'
 import { PredictionResultPage } from '@/pages/app/PredictionResultPage'
 import { PreferencesPage } from '@/pages/app/PreferencesPage'
@@ -47,6 +50,12 @@ export function AppRoutes() {
         >
           <Route path={routes.app} element={<DashboardPage />} />
           <Route path={routes.analyze} element={<AnalyzePage />} />
+          <Route path={routes.datasets} element={<DatasetExplorerPage />} />
+          <Route path={routes.datasetDetail(':datasetId')} element={<DatasetDetailPage />} />
+          <Route
+            path={routes.datasetSampleDetail(':datasetId', ':sampleId')}
+            element={<DatasetSampleDetailPage />}
+          />
           <Route path={routes.predictions} element={<PredictionHistoryPage />} />
           <Route
             path={routes.predictionDetail(':predictionId')}

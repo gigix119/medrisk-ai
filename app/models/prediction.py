@@ -108,6 +108,18 @@ class Prediction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     safe_error_message: Mapped[str | None] = mapped_column(String(500), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # --- Phase 6: dataset-sample provenance (NULL for legacy upload-based predictions -
+    # never fabricate a ground truth for a row that didn't come from the dataset registry) ---
+    dataset_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("datasets.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    dataset_sample_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("dataset_samples.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    split: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    ground_truth_label: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    is_correct: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+
     def __repr__(self) -> str:
         return (
             f"Prediction(id={self.id!r}, user_id={self.user_id!r}, "

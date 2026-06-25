@@ -18,6 +18,8 @@ async def create_pending(
     module: PredictionModule,
     request_id: str | None,
     client_reference: str | None,
+    dataset_id: uuid.UUID | None = None,
+    dataset_sample_id: uuid.UUID | None = None,
 ) -> Prediction:
     prediction = Prediction(
         user_id=user_id,
@@ -25,6 +27,8 @@ async def create_pending(
         status=PredictionStatus.PENDING,
         request_id=request_id,
         client_reference=client_reference,
+        dataset_id=dataset_id,
+        dataset_sample_id=dataset_sample_id,
     )
     session.add(prediction)
     await session.flush()
@@ -67,6 +71,9 @@ async def mark_completed(
     total_time_ms: float,
     explanation_requested: bool,
     explanation_status: str,
+    split: str | None = None,
+    ground_truth_label: str | None = None,
+    is_correct: bool | None = None,
 ) -> None:
     prediction.status = status
     prediction.input_metadata = input_metadata
@@ -100,6 +107,9 @@ async def mark_completed(
     prediction.total_time_ms = total_time_ms
     prediction.explanation_requested = explanation_requested
     prediction.explanation_status = explanation_status
+    prediction.split = split
+    prediction.ground_truth_label = ground_truth_label
+    prediction.is_correct = is_correct
     prediction.completed_at = datetime.now(UTC)
     await session.flush()
 
@@ -139,6 +149,10 @@ async def list_for_user(
     model_version: str | None = None,
     created_from: datetime | None = None,
     created_to: datetime | None = None,
+    dataset_id: uuid.UUID | None = None,
+    split: str | None = None,
+    predicted_class: str | None = None,
+    is_correct: bool | None = None,
 ) -> tuple[list[Prediction], int]:
     """Return one page of a user's predictions (newest first, id as a stable tie-breaker),
     plus the total count matching the same filters."""
@@ -155,6 +169,14 @@ async def list_for_user(
         base_query = base_query.where(Prediction.created_at >= created_from)
     if created_to is not None:
         base_query = base_query.where(Prediction.created_at <= created_to)
+    if dataset_id is not None:
+        base_query = base_query.where(Prediction.dataset_id == dataset_id)
+    if split is not None:
+        base_query = base_query.where(Prediction.split == split)
+    if predicted_class is not None:
+        base_query = base_query.where(Prediction.predicted_class == predicted_class)
+    if is_correct is not None:
+        base_query = base_query.where(Prediction.is_correct == is_correct)
 
     total_result = await session.execute(select(func.count()).select_from(base_query.subquery()))
     total = total_result.scalar_one()
