@@ -1,0 +1,26 @@
+@theme {
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: ease-out;
+}
+
+/* Reduced motion: honor the OS preference and the in-app accessibility preference
+   (data-motion="reduced", set by the accessibility-preferences feature) identically. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}

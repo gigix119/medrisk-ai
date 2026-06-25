@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "product": "Product",
+    "howItWorks": "How it works",
+    "technology": "Technology",
+    "model": "Model",
+    "safety": "Safety",
+    "login": "Log in",
+    "tryDemo": "Explore the research demo",
+    "language": "Language"
+  },
+  "footer": {
+    "disclaimer": "Research portfolio project. Educational use only - not a medical device."
+  },
+  "appNav": {
+    "home": "Home",
+    "analyze": "Analyze",
+    "history": "History",
+    "more": "More",
+    "model": "Model",
+    "help": "Help",
+    "preferences": "Accessibility",
+    "logout": "Log out"
+  },
+  "analysis": {
+    "title": "New analysis",
+    "intro": "Upload a single histopathology patch to run it through the research model.",
+    "disclaimer": "This tool is an educational and research project, not a medical device. It does not provide a diagnosis and must not be used for clinical decisions.",
+    "tryAgain": "Try again",
+    "analyzeCta": "Analyze image",
+    "analyzing": "Analyzing…",
+    "submitError": "Something went wrong while analyzing this image. Please try again.",
+    "upload": {
+      "dropTitle": "Drag and drop an image, or click to choose a file",
+      "dropHint": "PNG or JPEG only.",
+      "inputLabel": "Choose an image file",
+      "previewAlt": "Selected image preview",
+      "fileType": "Type",
+      "fileSize": "Size",
+      "fileDimensions": "Dimensions",
+      "remove": "Remove",
+      "loadingModel": "Loading model information…",
+      "modelUnavailable": "The analysis model is currently unavailable. Please try again shortly.",
+      "requirements": "Images must be exactly {{width}} × {{height}} pixels, PNG or JPEG, up to {{maxSize}}.",
+      "unknownType": "unknown",
+      "validating": "Checking image…",
+      "errors": {
+        "empty": "This file is empty. Choose a different image.",
+        "unsupportedType": "Only PNG and JPEG images are supported.",
+        "tooLarge": "This file is larger than the {{maxSize}} limit. Choose a smaller image.",
+        "corrupt": "This file could not be read as an image. It may be corrupted - try a different file.",
+        "dimensionsMismatch": "This image is {{actualWidth}} × {{actualHeight}} px, but the model requires exactly {{expectedWidth}} × {{expectedHeight}} px. Crop or resize the image and try again."
+      }
+    },
+    "confirm": {
+      "title": "Ready to analyze",
+      "model": "Model",
+      "processingNotice": "The image is processed in memory for this analysis only and is not stored. Results require expert interpretation and are not a diagnosis."
+    },
+    "progress": {
+      "validating": "Validating image",
+      "uploading": "Uploading securely",
+      "preparing": "Preparing image",
+      "running": "Running model analysis",
+      "explaining": "Generating visual explanation",
+      "finalizing": "Preparing result"
+    },
+    "syntheticNotice": {
+      "synthetic": "This is a synthetic test model used for demonstration. Its output has no medical meaning whatsoever.",
+      "unknown": "This result may have been produced by a synthetic test model with no medical meaning. The currently active model could not be confirmed to match."
+    },
+    "result": {
+      "loading": "Loading analysis result…",
+      "notFoundTitle": "Analysis not found",
+      "errorTitle": "Something went wrong",
+      "genericError": "We could not load this analysis. Please try again.",
+      "backToHistory": "Back to history",
+      "predictedClassHeading": "Model output: {{className}}",
+      "unknownHeading": "Model output unavailable",
+      "unknownClass": "unknown",
+      "interpretationGuidance": "The model assigned the highest probability to this category. This result requires expert interpretation and is not a medical diagnosis.",
+      "limitationNotice": "This tool does not provide a medical diagnosis. It is a research demonstration and may be wrong, especially on images unlike its training data.",
+      "analyzeAnother": "Analyze another image",
+      "predictedTag": "Predicted",
+      "decision": {
+        "negative": "Negative",
+        "positive": "Positive",
+        "review": "Review required",
+        "unknown": "Unknown"
+      },
+      "probabilities": {
+        "title": "Class probabilities",
+        "subtitle": "All categories the model considered, with their probability.",
+        "singleClass": "{{className}}: {{probability}}",
+        "unavailable": "Probabilities are not available for this result."
+      },
+      "image": {
+        "title": "Original image",
+        "alt": "The uploaded histopathology patch",
+        "notStored": "The original image is not stored and can only be shown immediately after analysis."
+      },
+      "gradcam": {
+        "title": "Visual explanation (Grad-CAM)",
+        "explanation": "Grad-CAM highlights regions that influenced the model's output. It does not prove why the model decided what it did, is not a lesion boundary, a segmentation result, or a clinical annotation.",
+        "originalAlt": "Original image",
+        "overlayAlt": "Grad-CAM highlighted regions overlaid on the image",
+        "opacityLabel": "Highlight intensity",
+        "disclaimer": "Grad-CAM highlights regions associated with the model output. It is not a biological explanation and must not be used as a diagnosis.",
+        "unavailable": {
+          "not_requested": "A visual explanation was not requested for this analysis.",
+          "failed": "Generating a visual explanation failed for this analysis. The prediction result above is still valid.",
+          "disabled": "Visual explanations are currently disabled for this model.",
+          "never_persisted": "Visual explanations are only available immediately after running an analysis and are not stored afterwards."
+        }
+      },
+      "details": {
+        "title": "Details",
+        "model": "Model",
+        "timestamp": "Analyzed",
+        "id": "Analysis ID"
+      }
+    },
+    "history": {
+      "title": "Analysis history",
+      "intro": "Your past analyses. Images and visual explanations are not stored - only the result.",
+      "loading": "Loading history…",
+      "error": "We could not load your analysis history. Please try again.",
+      "empty": "You haven't analyzed any images yet.",
+      "emptyCta": "Start a new analysis",
+      "unknownClass": "Unknown"
+    }
+  }
+}

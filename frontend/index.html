@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Transparent AI research for histopathology image analysis." />
+    <title>MedRisk AI</title>
+    <script>
+      // Applied before paint to avoid a flash of unstyled/default preferences. Kept in sync
+      // with src/features/accessibility-preferences/storage.ts (which owns this at runtime).
+      ;(function () {
+        try {
+          var raw = localStorage.getItem('medrisk.accessibility-preferences')
+          var prefs = raw ? JSON.parse(raw) : {}
+          var root = document.documentElement
+          root.setAttribute('data-text-size', prefs.textSize || 'standard')
+          root.setAttribute('data-contrast', prefs.contrast || 'standard')
+          root.setAttribute('data-motion', prefs.motion || 'system')
+        } catch (e) {
+          // localStorage unavailable (private mode, etc.) - fall back to defaults via CSS.
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

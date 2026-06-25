@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "product": "Produkt",
+    "howItWorks": "Jak to działa",
+    "technology": "Technologia",
+    "model": "Model",
+    "safety": "Bezpieczeństwo",
+    "login": "Zaloguj się",
+    "tryDemo": "Zobacz demonstrację",
+    "language": "Język"
+  },
+  "footer": {
+    "disclaimer": "Projekt portfolio badawczy. Wyłącznie do celów edukacyjnych - to nie jest wyrób medyczny."
+  },
+  "appNav": {
+    "home": "Strona główna",
+    "analyze": "Analiza",
+    "history": "Historia",
+    "more": "Więcej",
+    "model": "Model",
+    "help": "Pomoc",
+    "preferences": "Dostępność",
+    "logout": "Wyloguj się"
+  },
+  "analysis": {
+    "title": "Nowa analiza",
+    "intro": "Wgraj jeden wycinek histopatologiczny, aby przeprowadzić go przez model badawczy.",
+    "disclaimer": "To narzędzie jest projektem edukacyjnym i badawczym, a nie wyrobem medycznym. Nie stawia diagnozy i nie może być podstawą decyzji klinicznych.",
+    "tryAgain": "Spróbuj ponownie",
+    "analyzeCta": "Analizuj obraz",
+    "analyzing": "Analizowanie…",
+    "submitError": "Wystąpił błąd podczas analizy obrazu. Spróbuj ponownie.",
+    "upload": {
+      "dropTitle": "Przeciągnij i upuść obraz albo kliknij, aby wybrać plik",
+      "dropHint": "Tylko PNG lub JPEG.",
+      "inputLabel": "Wybierz plik obrazu",
+      "previewAlt": "Podgląd wybranego obrazu",
+      "fileType": "Typ",
+      "fileSize": "Rozmiar",
+      "fileDimensions": "Wymiary",
+      "remove": "Usuń",
+      "loadingModel": "Wczytywanie informacji o modelu…",
+      "modelUnavailable": "Model analizy jest obecnie niedostępny. Spróbuj ponownie za chwilę.",
+      "requirements": "Obraz musi mieć dokładnie {{width}} × {{height}} pikseli, format PNG lub JPEG, maksymalnie {{maxSize}}.",
+      "unknownType": "nieznany",
+      "validating": "Sprawdzanie obrazu…",
+      "errors": {
+        "empty": "Ten plik jest pusty. Wybierz inny obraz.",
+        "unsupportedType": "Wspierane są tylko obrazy PNG i JPEG.",
+        "tooLarge": "Ten plik przekracza limit {{maxSize}}. Wybierz mniejszy obraz.",
+        "corrupt": "Nie udało się odczytać tego pliku jako obrazu. Może być uszkodzony - wybierz inny plik.",
+        "dimensionsMismatch": "Ten obraz ma wymiary {{actualWidth}} × {{actualHeight}} px, a model wymaga dokładnie {{expectedWidth}} × {{expectedHeight}} px. Przytnij lub przeskaluj obraz i spróbuj ponownie."
+      }
+    },
+    "confirm": {
+      "title": "Gotowe do analizy",
+      "model": "Model",
+      "processingNotice": "Obraz jest przetwarzany w pamięci wyłącznie na potrzeby tej analizy i nie jest zapisywany. Wynik wymaga interpretacji specjalisty i nie jest diagnozą."
+    },
+    "progress": {
+      "validating": "Walidacja obrazu",
+      "uploading": "Bezpieczne przesyłanie",
+      "preparing": "Przygotowywanie obrazu",
+      "running": "Analiza przez model",
+      "explaining": "Generowanie wizualnego wyjaśnienia",
+      "finalizing": "Przygotowywanie wyniku"
+    },
+    "syntheticNotice": {
+      "synthetic": "To syntetyczny model testowy używany do demonstracji. Jego wynik nie ma żadnego znaczenia medycznego.",
+      "unknown": "Ten wynik mógł zostać wygenerowany przez syntetyczny model testowy bez znaczenia medycznego. Nie udało się potwierdzić, że odpowiada on aktualnie aktywnemu modelowi."
+    },
+    "result": {
+      "loading": "Wczytywanie wyniku analizy…",
+      "notFoundTitle": "Nie znaleziono analizy",
+      "errorTitle": "Coś poszło nie tak",
+      "genericError": "Nie udało się wczytać tej analizy. Spróbuj ponownie.",
+      "backToHistory": "Wróć do historii",
+      "predictedClassHeading": "Wynik modelu: {{className}}",
+      "unknownHeading": "Wynik modelu niedostępny",
+      "unknownClass": "nieznana",
+      "interpretationGuidance": "Model przypisał najwyższe prawdopodobieństwo tej kategorii. Ten wynik wymaga interpretacji specjalisty i nie jest diagnozą medyczną.",
+      "limitationNotice": "To narzędzie nie stawia diagnozy medycznej. Jest demonstracją badawczą i może się mylić, zwłaszcza dla obrazów odmiennych od danych treningowych.",
+      "analyzeAnother": "Analizuj kolejny obraz",
+      "predictedTag": "Przewidywana",
+      "decision": {
+        "negative": "Negatywny",
+        "positive": "Pozytywny",
+        "review": "Wymaga weryfikacji",
+        "unknown": "Nieznany"
+      },
+      "probabilities": {
+        "title": "Prawdopodobieństwa klas",
+        "subtitle": "Wszystkie kategorie rozważane przez model wraz z ich prawdopodobieństwem.",
+        "singleClass": "{{className}}: {{probability}}",
+        "unavailable": "Prawdopodobieństwa nie są dostępne dla tego wyniku."
+      },
+      "image": {
+        "title": "Obraz oryginalny",
+        "alt": "Wgrany wycinek histopatologiczny",
+        "notStored": "Obraz oryginalny nie jest zapisywany i może być wyświetlony tylko bezpośrednio po analizie."
+      },
+      "gradcam": {
+        "title": "Wizualne wyjaśnienie (Grad-CAM)",
+        "explanation": "Grad-CAM wyróżnia obszary, które wpłynęły na wynik modelu. Nie dowodzi, dlaczego model podjął taką decyzję, nie jest granicą zmiany, wynikiem segmentacji ani anotacją kliniczną.",
+        "originalAlt": "Obraz oryginalny",
+        "overlayAlt": "Obszary wyróżnione przez Grad-CAM na obrazie",
+        "opacityLabel": "Intensywność wyróżnienia",
+        "disclaimer": "Grad-CAM wyróżnia obszary powiązane z wynikiem modelu. Nie jest wyjaśnieniem biologicznym i nie może być podstawą diagnozy.",
+        "unavailable": {
+          "not_requested": "Dla tej analizy nie zażądano wizualnego wyjaśnienia.",
+          "failed": "Generowanie wizualnego wyjaśnienia nie powiodło się dla tej analizy. Powyższy wynik analizy jest wciąż prawidłowy.",
+          "disabled": "Wizualne wyjaśnienia są obecnie wyłączone dla tego modelu.",
+          "never_persisted": "Wizualne wyjaśnienia są dostępne tylko bezpośrednio po analizie i nie są później przechowywane."
+        }
+      },
+      "details": {
+        "title": "Szczegóły",
+        "model": "Model",
+        "timestamp": "Data analizy",
+        "id": "Identyfikator analizy"
+      }
+    },
+    "history": {
+      "title": "Historia analiz",
+      "intro": "Twoje wcześniejsze analizy. Obrazy i wizualne wyjaśnienia nie są przechowywane - tylko wynik.",
+      "loading": "Wczytywanie historii…",
+      "error": "Nie udało się wczytać historii analiz. Spróbuj ponownie.",
+      "empty": "Nie wykonałeś jeszcze żadnej analizy.",
+      "emptyCta": "Zacznij nową analizę",
+      "unknownClass": "Nieznana"
+    }
+  }
+}

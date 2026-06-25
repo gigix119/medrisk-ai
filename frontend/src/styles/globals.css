@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+@import '../design-system/tokens.css';
+@import '../design-system/typography.css';
+@import '../design-system/motion.css';
+
+@layer base {
+  *:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Minimum touch target size for primary interactive elements (age-inclusive design). */
+  button,
+  a[role='button'],
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-sm);
+  }
+
+  .skip-link:focus-visible {
+    left: 1rem;
+    top: 1rem;
+  }
+}
+
+/* Accessibility preferences: text size. Scales the root font size, which scales every rem
+   unit in the app (the type scale above is entirely rem-based). */
+html[data-text-size='large'] {
+  font-size: 112.5%; /* ~18px effective base */
+}
+
+html[data-text-size='extra-large'] {
+  font-size: 125%; /* ~20px effective base */
+}
+
+/* Accessibility preferences: increased contrast. */
+html[data-contrast='increased'] {
+  --color-text-secondary: var(--color-text-primary);
+  --color-text-muted: #334e68;
+  --color-border: var(--color-border-strong);
+}

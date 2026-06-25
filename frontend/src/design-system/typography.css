@@ -1,0 +1,55 @@
+/**
+ * Body text baseline is 17px (Tailwind's default text-base is 16px) because the spec
+ * targets readability for older users; helper text never drops below 14px.
+ */
+@theme {
+  --text-base: 1.0625rem; /* 17px */
+  --text-base--line-height: 1.65;
+  --text-lg: 1.125rem; /* 18px - explanatory content */
+  --text-lg--line-height: 1.6;
+  --text-sm: 0.875rem; /* 14px floor for helper text */
+  --text-sm--line-height: 1.5;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
+  }
+}
+
+@layer components {
+  /* Responsive heading scale via clamp(): one declaration covers mobile through desktop
+     without duplicating rules per breakpoint. */
+  .text-display {
+    font-size: clamp(2.375rem, 1.9rem + 3vw, 4rem);
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  .text-h1 {
+    font-size: clamp(2rem, 1.6rem + 2.2vw, 3rem);
+    line-height: 1.15;
+    font-weight: 700;
+  }
+
+  .text-h2 {
+    font-size: clamp(1.625rem, 1.4rem + 1.2vw, 2.25rem);
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  .text-h3 {
+    font-size: clamp(1.3125rem, 1.2rem + 0.6vw, 1.625rem);
+    line-height: 1.3;
+    font-weight: 600;
+  }
+
+  .reading-measure {
+    max-width: 75ch;
+  }
+}
