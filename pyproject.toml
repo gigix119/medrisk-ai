@@ -11,7 +11,7 @@ requires-python = ">=3.11,<3.13"
 license = { text = "Proprietary - portfolio/educational project, all rights reserved" }
 
 [tool.setuptools.packages.find]
-include = ["app*", "medrisk_ml*"]
+include = ["app*", "medrisk_ml*", "medrisk_inference*"]
 
 # ---------------------------------------------------------------------------
 # Ruff: linting + formatting + import sorting
@@ -19,7 +19,7 @@ include = ["app*", "medrisk_ml*"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-src = ["app", "medrisk_ml", "tests", "scripts"]
+src = ["app", "medrisk_ml", "medrisk_inference", "tests", "scripts"]
 
 [tool.ruff.lint]
 select = [
@@ -46,7 +46,7 @@ ignore = [
 "alembic/versions/*" = ["E501", "N999"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["app", "medrisk_ml"]
+known-first-party = ["app", "medrisk_ml", "medrisk_inference"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -112,7 +112,7 @@ filterwarnings = [
 # coverage.py
 # ---------------------------------------------------------------------------
 [tool.coverage.run]
-source = ["app"]
+source = ["app", "medrisk_inference"]
 branch = true
 # SQLAlchemy's async engine bridges to its sync DBAPI driver via greenlet
 # switches. Without this, coverage.py's tracer doesn't follow code that runs

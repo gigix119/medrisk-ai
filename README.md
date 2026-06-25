@@ -1,37 +1,39 @@
 # MedRisk AI
 
-An educational and research platform for a future oncology AI system. This repository contains **Phase 1: Backend Foundation** (a production-conscious FastAPI + PostgreSQL backend with authentication, request/error handling, migrations, tests, and CI) and **Phase 2: Histopathology ML Foundation** (a standalone, reproducible PyTorch pipeline for binary histopathology image classification — data, models, training, evaluation, calibration, Grad-CAM explainability, and a local model registry). The two are independent: nothing in `app/` imports from `medrisk_ml/` or vice versa. The trained model is **not** wired into the API yet — that is Phase 3.
+An educational and research platform for a future oncology AI system. This repository contains **Phase 1: Backend Foundation** (a production-conscious FastAPI + PostgreSQL backend with authentication, request/error handling, migrations, tests, and CI), **Phase 2: Histopathology ML Foundation** (a standalone, reproducible PyTorch pipeline for binary histopathology image classification — data, models, training, evaluation, calibration, Grad-CAM explainability, and a local model registry), and **Phase 3: Histopathology Inference API** (wiring a verified Phase 2 model bundle into the Phase 1 backend as a real, production-shaped inference endpoint — upload validation, preprocessing parity, calibration/decision policy, optional Grad-CAM, and full request/model audit trails). `app/` and `medrisk_ml/` still never import each other directly — `medrisk_inference/` is the new, standalone package that bridges them; see [docs/inference-architecture.md](docs/inference-architecture.md).
 
-> **Medical disclaimer.** This software is an educational and research portfolio project. It is **not a medical device** and must not be used for diagnosis, treatment decisions, or emergency medical guidance. Prediction endpoints in the API are honest placeholders that explicitly report that no model is loaded — they never return a fake medical result. Any metric produced from synthetic data in Phase 2 is explicitly **not** a measurement of real diagnostic performance — see [docs/dataset-card-pcam.md](docs/dataset-card-pcam.md).
+> **Medical disclaimer.** This software is an educational and research portfolio project. It is **not a medical device** and must not be used for diagnosis, treatment decisions, or emergency medical guidance. The only model bundle shipped in this repository is **synthetic-only and has no medical meaning** — every prediction response says so explicitly. The `/predictions/survival` endpoint remains an honest `501` placeholder (no survival model exists in any phase shipped so far). Any metric produced from synthetic data is explicitly **not** a measurement of real diagnostic performance — see [docs/dataset-card-pcam.md](docs/dataset-card-pcam.md).
 
 ## Table of contents
 
 1. [Phase 1 scope](#phase-1-scope)
 2. [Phase 2 scope](#phase-2-scope)
-3. [Roadmap](#roadmap)
-4. [Architecture overview](#architecture-overview)
-5. [Technology stack](#technology-stack)
-6. [Repository structure](#repository-structure)
-7. [Prerequisites](#prerequisites)
-8. [Setup — Windows (PowerShell)](#setup--windows-powershell)
-9. [Setup — Linux/macOS](#setup--linuxmacos)
-10. [Environment configuration](#environment-configuration)
-11. [Docker Compose setup](#docker-compose-setup)
-12. [Database migrations](#database-migrations)
-13. [Running the API](#running-the-api)
-14. [Tests](#tests)
-15. [Lint and type checking](#lint-and-type-checking)
-16. [API endpoints](#api-endpoints)
-17. [Authentication example](#authentication-example)
-18. [API documentation](#api-documentation)
-19. [ML pipeline setup](#ml-pipeline-setup)
-20. [ML pipeline usage (CLI)](#ml-pipeline-usage-cli)
-21. [Real PCam dataset (gated)](#real-pcam-dataset-gated)
-22. [Dependencies](#dependencies)
-23. [Security notes](#security-notes)
-24. [Development workflow](#development-workflow)
-25. [Current limitations](#current-limitations)
-26. [License](#license)
+3. [Phase 3 scope](#phase-3-scope)
+4. [Roadmap](#roadmap)
+5. [Architecture overview](#architecture-overview)
+6. [Technology stack](#technology-stack)
+7. [Repository structure](#repository-structure)
+8. [Prerequisites](#prerequisites)
+9. [Setup — Windows (PowerShell)](#setup--windows-powershell)
+10. [Setup — Linux/macOS](#setup--linuxmacos)
+11. [Environment configuration](#environment-configuration)
+12. [Docker Compose setup](#docker-compose-setup)
+13. [Database migrations](#database-migrations)
+14. [Running the API](#running-the-api)
+15. [Tests](#tests)
+16. [Lint and type checking](#lint-and-type-checking)
+17. [API endpoints](#api-endpoints)
+18. [Authentication example](#authentication-example)
+19. [API documentation](#api-documentation)
+20. [ML pipeline setup](#ml-pipeline-setup)
+21. [ML pipeline usage (CLI)](#ml-pipeline-usage-cli)
+22. [Real PCam dataset (gated)](#real-pcam-dataset-gated)
+23. [Histopathology inference setup](#histopathology-inference-setup)
+24. [Dependencies](#dependencies)
+25. [Security notes](#security-notes)
+26. [Development workflow](#development-workflow)
+27. [Current limitations](#current-limitations)
+28. [License](#license)
 
 ## Phase 1 scope
 
@@ -51,19 +53,35 @@ This phase builds a complete, reproducible, explainable ML pipeline for binary h
 
 See [docs/ml-architecture.md](docs/ml-architecture.md) for the full design and [docs/learning/phase-02-histopathology-ml.md](docs/learning/phase-02-histopathology-ml.md) for a guided, Polish-language walkthrough of every ML concept used.
 
+## Phase 3 scope
+
+This phase wires a verified Phase 2 model bundle into the Phase 1 API as a real histopathology inference endpoint, through a new standalone package, `medrisk_inference/`:
+
+- A long-lived model runtime, loaded once at FastAPI startup (`lifespan`) and shared by every request — no per-request reloading, no hot-swap.
+- Secure, streamed image upload validation: byte-capped reads, a decompression-bomb guard, format/MIME cross-checks, EXIF/metadata stripping by reconstruction, and a strict input-shape contract.
+- Preprocessing that reuses Phase 2's exact inference-time transform, parameterized only from the bundle's own manifest.
+- A calibration → threshold → review-policy decision pipeline producing a three-way `negative`/`positive`/`review_required` verdict, not just a raw probability.
+- Optional Grad-CAM explanations that can never fail an otherwise-successful prediction.
+- `asyncio`-based concurrency control (a semaphore plus separate queue-wait and inference-deadline timeouts) so a slow/blocked model never blocks the rest of the API.
+- A `model_deployments` audit table (every load attempt, successful or not) and an extended `predictions` table (full request/decision/timing audit, never the raw image).
+- A CLI (`medrisk_inference/cli.py`) for verifying a bundle, warming it up, running a local prediction, and benchmarking latency, all without the web app.
+
+The only model bundle shipped in this repository remains Phase 2's synthetic smoke-test model — see the disclaimer above. See [docs/inference-architecture.md](docs/inference-architecture.md) for the full design, [docs/image-input-contract.md](docs/image-input-contract.md) and [docs/inference-security.md](docs/inference-security.md) for the upload/security contract, [docs/model-deployment.md](docs/model-deployment.md) for the deployment lifecycle, and [docs/learning/phase-03-inference-api.md](docs/learning/phase-03-inference-api.md) for a guided, Polish-language walkthrough.
+
 ## Roadmap
 
 1. ~~Histopathology image classification (CNN / transfer learning).~~ — Phase 2
 2. ~~Grad-CAM model explainability.~~ — Phase 2
 3. ~~Model quality/error analysis.~~ — Phase 2
-4. Wiring a registered model into the API for real inference (not part of this repository yet).
-5. An optional, separate survival-analysis module.
-6. A user-facing dashboard.
-7. Model versioning and prediction monitoring in production.
+4. ~~Wiring a registered model into the API for real inference.~~ — Phase 3
+5. A real, PCam-trained (non-synthetic) model bundle, eligible for demo.
+6. An optional, separate survival-analysis module.
+7. A user-facing dashboard.
+8. Production-grade model monitoring (metrics/observability; drift detection beyond the existing `model_deployments` audit trail).
 
 ## Architecture overview
 
-The backend is a modular monolith: API → service → repository → database, with a clear request/auth/error-handling pipeline. Full details and a request-flow diagram: [docs/architecture.md](docs/architecture.md). The ML pipeline is a separate, layered package (config → data → models → training → evaluation/explainability → registry); full details and a pipeline-flow diagram: [docs/ml-architecture.md](docs/ml-architecture.md).
+The backend is a modular monolith: API → service → repository → database, with a clear request/auth/error-handling pipeline. Full details and a request-flow diagram: [docs/architecture.md](docs/architecture.md). The ML pipeline is a separate, layered package (config → data → models → training → evaluation/explainability → registry); full details and a pipeline-flow diagram: [docs/ml-architecture.md](docs/ml-architecture.md). `medrisk_inference/` bridges the two for real-time serving without either side importing the other; full details: [docs/inference-architecture.md](docs/inference-architecture.md).
 
 ## Technology stack
 
@@ -84,7 +102,7 @@ The backend is a modular monolith: API → service → repository → database, 
 - **tqdm** (progress bars) / **TensorBoard** (training curves)
 
 **Shared tooling:**
-- **Ruff** (lint + format) / **mypy** (types, strict mode, covers both `app` and `medrisk_ml`)
+- **Ruff** (lint + format) / **mypy** (types, strict mode, covers `app`, `medrisk_ml`, and `medrisk_inference`)
 - **Docker** / **Docker Compose**
 - **GitHub Actions** (CI)
 
@@ -94,21 +112,25 @@ The backend is a modular monolith: API → service → repository → database, 
 medrisk-ai/
 ├── app/                  FastAPI application (api, core, db, middleware, models, repositories, schemas, services)
 ├── medrisk_ml/           ML pipeline (config, data, models, training, evaluation, explainability, registry, utils, cli.py)
+├── medrisk_inference/    Inference runtime bridging medrisk_ml into app/ (bundle, runtime, decision, image_validation, cli.py)
 ├── configs/ml/           Experiment YAML configs (smoke, baseline_cnn, resnet18)
 ├── scripts/ml/           Thin CLI wrappers (train, evaluate, explain, register_model, verify_bundle, download_pcam, inspect_dataset)
 ├── alembic/              Database migrations
 ├── docker/postgres/      PostgreSQL container init script
-├── docs/                 Architecture, database, API contract, security, ADRs, ML docs, learning guides
-├── docs/learning/        Polish-language, concept-by-concept guided walkthroughs (Phase 1 and Phase 2)
+├── docs/                 Architecture, database, API contract, security, ADRs, ML/inference docs, learning guides
+├── docs/learning/        Polish-language, concept-by-concept guided walkthroughs (Phases 1-3)
 ├── scripts/              wait_for_db.py, check.py, dev.ps1, dev.sh
-├── tests/                unit/, integration/ (backend) and ml/ (ML pipeline) tests
+├── tests/                unit/, integration/ (backend + inference HTTP), inference/ (medrisk_inference units), ml/ (ML pipeline)
 ├── artifacts/            Generated experiments, registries, model bundles (git-ignored contents)
 ├── data/                 Dataset storage: external/, interim/, processed/ (git-ignored contents)
 ├── .github/workflows/    CI pipeline
 ├── compose.yaml          Local PostgreSQL + API stack
+├── compose.inference.yaml  Standalone PostgreSQL + inference-enabled API stack
 ├── Dockerfile            API container image
 ├── Dockerfile.ml         ML pipeline container image (CPU-only)
-├── requirements-ml.txt   ML runtime dependencies (portable CPU pins)
+├── Dockerfile.inference  API + histopathology inference container image (CPU-only)
+├── requirements-ml.txt        ML training/evaluation runtime dependencies (portable CPU pins)
+├── requirements-inference.txt ML *serving* runtime dependencies (lean: no pandas/sklearn/matplotlib/etc.)
 └── pyproject.toml        Project metadata + tool configuration (Ruff, mypy, pytest, coverage)
 ```
 
@@ -203,7 +225,7 @@ docker compose logs -f api
 
 This starts PostgreSQL 16 (with both the `medrisk` and `medrisk_test` databases) and the API, waits for the database, runs `alembic upgrade head`, and starts Uvicorn. See [docs/architecture.md](docs/architecture.md) and the comments in `compose.yaml` for details — including a note about port `5432` conflicting with any native PostgreSQL install already running on the host.
 
-> Docker Desktop is installed in this environment as of Phase 2 (it was not available during the original Phase 1 build). `docker build` has been verified for both `Dockerfile` (this API image) and `Dockerfile.ml` (the ML pipeline image) — both build successfully and their entrypoints run correctly (verified by importing `app.main` with required settings present, and by running a full synthetic smoke-training pass inside the ML image). Full `docker compose up` (API + PostgreSQL together) has not been re-verified in this session.
+> Docker Desktop is installed in this environment as of Phase 2 (it was not available during the original Phase 1 build). `docker build` has been verified for `Dockerfile` (this API image), `Dockerfile.ml` (the ML pipeline image), and `Dockerfile.inference` (the inference-enabled API image) — all three build successfully. `Dockerfile.inference` has additionally been verified with a full `docker compose -f compose.inference.yaml up --build` end-to-end run: migrations applied automatically, the synthetic smoke-test model loaded and warmed up, and a real register → login → image upload → prediction (with Grad-CAM) → history/detail round trip succeeded against the running container, with the explanation image confirmed absent from history/detail and several error paths (empty upload, unsupported format, wrong input dimensions, unauthenticated) confirmed rejected correctly.
 
 ## Database migrations
 
@@ -232,24 +254,25 @@ python -m uvicorn app.main:app --reload
 ## Tests
 
 ```bash
-pytest                                          # run the full suite: backend (unit/integration) + ML (tests/ml)
-pytest tests/unit tests/integration             # backend only
+pytest                                          # run the full suite: backend + inference (unit/integration) + ML (tests/ml)
+pytest tests/unit tests/integration             # backend + inference HTTP layer
+pytest tests/inference                           # medrisk_inference units only (bundle, decision, image validation, runtime, ...)
 pytest tests/ml                                  # ML pipeline only (no real PCam download, no GPU required)
-pytest --cov=app --cov-report=term-missing      # with coverage
-pytest --cov=app --cov-report=html              # local HTML report (htmlcov/)
+pytest --cov=app --cov=medrisk_inference --cov-report=term-missing  # with coverage
+pytest --cov=app --cov=medrisk_inference --cov-report=html          # local HTML report (htmlcov/)
 ```
 
-Backend integration tests run against a **real PostgreSQL test database** (`TEST_DATABASE_URL`) — never SQLite, never mocks. `tests/conftest.py` forces `ENVIRONMENT=test` before any app module is imported. ML tests run entirely against synthetic, generated data — no network access, no real dataset, deterministic.
+Backend integration tests run against a **real PostgreSQL test database** (`TEST_DATABASE_URL`) — never SQLite, never mocks. `tests/conftest.py` forces `ENVIRONMENT=test` before any app module is imported, and also builds a small, deterministic, synthetic model bundle once per test session (see [docs/inference-architecture.md](docs/inference-architecture.md)) so every integration test that boots the app loads a real, verified — if synthetic — model. ML tests run entirely against synthetic, generated data — no network access, no real dataset, deterministic.
 
 ## Lint and type checking
 
 ```bash
 ruff format --check .
 ruff check .
-mypy app scripts medrisk_ml
+mypy app scripts medrisk_ml medrisk_inference
 ```
 
-Or run everything CI runs, in order, stopping at the first failure (covers both `app` and `medrisk_ml`):
+Or run everything CI runs, in order, stopping at the first failure (covers `app`, `medrisk_ml`, and `medrisk_inference` together; CI itself splits this into two jobs — see below):
 
 ```bash
 python scripts/check.py
@@ -260,18 +283,21 @@ python scripts/check.py
 | Method | Path | Auth | Notes |
 |---|---|---|---|
 | GET | `/` | — | Service info + medical disclaimer |
-| GET | `/health/live` | — | Liveness (no DB check) |
-| GET | `/health/ready` | — | Readiness (checks PostgreSQL) |
+| GET | `/health/live` | — | Liveness (no DB/model check) |
+| GET | `/health/ready` | — | Readiness (checks PostgreSQL, and the model when `MODEL_REQUIRED=true`) |
+| GET | `/health/model` | — | Public, non-sensitive model status |
 | POST | `/api/v1/auth/register` | — | Create a user |
 | POST | `/api/v1/auth/login` | — | OAuth2 password form → access + refresh tokens |
 | POST | `/api/v1/auth/refresh` | — | Rotate a refresh token |
 | POST | `/api/v1/auth/logout` | — | Revoke a refresh session |
 | GET | `/api/v1/users/me` | Bearer | Current user's profile |
-| GET | `/api/v1/predictions/history` | Bearer | Paginated, user-scoped prediction history |
-| POST | `/api/v1/predictions/histopathology` | Bearer | Honest `501` placeholder — no model loaded |
-| POST | `/api/v1/predictions/survival` | Bearer | Honest `501` placeholder — no model loaded |
+| GET | `/api/v1/models/active` | Bearer | Active model metadata + input contract + decision policy |
+| POST | `/api/v1/predictions/histopathology` | Bearer | Real inference (multipart image upload) against the active model |
+| GET | `/api/v1/predictions/{id}` | Bearer | One prediction's full detail, scoped to the caller |
+| GET | `/api/v1/predictions/history` | Bearer | Paginated, filterable, user-scoped prediction history |
+| POST | `/api/v1/predictions/survival` | Bearer | Honest `501` placeholder — no survival model exists |
 
-Full request/response contracts: [docs/api-contract.md](docs/api-contract.md).
+Full request/response contracts: [docs/api-contract.md](docs/api-contract.md). Image upload contract: [docs/image-input-contract.md](docs/image-input-contract.md).
 
 ## Authentication example
 
@@ -361,9 +387,29 @@ python -m medrisk_ml.cli data download --config configs/ml/resnet18.yaml --downl
 
 Missing either condition is a hard stop with an explanatory message, never a silent fetch. See [docs/dataset-card-pcam.md](docs/dataset-card-pcam.md) for the dataset's labeling rule and known biases, and [docs/experiment-protocol.md](docs/experiment-protocol.md) for the staged transfer-learning protocol (`configs/ml/resnet18.yaml`) intended to be used with it. Real-PCam training is never auto-executed by this repository or its CI.
 
+## Histopathology inference setup
+
+The API serves real inference only when a model bundle is configured. `requirements-dev.txt` already includes the lean `requirements-inference.txt` (torch/torchvision/numpy/pillow, CPU-only — no training-only extras), so no extra install step is needed beyond the regular setup above. To actually exercise it locally with the repository's one shipped (synthetic-only) bundle:
+
+```powershell
+# .env (or inline): point at the synthetic smoke-test bundle and allow it to load
+$env:MODEL_BUNDLE_PATH = "artifacts/model_registry/smoke-baseline-cnn/0.0.1-smoke"
+$env:ALLOW_SYNTHETIC_MODEL = "true"
+python -m uvicorn app.main:app --reload
+```
+
+Or work entirely offline from the web app, via the CLI:
+
+```powershell
+python -m medrisk_inference.cli verify-bundle --bundle-path artifacts/model_registry/smoke-baseline-cnn/0.0.1-smoke --allow-synthetic
+python -m medrisk_inference.cli predict --bundle-path artifacts/model_registry/smoke-baseline-cnn/0.0.1-smoke --allow-synthetic --image path/to/patch.png
+```
+
+Full design, the upload/security contract, and the deployment lifecycle: [docs/inference-architecture.md](docs/inference-architecture.md), [docs/image-input-contract.md](docs/image-input-contract.md), [docs/inference-security.md](docs/inference-security.md), [docs/model-deployment.md](docs/model-deployment.md). A standalone Docker stack also exists — see [compose.inference.yaml](compose.inference.yaml).
+
 ## Dependencies
 
-Every direct runtime/dev dependency and why it's here is documented inline in [requirements.txt](requirements.txt), [requirements-dev.txt](requirements-dev.txt), [requirements-ml.txt](requirements-ml.txt), and [requirements-ml-dev.txt](requirements-ml-dev.txt).
+Every direct runtime/dev dependency and why it's here is documented inline in [requirements.txt](requirements.txt), [requirements-dev.txt](requirements-dev.txt), [requirements-inference.txt](requirements-inference.txt), [requirements-ml.txt](requirements-ml.txt), and [requirements-ml-dev.txt](requirements-ml-dev.txt).
 
 ## Security notes
 
@@ -371,17 +417,20 @@ Password hashing (Argon2), JWT handling, refresh-token rotation, and secret mana
 
 ## Development workflow
 
-- Branch from your default branch, open a PR — CI (`.github/workflows/ci.yml`) runs the backend job (migrations, `alembic check`, Ruff, mypy, pytest with coverage) and a separate ML job (Ruff, mypy, `pytest tests/ml`, all on synthetic data, no GPU, no real dataset).
-- Run `python scripts/check.py` locally before pushing — covers both `app` and `medrisk_ml`.
-- See [docs/decisions/ADR-001-backend-architecture.md](docs/decisions/ADR-001-backend-architecture.md) for why the backend stack looks the way it does, [docs/learning/phase-01-backend-foundation.md](docs/learning/phase-01-backend-foundation.md) for a guided, Polish-language walkthrough of every backend concept used, and [docs/learning/phase-02-histopathology-ml.md](docs/learning/phase-02-histopathology-ml.md) for the same treatment of every ML concept used in Phase 2.
+- Branch from your default branch, open a PR — CI (`.github/workflows/ci.yml`) runs the backend job (migrations, `alembic check`, Ruff, mypy over `app`/`scripts`/`medrisk_inference`, pytest with coverage — including `tests/inference` and the inference integration tests) and a separate ML job (Ruff, mypy over `medrisk_ml`, `pytest tests/ml`, all on synthetic data, no GPU, no real dataset).
+- Run `python scripts/check.py` locally before pushing — covers `app`, `medrisk_ml`, and `medrisk_inference` together.
+- See [docs/decisions/ADR-001-backend-architecture.md](docs/decisions/ADR-001-backend-architecture.md) for why the backend stack looks the way it does, and the "Key decisions" section of [docs/inference-architecture.md](docs/inference-architecture.md) for the equivalent Phase 3 design rationale. Guided, Polish-language walkthroughs: [phase-01](docs/learning/phase-01-backend-foundation.md), [phase-02](docs/learning/phase-02-histopathology-ml.md), [phase-03](docs/learning/phase-03-inference-api.md).
 
 ## Current limitations
 
-- No ML model is wired into the API; `predictions/*` inference endpoints always return `501`. A registered Phase 2 model bundle exists on disk but integrating it into the API is explicitly out of scope until Phase 3.
-- No file/object storage, no image upload handling.
+- The only model bundle shipped in this repository is Phase 2's synthetic smoke-test model — it has no medical meaning. No real, PCam-trained, demo-eligible model exists yet.
+- No hot-swap: changing the active model requires a process restart (one model per process, by design — see [docs/model-deployment.md](docs/model-deployment.md)).
+- No file/object storage; uploaded images are validated in memory and never persisted, by design (see [docs/image-input-contract.md](docs/image-input-contract.md)) rather than because storage wasn't built.
+- No request-rate limiting beyond the inference concurrency semaphore, and no rate limiting at all yet on the auth endpoints (`/auth/login`, `/auth/register`).
+- No Prometheus/metrics endpoint.
 - The real PatchCamelyon dataset has not been downloaded in this environment — every Phase 2 result produced so far is from synthetic data only (see the disclaimer at the top of this file) or, where noted, an explicitly-run real-data experiment.
 - Single PostgreSQL instance, no read replicas, no connection-pooling proxy (e.g. PgBouncer) — not needed at this scale yet.
-- No survival-analysis module, no frontend/dashboard — neither is in scope for Phase 1 or Phase 2.
+- No survival-analysis module, no frontend/dashboard.
 
 ## License
 

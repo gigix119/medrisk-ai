@@ -17,6 +17,14 @@ def _base_kwargs(**overrides: object) -> dict[str, object]:
         "TEST_DATABASE_URL": "postgresql+asyncpg://user:pass@localhost:5432/db_test",
         "POSTGRES_PASSWORD": "irrelevant",
         "JWT_SECRET_KEY": "a" * 64,
+        # Explicit, env-var-independent baseline: tests/conftest.py sets these as real OS
+        # env vars for the integration test session's model bundle (see that file's
+        # docstring), and pydantic-settings reads env vars for any field not passed here -
+        # without this, these tests would silently pick up that ambient state instead of
+        # the framework defaults they intend to exercise.
+        "MODEL_REQUIRED": False,
+        "MODEL_BUNDLE_PATH": None,
+        "ALLOW_SYNTHETIC_MODEL": False,
     }
     kwargs.update(overrides)
     return kwargs
@@ -47,8 +55,34 @@ def test_empty_jwt_secret_is_rejected_even_in_test_mode() -> None:
 
 
 def test_strong_jwt_secret_is_accepted_in_production() -> None:
-    settings = Settings(**_base_kwargs(ENVIRONMENT="production", JWT_SECRET_KEY="x" * 64))
+    settings = Settings(
+        **_base_kwargs(ENVIRONMENT="production", JWT_SECRET_KEY="x" * 64, MODEL_REQUIRED=True)
+    )
     assert settings.ENVIRONMENT == "production"
+
+
+def test_production_requires_model_required_true() -> None:
+    with pytest.raises(ValidationError, match="MODEL_REQUIRED"):
+        Settings(
+            **_base_kwargs(ENVIRONMENT="production", JWT_SECRET_KEY="x" * 64, MODEL_REQUIRED=False)
+        )
+
+
+def test_production_rejects_allow_synthetic_model() -> None:
+    with pytest.raises(ValidationError, match="ALLOW_SYNTHETIC_MODEL"):
+        Settings(
+            **_base_kwargs(
+                ENVIRONMENT="production",
+                JWT_SECRET_KEY="x" * 64,
+                MODEL_REQUIRED=True,
+                ALLOW_SYNTHETIC_MODEL=True,
+            )
+        )
+
+
+def test_development_does_not_require_model_required() -> None:
+    settings = Settings(**_base_kwargs(ENVIRONMENT="development", JWT_SECRET_KEY="x" * 64))
+    assert settings.MODEL_REQUIRED is False
 
 
 def test_cors_origins_parsed_from_comma_separated_string() -> None:

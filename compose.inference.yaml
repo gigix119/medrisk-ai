@@ -1,0 +1,73 @@
+# Phase 3 stack: PostgreSQL + the API built from Dockerfile.inference (FastAPI + the
+# histopathology inference runtime). Standalone - run with:
+#   docker compose -f compose.inference.yaml up --build
+#
+# The model bundle directory is mounted read-only from the host and is NOT baked into the
+# image. The default mount below points at the repository's synthetic smoke-test bundle
+# (artifacts/model_registry/smoke-baseline-cnn/0.0.1-smoke) purely so this stack boots into
+# a working demo out of the box - see ALLOW_SYNTHETIC_MODEL below. Point
+# MODEL_BUNDLE_HOST_PATH at a real, eligible-for-demo bundle for anything beyond local
+# experimentation, and set ALLOW_SYNTHETIC_MODEL=false once you do.
+#
+# NOTE for this machine specifically: a native PostgreSQL 16 service already listens on
+# host port 5432. If you run this Compose file too, either stop the native service first or
+# set POSTGRES_PORT to something else (e.g. 5433) in your .env before running this up.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-medrisk}
+      POSTGRES_USER: ${POSTGRES_USER:-medrisk}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medrisk}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - medrisk_inference_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medrisk} -d ${POSTGRES_DB:-medrisk}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.inference
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-medrisk}:${POSTGRES_PASSWORD:-medrisk}@db:5432/${POSTGRES_DB:-medrisk}
+      TEST_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-medrisk}:${POSTGRES_PASSWORD:-medrisk}@db:5432/${POSTGRES_TEST_DB:-medrisk_test}
+      MODEL_REQUIRED: ${MODEL_REQUIRED:-false}
+      MODEL_BUNDLE_PATH: /app/model_bundle
+      MODEL_DEVICE: ${MODEL_DEVICE:-cpu}
+      MODEL_WARMUP_ENABLED: "true"
+      ALLOW_SYNTHETIC_MODEL: ${ALLOW_SYNTHETIC_MODEL:-true}
+      GRADCAM_ENABLED: "true"
+    volumes:
+      - ${MODEL_BUNDLE_HOST_PATH:-./artifacts/model_registry/smoke-baseline-cnn/0.0.1-smoke}:/app/model_bundle:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    # Local-Compose-only convenience: wait for the DB, migrate, then start. Not how a real
+    # production deployment should run migrations (that should be a separate, explicit,
+    # monitored step).
+    command: >
+      sh -c "python -m scripts.wait_for_db &&
+             alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  medrisk_inference_postgres_data:

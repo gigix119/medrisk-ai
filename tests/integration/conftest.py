@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import AsyncSessionLocal
 from app.main import app
 
-_TEST_TABLES = "refresh_token_sessions, predictions, users"
+_TEST_TABLES = "refresh_token_sessions, predictions, model_deployments, users"
 
 
 @pytest_asyncio.fixture(autouse=True)

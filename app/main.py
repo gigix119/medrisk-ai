@@ -1,5 +1,6 @@
 """FastAPI application factory."""
 
+import asyncio
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -17,9 +18,10 @@ from app.core.config import get_settings
 from app.core.constants import MEDICAL_DISCLAIMER
 from app.core.exceptions import AppError
 from app.core.logging import configure_logging, get_request_id
-from app.db.session import engine
+from app.db.session import AsyncSessionLocal, engine
 from app.middleware.request_id import RequestIdMiddleware
 from app.schemas.common import ErrorDetail, ErrorResponse
+from app.services.model_deployment import initialize_histopathology_deployment
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +40,21 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         settings.ENVIRONMENT,
         settings.DEBUG,
     )
+
+    app.state.histopathology_model = None
+    app.state.inference_semaphore = asyncio.Semaphore(max(1, settings.INFERENCE_MAX_CONCURRENCY))
+    async with AsyncSessionLocal() as session:
+        # Not raised on a misconfigured/unavailable model when MODEL_REQUIRED=false: the
+        # app starts and inference endpoints answer 503 instead - see ModelStartupError.
+        app.state.histopathology_model = await initialize_histopathology_deployment(
+            session, settings
+        )
+
     yield
+
     logger.info("Shutting down %s - disposing database engine.", settings.APP_NAME)
+    if app.state.histopathology_model is not None:
+        app.state.histopathology_model.runtime.close()
     await engine.dispose()
 
 
@@ -56,6 +71,7 @@ def register_exception_handlers(app: FastAPI) -> None:
                     request_id=_request_id_from(request),
                 )
             ).model_dump(mode="json"),
+            headers=exc.headers,
         )
 
     @app.exception_handler(RequestValidationError)
@@ -122,8 +138,9 @@ def create_app() -> FastAPI:
             {"name": "users", "description": "The authenticated user's own profile."},
             {
                 "name": "predictions",
-                "description": "Prediction history and placeholder inference endpoints.",
+                "description": "Histopathology inference, prediction history and detail.",
             },
+            {"name": "models", "description": "Active model metadata."},
         ],
         docs_url="/docs",
         redoc_url="/redoc",

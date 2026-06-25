@@ -9,8 +9,16 @@
 # asgi-lifespan     - triggers FastAPI startup/shutdown (lifespan) events inside async tests
 # ruff              - linter + formatter
 # mypy              - static type checker
+#
+# requirements-inference.txt (torch/torchvision/numpy/pillow, CPU-only) is pulled in here too:
+# tests/conftest.py builds a real (synthetic) model bundle at collection time, before any test
+# runs, so the full test suite - not just tests/inference and tests/integration - needs it
+# importable. This does NOT pull in requirements-ml.txt's training-only extras (pandas,
+# scikit-learn, matplotlib, tensorboard, h5py, PyYAML) - see tests/inference/test_import_isolation.py
+# for what medrisk_inference (and therefore this fixture path) is guaranteed not to need.
 
 -r requirements.txt
+-r requirements-inference.txt
 
 pytest==8.4.2
 pytest-asyncio==1.4.0

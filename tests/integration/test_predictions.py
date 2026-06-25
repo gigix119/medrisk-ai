@@ -26,20 +26,6 @@ async def test_history_requires_authentication(client: AsyncClient) -> None:
     assert response.status_code == 401
 
 
-async def test_authenticated_histopathology_returns_honest_501(
-    client: AsyncClient, auth_tokens: AuthTokens
-) -> None:
-    response = await client.post(
-        "/api/v1/predictions/histopathology", json={}, headers=auth_tokens.auth_header
-    )
-
-    assert response.status_code == 501
-    body = response.json()
-    assert body["module"] == "histopathology"
-    assert "no histopathology model is loaded" in body["message"]
-    assert "not a medical device" in body["disclaimer"]
-
-
 async def test_authenticated_survival_returns_honest_501(
     client: AsyncClient, auth_tokens: AuthTokens
 ) -> None:

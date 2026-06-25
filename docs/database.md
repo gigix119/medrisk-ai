@@ -6,7 +6,7 @@ PostgreSQL 16. Schema is managed entirely through Alembic migrations (`alembic/v
 
 - **Primary keys**: client-generated UUID4 (`uuid.uuid4()`, Python-side default), typed as SQLAlchemy's generic `Uuid`, stored as native PostgreSQL `uuid`.
 - **Timestamps**: `DateTime(timezone=True)` everywhere — always timezone-aware, set by the database (`server_default=func.now()`), never by application code.
-- **Enums**: native PostgreSQL `ENUM` types (`prediction_module`, `prediction_status`), stored as their lowercase string values (`histopathology`, not `HISTOPATHOLOGY`).
+- **Enums**: native PostgreSQL `ENUM` types (`prediction_module`, `prediction_status`, `model_deployment_status`), stored as their lowercase string values (`histopathology`, not `HISTOPATHOLOGY`).
 - **JSON**: `JSONB`, used only for genuinely semi-structured fields (`input_metadata`, `result`).
 
 ## Tables
@@ -45,23 +45,40 @@ A session is **active** when `revoked_at IS NULL` and the underlying JWT hasn't 
 
 ### `predictions`
 
-The schema future ML phases will write into. Phase 1 never inserts a row through the API (the inference endpoints return `501` without touching this table) — it exists now so the history endpoint, pagination, and per-user scoping are real and tested before there's anything real to display.
+Phase 1 established this schema with no real inference (the endpoints returned `501` without touching the table). Phase 3 wires up real histopathology inference and extends the table with audit columns — see [app/models/prediction.py](../app/models/prediction.py) for the exhaustive column list; the groups are:
+
+| Column group | Examples | Notes |
+|---|---|---|
+| Identity (Phase 1) | `id`, `user_id`, `module`, `status`, `created_at`, `updated_at` | `user_id` indexed, plus a composite `(user_id, created_at)` index for the history query |
+| Request audit (Phase 3) | `request_id`, `client_reference` | `client_reference` is free-text and must never contain patient-identifying information — the API cannot enforce that for a free-text field, only document it |
+| Input technical metadata (Phase 3) | `input_sha256`, `input_filename_safe`, `input_mime_type`, `input_format`, `input_size_bytes`, `input_width`/`height`, `processed_width`/`height` | **Never the raw image itself** — see [image-input-contract.md](image-input-contract.md) |
+| Model identity (Phase 3) | `model_deployment_id` (FK → `model_deployments.id`, `ON DELETE SET NULL`, nullable), `model_id`, `model_name`, `model_version`, `model_bundle_sha256` | The FK is nullable because history predates the `model_deployments` table existing at all |
+| Decision pipeline output (Phase 3) | `raw_probability`, `calibrated_probability`, `confidence_score`, `predicted_class`, `decision`, `threshold`, `review_lower_bound`/`upper_bound` | See [inference-architecture.md](inference-architecture.md#the-decision-pipeline) |
+| Timings (Phase 3) | `preprocessing_time_ms`, `inference_time_ms`, `calibration_time_ms`, `explanation_time_ms`, `total_time_ms` | |
+| Outcome (Phase 1+3) | `input_metadata`, `result` (`jsonb`, nullable), `explanation_requested`, `explanation_status`, `error_code`, `safe_error_message`, `completed_at` | `result` holds only non-identifying summary fields (class names, architecture) — never the Grad-CAM image, which has no column at all |
+
+**No raw patient-identifying information, and no raw image bytes, are ever stored here** — no names, no PESEL/medical-record numbers, no addresses, no pixel data. See [security.md](security.md) and [inference-security.md](inference-security.md).
+
+### `model_deployments`
+
+One row per model-load *attempt* (Phase 3) — a durable audit trail of which model was active when, not just a pointer to the current one. See [model-deployment.md](model-deployment.md) for the full lifecycle.
 
 | Column | Type | Notes |
 |---|---|---|
-| `id` | `uuid` | Primary key |
-| `user_id` | `uuid` | FK → `users.id`, `ON DELETE CASCADE`. Indexed, plus a composite `(user_id, created_at)` index for the history query |
-| `module` | `prediction_module` enum | `histopathology` \| `survival` |
-| `status` | `prediction_status` enum | `pending` \| `completed` \| `failed` \| `review_required` |
-| `input_metadata` | `jsonb`, nullable | Non-identifying metadata about the input (never raw patient identifiers) |
-| `result` | `jsonb`, nullable | Null until a real model produces one |
-| `confidence_score` | `float`, nullable | |
-| `model_name`, `model_version` | `varchar`, nullable | Which model produced the result, once one exists |
-| `inference_time_ms` | `integer`, nullable | |
-| `error_code` | `varchar(100)`, nullable | |
-| `created_at`, `updated_at` | `timestamptz` | |
+| `id`, `created_at`, `updated_at` | | |
+| `module` | `prediction_module` enum | Shared enum with `predictions.module` |
+| `model_id`, `model_name`, `model_version`, `architecture`, `dataset_name`, `dataset_mode` | `varchar` | From the bundle's manifest |
+| `bundle_path` | `varchar(1024)` | **Internal administration only — never returned by any API response** |
+| `bundle_sha256` | `varchar(64)` | |
+| `synthetic_only`, `eligible_for_demo` | `boolean` | Mirrored from the manifest so deployment history doesn't require re-reading old bundles from disk |
+| `device` | `varchar(20)` | What `MODEL_DEVICE` resolved to |
+| `status` | `model_deployment_status` enum | `loading` \| `active` \| `inactive` \| `failed` |
+| `loaded_at`, `activated_at`, `deactivated_at` | `timestamptz`, nullable | Lifecycle timestamps |
+| `warmup_completed`, `warmup_duration_ms` | | |
+| `failure_code` | `varchar(100)`, nullable | An `error_code`, never a raw stack trace |
+| `metadata_json` | `jsonb`, nullable | Reserved for future use; currently unwritten |
 
-**No raw patient-identifying information is ever stored here** — no names, no PESEL/medical-record numbers, no addresses. See [security.md](security.md).
+Rows are never deleted when a new model activates — only superseded (`status` flips to `inactive`, `deactivated_at` stamped).
 
 ## Migration workflow
 
@@ -90,4 +107,4 @@ Two databases, same PostgreSQL instance: `medrisk` (development) and `medrisk_te
 
 ## Why raw medical information is not stored
 
-This is a portfolio/research project, not a clinical system: it has no legal basis, security audit, or infrastructure appropriate for handling real patient data. The `predictions` table's `input_metadata`/`result` fields are typed as open-ended JSON specifically so future phases can attach model-relevant metadata (e.g. image dimensions, preprocessing parameters) without ever needing a column that could hold a name, a medical record number, or any other directly identifying field. All future demonstrations use public, synthetic, or properly anonymized datasets.
+This is a portfolio/research project, not a clinical system: it has no legal basis, security audit, or infrastructure appropriate for handling real patient data. The `predictions` table's `input_metadata`/`result` fields are typed as open-ended JSON specifically so model-relevant metadata (e.g. preprocessing parameters, class names) can be attached without ever needing a column that could hold a name, a medical record number, or any other directly identifying field. Phase 3's image-specific columns (`input_sha256`, `input_width`/`height`, ...) are deliberately narrow, typed columns rather than another JSON blob — specifically so it stays obvious, at the schema level, that there is no column wide enough to hold a raw image. All future demonstrations use public, synthetic, or properly anonymized datasets.

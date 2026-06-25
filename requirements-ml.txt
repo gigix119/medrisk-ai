@@ -1,6 +1,9 @@
-# ML dependencies for the MedRisk AI Phase 2 histopathology pipeline.
-# Installed separately from requirements.txt/requirements-dev.txt - the production API
-# runtime does not need PyTorch in this phase. For local ML development, install both:
+# ML dependencies for the MedRisk AI Phase 2 histopathology *training/evaluation* pipeline
+# (medrisk_ml/training, medrisk_ml/evaluation, medrisk_ml/data/datasets.py and friends).
+# The production API's own model-serving dependencies are the much smaller
+# requirements-inference.txt instead (no pandas/scikit-learn/matplotlib/tensorboard/h5py/
+# PyYAML) - see docs/inference-architecture.md. For local ML development (training,
+# evaluation, explainability, the medrisk_ml CLI), install:
 #   pip install -r requirements-dev.txt -r requirements-ml.txt
 #
 # torch / torchvision  - model definitions, training, autograd, Grad-CAM

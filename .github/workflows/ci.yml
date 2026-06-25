@@ -66,6 +66,7 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
+            requirements-inference.txt
 
       - name: Install dependencies
         run: python -m pip install -r requirements-dev.txt
@@ -88,10 +89,10 @@ jobs:
         run: python -m ruff check .
 
       - name: mypy
-        run: python -m mypy app scripts
+        run: python -m mypy app scripts medrisk_inference
 
       - name: pytest with coverage
-        run: python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
+        run: python -m pytest --cov=app --cov=medrisk_inference --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage report
         if: always()

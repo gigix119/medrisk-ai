@@ -1,31 +1,76 @@
-"""Liveness and readiness endpoints.
+"""Liveness, readiness, and model-health endpoints.
 
 These are infrastructure routes, deliberately not versioned under /api/v1.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from sqlalchemy import text
 
-from app.api.dependencies import DbSessionDep
+from app.api.dependencies import DbSessionDep, SettingsDep
 from app.core.exceptions import ServiceUnavailableError
-from app.schemas.common import HealthStatus
+from app.schemas.common import HealthStatus, ReadinessResponse
+from app.schemas.model_deployment import ModelHealthInfo, ModelHealthResponse
 
 router = APIRouter(tags=["health"])
 
 
 @router.get("/health/live", response_model=HealthStatus, summary="Liveness probe")
 async def liveness() -> HealthStatus:
-    """Confirms the API process itself is alive. Deliberately does not touch the database."""
+    """Confirms the API process itself is alive. Deliberately does not touch the database
+    or the model runtime."""
     return HealthStatus(status="ok", service="medrisk-ai-api")
 
 
-@router.get("/health/ready", response_model=HealthStatus, summary="Readiness probe")
-async def readiness(session: DbSessionDep) -> HealthStatus:
-    """Confirms required dependencies (PostgreSQL) are reachable."""
+@router.get("/health/ready", response_model=ReadinessResponse, summary="Readiness probe")
+async def readiness(
+    request: Request, session: DbSessionDep, settings: SettingsDep
+) -> ReadinessResponse:
+    """Readiness requires PostgreSQL, and additionally the histopathology model when
+    `MODEL_REQUIRED=true`. Returns 503 (via `ServiceUnavailableError`) when not ready."""
+    dependencies: dict[str, str] = {}
+
     try:
         await session.execute(text("SELECT 1"))
+        dependencies["database"] = "ready"
     except Exception as exc:
-        # Intentionally broad: any DB failure here (timeout, refused, auth)
-        # must surface as "not ready", not as an unhandled 500.
-        raise ServiceUnavailableError("Database is not reachable.") from exc
-    return HealthStatus(status="ok", service="medrisk-ai-api", database="ok")
+        # Intentionally broad: any DB failure here (timeout, refused, auth) must surface
+        # as "not ready", not as an unhandled 500.
+        raise ServiceUnavailableError(
+            "Database is not reachable.", details={"dependencies": {"database": "unreachable"}}
+        ) from exc
+
+    active = getattr(request.app.state, "histopathology_model", None)
+    model_ready = active is not None and active.runtime.health().ready
+    if settings.MODEL_REQUIRED:
+        dependencies["histopathology_model"] = "ready" if model_ready else "not_ready"
+        if not model_ready:
+            raise ServiceUnavailableError(
+                "Histopathology model is required but not ready.",
+                details={"dependencies": dependencies},
+            )
+    else:
+        dependencies["histopathology_model"] = "ready" if model_ready else "not_configured"
+
+    return ReadinessResponse(status="ready", dependencies=dependencies)
+
+
+@router.get("/health/model", response_model=ModelHealthResponse, summary="Model health")
+async def model_health(request: Request) -> ModelHealthResponse:
+    """Public, non-sensitive model runtime status - never the bundle path or other
+    internal administration details."""
+    active = getattr(request.app.state, "histopathology_model", None)
+    if active is None:
+        return ModelHealthResponse(status="unavailable", model=None)
+
+    health = active.runtime.health()
+    return ModelHealthResponse(
+        status="ready" if health.ready else "unavailable",
+        model=ModelHealthInfo(
+            model_id=health.model_id or "",
+            version=health.model_version or "",
+            architecture=active.runtime.manifest.architecture,
+            synthetic_only=bool(health.synthetic_only),
+            device_type=health.device,
+            warmup_completed=health.warmup_completed,
+        ),
+    )

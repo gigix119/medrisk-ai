@@ -77,6 +77,32 @@ class Settings(BaseSettings):
     # --- Logging ---
     LOG_LEVEL: str = "INFO"
 
+    # --- Histopathology model deployment (Phase 3) ---
+    MODEL_REQUIRED: bool = False
+    MODEL_BUNDLE_PATH: str | None = None
+    MODEL_DEVICE: Literal["auto", "cpu", "cuda", "mps"] = "auto"
+    MODEL_WARMUP_ENABLED: bool = True
+    MODEL_STRICT_VERSION_CHECK: bool = True
+    ALLOW_SYNTHETIC_MODEL: bool = False
+
+    # --- Inference request handling ---
+    INFERENCE_TIMEOUT_SECONDS: float = 20.0
+    INFERENCE_QUEUE_TIMEOUT_SECONDS: float = 5.0
+    INFERENCE_MAX_CONCURRENCY: int = 1
+
+    # --- Upload / image limits ---
+    MAX_UPLOAD_BYTES: int = 5_242_880
+    MAX_IMAGE_WIDTH: int = 4096
+    MAX_IMAGE_HEIGHT: int = 4096
+    MAX_IMAGE_PIXELS: int = 16_777_216
+    MIN_IMAGE_WIDTH: int = 32
+    MIN_IMAGE_HEIGHT: int = 32
+    STRICT_MODEL_INPUT_SHAPE: bool = True
+
+    # --- Grad-CAM explanation ---
+    GRADCAM_ENABLED: bool = True
+    GRADCAM_MAX_OUTPUT_BYTES: int = 500_000
+
     @field_validator("CORS_ORIGINS", "ALLOWED_HOSTS", mode="before")
     @classmethod
     def parse_comma_separated_lists(cls, value: Any) -> Any:
@@ -108,6 +134,19 @@ class Settings(BaseSettings):
                 f"'{self.ENVIRONMENT}'. Generate a real secret, e.g.: "
                 'python -c "import secrets; print(secrets.token_urlsafe(64))"'
             )
+        return self
+
+    @model_validator(mode="after")
+    def validate_production_model_policy(self) -> "Settings":
+        """A synthetic model must never be reachable in production, and production must
+        be explicit about requiring a real model rather than silently running without one.
+        """
+        if self.ENVIRONMENT != "production":
+            return self
+        if self.ALLOW_SYNTHETIC_MODEL:
+            raise ValueError("ALLOW_SYNTHETIC_MODEL must be false when ENVIRONMENT=production.")
+        if not self.MODEL_REQUIRED:
+            raise ValueError("MODEL_REQUIRED must be true when ENVIRONMENT=production.")
         return self
 
 

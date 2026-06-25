@@ -1,0 +1,48 @@
+# MedRisk AI API - Phase 3 image: the FastAPI backend plus the histopathology inference
+# runtime (medrisk_inference/). Lean on purpose: only medrisk_ml's non-training submodules
+# are ever imported (bundle/manifest/factory/transforms/explainability - see
+# tests/inference/test_import_isolation.py), so this image never needs pandas, scikit-learn,
+# matplotlib, tensorboard, h5py, or PyYAML.
+#
+# The model bundle itself is NOT baked into this image - mount it read-only and point
+# MODEL_BUNDLE_PATH at it (see compose.inference.yaml). Training artifacts, optimizer
+# states, and experiment history never ship in this image.
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Dependency layer first, so code-only changes don't invalidate the pip install cache.
+# torch/torchvision are installed explicitly from PyTorch's own CPU index first, to
+# guarantee a minimal CPU-only install regardless of what the plain PyPI wheel for this
+# pinned version would resolve to (see requirements-ml.txt's note on the CUDA opt-in build).
+COPY requirements.txt requirements-inference.txt ./
+RUN pip install --no-cache-dir torch==2.11.0 torchvision==0.26.0 \
+        --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt -r requirements-inference.txt
+
+COPY app ./app
+COPY medrisk_ml ./medrisk_ml
+COPY medrisk_inference ./medrisk_inference
+COPY alembic ./alembic
+COPY alembic.ini ./
+COPY scripts ./scripts
+
+RUN groupadd --system medrisk && useradd --system --gid medrisk --create-home medrisk \
+    && chown -R medrisk:medrisk /app
+USER medrisk
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')" || exit 1
+
+# Exactly one worker: each Uvicorn worker loads its own model copy into memory (see
+# docs/model-deployment.md "Single model per process"). Do not raise --workers without
+# first testing memory and concurrency under load.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

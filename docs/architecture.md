@@ -40,7 +40,7 @@ Each box is a real module boundary you can `Read` in this repo: `RequestIdMiddle
 
 ## API layer
 
-Routers live under `app/api/v1/endpoints/` (`auth.py`, `health.py`, `users.py`, `predictions.py`) and are aggregated in `app/api/v1/router.py`, mounted under `API_V1_PREFIX` (default `/api/v1`) by `app/api/router.py`. Health/root routes are deliberately **not** versioned. Endpoint functions are thin: parse input (via a Pydantic schema), call a service function, map the result to a response schema. They contain no SQL and no token logic.
+Routers live under `app/api/v1/endpoints/` (`auth.py`, `health.py`, `users.py`, `predictions.py`, `models.py`) and are aggregated in `app/api/v1/router.py`, mounted under `API_V1_PREFIX` (default `/api/v1`) by `app/api/router.py`. Health/root routes are deliberately **not** versioned. Endpoint functions are thin: parse input (via a Pydantic schema), call a service function, map the result to a response schema. They contain no SQL and no token logic.
 
 ## Service layer
 
@@ -103,16 +103,22 @@ sequenceDiagram
 
 Schema changes only ever happen through Alembic migrations (`alembic upgrade head`) — the application never calls `Base.metadata.create_all()` at startup. See [database.md](database.md) for the table-by-table schema and migration workflow.
 
+## Histopathology inference (Phase 3)
+
+A loaded PyTorch model is process-wide shared state, unlike anything Phase 1 needed — it lives on `app.state`, built once in `lifespan()` and never reloaded per request. This is a large enough addition (a new package, a new lifecycle, new concurrency/upload/security concerns) to warrant its own document: see [inference-architecture.md](inference-architecture.md), plus [image-input-contract.md](image-input-contract.md), [model-deployment.md](model-deployment.md), and [inference-security.md](inference-security.md).
+
 ## Error handling
 
 Four exception handlers, registered once in `app/main.py`:
 
 | Exception | Status | Source |
 |---|---|---|
-| `AppError` (and subclasses: `ConflictError`, `AuthenticationError`, `TokenExpiredError`, `TokenRevokedError`, `AuthorizationError`, `ResourceNotFoundError`, `ServiceUnavailableError`) | varies (409/401/403/404/503) | Raised explicitly by services |
+| `AppError` (and subclasses: `ConflictError`, `AuthenticationError`, `TokenExpiredError`, `TokenRevokedError`, `AuthorizationError`, `ResourceNotFoundError`, `ServiceUnavailableError`, `ModelNotConfiguredError`, `ModelUnavailableError`, `InferenceQueueFullError`, `InferenceTimeoutError`, plus dynamically-coded instances created via `AppError(..., status_code=..., error_code=...)` for the many `medrisk_inference` error codes — see [inference-architecture.md](inference-architecture.md#error-codes)) | varies (401/403/404/409/429/503/504, and more) | Raised explicitly by services |
 | `RequestValidationError` | 422 | Raised by FastAPI/Pydantic for malformed request bodies |
 | `StarletteHTTPException` | varies | FastAPI's own `HTTPException`, and framework defaults (404, 401 from `OAuth2PasswordBearer`, ...) |
 | `Exception` (catch-all) | 500 | Anything unexpected — logged with a stack trace server-side, never shown to the client |
+
+`AppError.__init__` accepts optional `status_code`/`error_code`/`headers` overrides on top of its subclass-level defaults — used by `InferenceQueueFullError` to attach a `Retry-After` header, and by `app/services/prediction.py::translate_inference_error` to map the open-ended set of `medrisk_inference` error codes onto HTTP statuses without needing one exception subclass per code.
 
 Every response funnels through the same envelope:
 

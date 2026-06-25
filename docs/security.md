@@ -34,15 +34,19 @@ This means a refresh token is single-use: once rotated, presenting the old one a
 
 `app/core/logging.py` configures the standard library `logging` module only. Every call site is expected to never log: plaintext passwords, password hashes, JWTs (access or refresh), the `Authorization` header, raw refresh tokens, or database credentials. Health/readiness checks, request logs, and the global exception handler log a request ID and an error *type*, not raw exception payloads that might contain sensitive input.
 
+## Histopathology inference (Phase 3)
+
+`POST /api/v1/predictions/histopathology` performs real model inference against an uploaded image — see [inference-security.md](inference-security.md) for the full threat model (decompression bombs, EXIF/metadata stripping, MIME spoofing, error-message safety, synthetic-model guardrails) and [image-input-contract.md](image-input-contract.md) for the upload validation contract. The `/survival` endpoint remains an honest `501` placeholder, same as Phase 1.
+
 ## No real patient data
 
 This is an educational/research portfolio project, not a system with the legal basis, audit trail, or infrastructure hardening required to handle real patient data:
 
 - No real patient data should ever be uploaded to or processed by this system.
-- No names, PESEL numbers, addresses, medical record numbers, or other directly identifying clinical information should be stored anywhere, including in the open-ended `predictions.input_metadata`/`result` JSONB columns.
-- All future demonstrations must use public, synthetic, or properly anonymized data.
-- The application is not a medical device. Results — including the current placeholder `501` responses — must never be used for diagnosis, treatment decisions, or emergency medical guidance.
-- Placeholder inference endpoints perform no inference at all; they cannot leak model output because there is no model.
+- No names, PESEL numbers, addresses, medical record numbers, or other directly identifying clinical information should be stored anywhere, including in the open-ended `predictions.input_metadata`/`result` JSONB columns or the free-text `client_reference` field.
+- All future demonstrations must use public, synthetic, or properly anonymized data. The one model bundle shipped in this repository is synthetic-only and has no medical meaning whatsoever (see [model-deployment.md](model-deployment.md)).
+- The application is not a medical device. Results — including the `/survival` placeholder's `501` response and the histopathology endpoint's real-but-synthetic-model output — must never be used for diagnosis, treatment decisions, or emergency medical guidance. Every prediction response carries this disclaimer explicitly.
+- The raw uploaded image is never persisted, on disk or in the database, under any circumstance — see [image-input-contract.md](image-input-contract.md) "What is never persisted or returned."
 
 ## Responsible reporting
 

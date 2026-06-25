@@ -19,14 +19,14 @@ alembic check
 python scripts/check.py
 ```
 
-`scripts/check.py` runs, in this order, stopping at the first failure: `ruff format --check`, `ruff check`, `mypy app scripts`, `pytest --cov=app --cov-report=term-missing`. This is the same sequence `.github/workflows/ci.yml` runs (plus the migration steps, which only make sense in a job that provisions a fresh database).
+`scripts/check.py` runs, in this order, stopping at the first failure: `ruff format --check`, `ruff check`, `mypy app scripts medrisk_inference`, `pytest --cov=app --cov=medrisk_inference --cov-report=term-missing`. This is the same sequence `.github/workflows/ci.yml` runs (plus the migration steps, which only make sense in a job that provisions a fresh database). `medrisk_ml` has its own equivalent gate, run by CI's separate `ml` job — see [ml-architecture.md](ml-architecture.md).
 
 ## Running just one thing
 
 ```bash
 ruff format .                          # auto-fix formatting
 ruff check --fix .                     # auto-fix the lintable issues
-mypy app scripts                        # types only
+mypy app scripts medrisk_inference      # types only
 pytest tests/unit                       # fast, no database
 pytest tests/integration -v             # against the real test database
 pytest -k test_login_with_wrong_password_returns_401   # one test by name

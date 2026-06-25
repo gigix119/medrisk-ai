@@ -17,10 +17,25 @@ class AppError(Exception):
     default_message: str = "An unexpected error occurred."
 
     def __init__(
-        self, message: str | None = None, *, details: dict[str, Any] | None = None
+        self,
+        message: str | None = None,
+        *,
+        details: dict[str, Any] | None = None,
+        status_code: int | None = None,
+        error_code: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         self.message = message or self.default_message
         self.details = details
+        # Per-instance overrides: most subclasses rely on the class-level defaults, but the
+        # inference layer maps many distinct medrisk_inference error codes onto a handful of
+        # HTTP statuses, which is simpler as one class with dynamic code/status than as a
+        # subclass per code.
+        if status_code is not None:
+            self.status_code = status_code
+        if error_code is not None:
+            self.error_code = error_code
+        self.headers = headers
         super().__init__(self.message)
 
 
@@ -76,3 +91,35 @@ class ServiceUnavailableError(AppError):
     status_code = 503
     error_code = "SERVICE_UNAVAILABLE"
     default_message = "A required service is temporarily unavailable."
+
+
+class ModelNotConfiguredError(ServiceUnavailableError):
+    """Raised when no model bundle path is configured at all (MODEL_REQUIRED=false)."""
+
+    error_code = "MODEL_NOT_CONFIGURED"
+    default_message = "No histopathology model is configured on this server."
+
+
+class ModelUnavailableError(ServiceUnavailableError):
+    """Raised when a model is configured but not currently loaded/ready (failed to load,
+    still starting up, or a prior fatal runtime error marked it unhealthy)."""
+
+    error_code = "MODEL_NOT_READY"
+    default_message = "The histopathology model is not ready to serve predictions."
+
+
+class InferenceQueueFullError(AppError):
+    """Raised when the inference concurrency limiter's queue-wait timeout elapses."""
+
+    status_code = 429
+    error_code = "INFERENCE_QUEUE_FULL"
+    default_message = "The inference queue is full. Please retry shortly."
+
+    def __init__(self, message: str | None = None, *, retry_after_seconds: int = 1) -> None:
+        super().__init__(message, headers={"Retry-After": str(retry_after_seconds)})
+
+
+class InferenceTimeoutError(AppError):
+    status_code = 504
+    error_code = "INFERENCE_TIMEOUT"
+    default_message = "The inference request exceeded its deadline."

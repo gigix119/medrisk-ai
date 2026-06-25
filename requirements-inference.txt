@@ -1,0 +1,22 @@
+# Additional dependencies for the MedRisk AI Phase 3 inference runtime (medrisk_inference/).
+# Installed on top of requirements.txt (FastAPI/pydantic/SQLAlchemy already cover the rest).
+#
+# torch / torchvision - load the bundle's architecture + state_dict, run the forward pass,
+#                        and (medrisk_ml.explainability) compute Grad-CAM
+# numpy                - Grad-CAM heatmap math, overlay blending
+# pillow               - secure image decoding/validation, Grad-CAM overlay encoding
+#
+# Deliberately excluded (training-only, never imported by medrisk_inference or by the
+# medrisk_ml submodules it reuses - see tests/inference/test_import_isolation.py):
+# pandas, scikit-learn, matplotlib, tqdm, tensorboard, h5py, PyYAML.
+#
+# Pinned to the same CPU-compatible build as requirements-ml.txt. Dockerfile.inference
+# additionally installs from https://download.pytorch.org/whl/cpu explicitly, to guarantee a
+# minimal CPU-only image build regardless of platform. On a CUDA-capable dev machine,
+# `pip install` the matching `+cuXXX` build instead/in addition (see requirements-ml.txt for
+# the exact command) - it satisfies this same pin.
+
+torch==2.11.0
+torchvision==0.26.0
+numpy==2.4.4
+pillow==12.2.0

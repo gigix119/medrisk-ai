@@ -29,3 +29,8 @@ class HealthStatus(BaseModel):
     status: str
     service: str
     database: str | None = None
+
+
+class ReadinessResponse(BaseModel):
+    status: str
+    dependencies: dict[str, str]
