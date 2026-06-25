@@ -21,6 +21,8 @@ export const routes = {
     `/app/datasets/${datasetId}/samples/${sampleId}`,
   predictions: '/app/predictions',
   predictionDetail: (id: string) => `/app/predictions/${id}`,
+  research: '/app/research',
+  researchResult: (evaluationId: string) => `/app/research/${evaluationId}`,
   appModel: '/app/model',
   help: '/app/help',
   preferences: '/app/preferences',

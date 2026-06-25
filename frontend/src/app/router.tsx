@@ -13,6 +13,8 @@ import { DatasetSampleDetailPage } from '@/pages/app/DatasetSampleDetailPage'
 import { PredictionHistoryPage } from '@/pages/app/PredictionHistoryPage'
 import { PredictionResultPage } from '@/pages/app/PredictionResultPage'
 import { PreferencesPage } from '@/pages/app/PreferencesPage'
+import { ResearchOverviewPage } from '@/pages/app/ResearchOverviewPage'
+import { ResearchResultPage } from '@/pages/app/ResearchResultPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { NotFoundPage } from '@/pages/errors/NotFoundPage'
@@ -61,6 +63,8 @@ export function AppRoutes() {
             path={routes.predictionDetail(':predictionId')}
             element={<PredictionResultPage />}
           />
+          <Route path={routes.research} element={<ResearchOverviewPage />} />
+          <Route path={routes.researchResult(':evaluationId')} element={<ResearchResultPage />} />
           <Route path={routes.appModel} element={<ComingSoonPage title="Active model" />} />
           <Route path={routes.help} element={<ComingSoonPage title="Help center" />} />
           <Route path={routes.preferences} element={<PreferencesPage />} />

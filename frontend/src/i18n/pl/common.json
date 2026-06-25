@@ -79,6 +79,7 @@
     "datasets": "Datasety",
     "researchRuns": "Przebiegi badawcze",
     "more": "Więcej",
+    "evaluations": "Ewaluacje",
     "model": "Model",
     "help": "Pomoc",
     "preferences": "Dostępność",
@@ -333,6 +334,96 @@
       "totalRuns": "Łączna liczba przebiegów badawczych",
       "correct": "Prawidłowe",
       "incorrect": "Nieprawidłowe"
+    }
+  },
+  "research": {
+    "overview": {
+      "title": "Wyniki ewaluacji",
+      "intro": "Przebiegi ewaluacji obliczone offline dla zarejestrowanych datasetów i modeli. Każda metryka jest tworzona przez potok medrisk_research i tylko odczytywana w tym miejscu - aktywne API nigdy nie przelicza wyniku ponownie.",
+      "loading": "Wczytywanie przebiegów ewaluacji…",
+      "error": "Nie udało się wczytać przebiegów ewaluacji.",
+      "empty": "Nie zarejestrowano jeszcze żadnych przebiegów ewaluacji.",
+      "filters": {
+        "dataset": "Dataset",
+        "allDatasets": "Wszystkie datasety",
+        "status": "Status",
+        "allStatuses": "Każdy status"
+      },
+      "fields": {
+        "dataset": "Dataset",
+        "split": "Podział",
+        "primaryMetric": "Metryka główna",
+        "noPrimaryMetric": "Brak zarejestrowanej metryki głównej",
+        "created": "Utworzono"
+      },
+      "pageInfo": "{{from}}–{{to}} z {{total}}",
+      "previous": "Poprzednia",
+      "next": "Następna"
+    },
+    "status": {
+      "pending": "Oczekujący",
+      "running": "W trakcie",
+      "completed": "Zakończony",
+      "failed": "Nieudany",
+      "cancelled": "Odwołany",
+      "invalidated": "Unieważniony"
+    },
+    "classification": {
+      "synthetic_demo": "Demonstracja syntetyczna",
+      "exploratory_validation": "Walidacja eksploracyjna",
+      "cross_validation": "Walidacja krzyżowa",
+      "held_out_test": "Test na wydzielonym zbiorze",
+      "external_test": "Test zewnętrzny",
+      "benchmark": "Benchmark",
+      "unknown": "Nieklasyfikowany"
+    },
+    "result": {
+      "loading": "Wczytywanie przebiegu ewaluacji…",
+      "notFound": "Nie znaleziono przebiegu ewaluacji.",
+      "error": "Nie udało się wczytać tego przebiegu ewaluacji.",
+      "backToOverview": "Powrót do wyników ewaluacji",
+      "maturityNotice": "To opisuje jeden przebieg ewaluacji wykonany offline. Jest to pomiar badawczy, nie walidacja kliniczna, i nie może być podstawą twierdzeń diagnostycznych lub terapeutycznych.",
+      "noMetricsYet": "Ten przebieg nie ma jeszcze zakończonych metryk.",
+      "details": {
+        "title": "Szczegóły przebiegu",
+        "dataset": "Dataset",
+        "split": "Podział",
+        "createdAt": "Utworzono",
+        "completedAt": "Zakończono",
+        "failureReason": "Powód niepowodzenia",
+        "notes": "Notatki",
+        "id": "Identyfikator ewaluacji"
+      },
+      "metrics": {
+        "title": "Metryki",
+        "counts": "Liczności",
+        "status": {
+          "undefined": "Niezdefiniowana",
+          "unavailable": "Niedostępna"
+        }
+      },
+      "confusionMatrix": {
+        "title": "Macierz pomyłek",
+        "axisHint": "Wiersze to klasa rzeczywista (referencyjna); kolumny to klasa przewidziana.",
+        "actual": "Rzeczywista",
+        "predicted": "Przewidziana",
+        "unavailable": "Macierz pomyłek jest niedostępna dla tego przebiegu."
+      },
+      "errors": {
+        "title": "Predykcje dla poszczególnych próbek",
+        "subtitle": "Pojedyncze predykcje zapisane dla tego przebiegu ewaluacji.",
+        "filterCorrectness": "Poprawność",
+        "any": "Każda",
+        "correct": "Tylko poprawne",
+        "incorrect": "Tylko niepoprawne",
+        "empty": "Brak predykcji próbek spełniających bieżące filtry.",
+        "groundTruth": "Etykieta referencyjna",
+        "predicted": "Przewidziana",
+        "confidence": "Pewność",
+        "pageInfo": "{{from}}–{{to}} z {{total}}",
+        "previous": "Poprzednia",
+        "next": "Następna"
+      }
     }
   }
 }

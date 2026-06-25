@@ -79,6 +79,7 @@
     "datasets": "Datasets",
     "researchRuns": "Research runs",
     "more": "More",
+    "evaluations": "Evaluations",
     "model": "Model",
     "help": "Help",
     "preferences": "Accessibility",
@@ -333,6 +334,96 @@
       "totalRuns": "Total research runs",
       "correct": "Correct",
       "incorrect": "Incorrect"
+    }
+  },
+  "research": {
+    "overview": {
+      "title": "Evaluation results",
+      "intro": "Offline-computed evaluation runs for registered datasets and models. Every metric is produced by the medrisk_research pipeline and only ever read here - the live API never recomputes a result.",
+      "loading": "Loading evaluation runs…",
+      "error": "We could not load evaluation runs.",
+      "empty": "No evaluation runs have been recorded yet.",
+      "filters": {
+        "dataset": "Dataset",
+        "allDatasets": "All datasets",
+        "status": "Status",
+        "allStatuses": "Any status"
+      },
+      "fields": {
+        "dataset": "Dataset",
+        "split": "Split",
+        "primaryMetric": "Primary metric",
+        "noPrimaryMetric": "No primary metric recorded yet",
+        "created": "Created"
+      },
+      "pageInfo": "{{from}}–{{to}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "invalidated": "Invalidated"
+    },
+    "classification": {
+      "synthetic_demo": "Synthetic demonstration",
+      "exploratory_validation": "Exploratory validation",
+      "cross_validation": "Cross-validation",
+      "held_out_test": "Held-out test",
+      "external_test": "External test",
+      "benchmark": "Benchmark",
+      "unknown": "Unclassified"
+    },
+    "result": {
+      "loading": "Loading evaluation run…",
+      "notFound": "Evaluation run not found.",
+      "error": "We could not load this evaluation run.",
+      "backToOverview": "Back to evaluation results",
+      "maturityNotice": "This describes one offline evaluation run. It is a research measurement, not a clinical validation, and must not be used to support diagnostic or treatment claims.",
+      "noMetricsYet": "This run has no completed metrics yet.",
+      "details": {
+        "title": "Run details",
+        "dataset": "Dataset",
+        "split": "Split",
+        "createdAt": "Created",
+        "completedAt": "Completed at",
+        "failureReason": "Failure reason",
+        "notes": "Notes",
+        "id": "Evaluation ID"
+      },
+      "metrics": {
+        "title": "Metrics",
+        "counts": "Counts",
+        "status": {
+          "undefined": "Undefined",
+          "unavailable": "Unavailable"
+        }
+      },
+      "confusionMatrix": {
+        "title": "Confusion matrix",
+        "axisHint": "Rows are the actual (ground-truth) class; columns are the predicted class.",
+        "actual": "Actual",
+        "predicted": "Predicted",
+        "unavailable": "A confusion matrix is not available for this run."
+      },
+      "errors": {
+        "title": "Per-sample predictions",
+        "subtitle": "Individual predictions stored for this evaluation run.",
+        "filterCorrectness": "Correctness",
+        "any": "Any",
+        "correct": "Correct only",
+        "incorrect": "Incorrect only",
+        "empty": "No sample predictions match the current filters.",
+        "groundTruth": "Ground truth",
+        "predicted": "Predicted",
+        "confidence": "Confidence",
+        "pageInfo": "{{from}}–{{to}} of {{total}}",
+        "previous": "Previous",
+        "next": "Next"
+      }
     }
   },
   "infoPages": {

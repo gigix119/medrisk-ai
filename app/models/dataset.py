@@ -45,6 +45,9 @@ class Dataset(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     is_synthetic: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # --- Phase 7: manifest immutability (nullable - computed lazily by the dataset quality
+    # audit service, not at seed time, so existing rows don't need a backfill migration) ---
+    manifest_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     def __repr__(self) -> str:
         return f"Dataset(id={self.id!r}, slug={self.slug!r}, version={self.version!r})"

@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog'
-import { Settings, HelpCircle, LogOut, X } from 'lucide-react'
+import { Settings, HelpCircle, LogOut, X, FlaskConical } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, Outlet } from 'react-router-dom'
@@ -40,6 +40,10 @@ export function AppShell() {
           ))}
         </nav>
         <div className="flex flex-col gap-1 border-t border-border px-3 py-4">
+          <NavLink to={routes.research} className={navLinkClass}>
+            <FlaskConical aria-hidden size={22} />
+            {t('appNav.evaluations')}
+          </NavLink>
           <NavLink to={routes.appModel} className={navLinkClass}>
             <Settings aria-hidden size={22} />
             {t('appNav.model')}
@@ -123,6 +127,13 @@ export function AppShell() {
                         </button>
                       </Dialog.Close>
                     </div>
+                    <NavLink
+                      to={routes.research}
+                      onClick={() => setMoreOpen(false)}
+                      className="rounded-(--radius-md) px-4 py-3 text-lg font-medium text-text-primary hover:bg-surface-subtle"
+                    >
+                      {t('appNav.evaluations')}
+                    </NavLink>
                     <NavLink
                       to={routes.appModel}
                       onClick={() => setMoreOpen(false)}

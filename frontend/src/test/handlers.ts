@@ -7,6 +7,12 @@ import type {
 } from '@/features/datasets/api'
 import type { ActiveModelResponse } from '@/features/model/api'
 import type { HistopathologyPredictionResponse, PredictionRead } from '@/features/predictions/api'
+import type {
+  ConfusionMatrixRead,
+  EvaluationMetricsRead,
+  EvaluationRunRead,
+  EvaluationSamplePredictionRead,
+} from '@/features/research/api'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -310,6 +316,119 @@ export const MOCK_PREDICT_ON_SAMPLE_RESPONSE_INCORRECT = predictOnSampleResponse
   MOCK_DATASET_SAMPLE_INCORRECT,
 )
 
+export const MOCK_EVALUATION_ID_COMPLETED = '77777777-7777-7777-7777-777777777777'
+export const MOCK_EVALUATION_ID_PENDING = '88888888-8888-8888-8888-888888888888'
+
+const MOCK_EVALUATION_METRICS: EvaluationMetricsRead = {
+  evaluation_id: MOCK_EVALUATION_ID_COMPLETED,
+  status: 'completed',
+  scalar_metrics: [
+    { name: 'accuracy', value: 0.5, status: 'ok', reason: null },
+    {
+      name: 'roc_auc',
+      value: null,
+      status: 'undefined',
+      reason: 'Only one ground-truth class is present in this split.',
+    },
+  ],
+  counts: { true_negative: 1, false_positive: 0, false_negative: 1, true_positive: 0 },
+  confidence_intervals: null,
+}
+
+const MOCK_CONFUSION_MATRIX: ConfusionMatrixRead = {
+  evaluation_id: MOCK_EVALUATION_ID_COMPLETED,
+  available: true,
+  class_labels: ['normal', 'tumor'],
+  positive_class: 'tumor',
+  matrix: [
+    [1, 0],
+    [1, 0],
+  ],
+  normalized_matrix: [
+    [1, 0],
+    [1, 0],
+  ],
+}
+
+export const MOCK_EVALUATION_RUN_COMPLETED: EvaluationRunRead = {
+  id: MOCK_EVALUATION_ID_COMPLETED,
+  experiment_run_id: null,
+  study_id: null,
+  dataset_id: MOCK_DATASET_ID,
+  model_deployment_id: null,
+  model_id: 'smoke-baseline-cnn',
+  model_version: '0.0.1-smoke',
+  split_name: 'test',
+  result_classification: 'synthetic_demo',
+  status: 'completed',
+  protocol_hash: 'a'.repeat(64),
+  primary_metric_name: 'accuracy',
+  primary_metric_value: 0.5,
+  metrics: { class_names: ['normal', 'tumor'] },
+  confidence_intervals: null,
+  calibration_metrics: null,
+  threshold_metrics: null,
+  artifact_manifest: null,
+  notes: 'Test fixture evaluation run.',
+  created_at: '2026-06-20T10:00:05Z',
+  completed_at: '2026-06-20T10:05:00Z',
+  failure_reason: null,
+}
+
+export const MOCK_EVALUATION_RUN_PENDING: EvaluationRunRead = {
+  id: MOCK_EVALUATION_ID_PENDING,
+  experiment_run_id: null,
+  study_id: null,
+  dataset_id: MOCK_DATASET_ID,
+  model_deployment_id: null,
+  model_id: 'smoke-baseline-cnn',
+  model_version: '0.0.1-smoke',
+  split_name: 'test',
+  result_classification: 'synthetic_demo',
+  status: 'pending',
+  protocol_hash: null,
+  primary_metric_name: null,
+  primary_metric_value: null,
+  metrics: null,
+  confidence_intervals: null,
+  calibration_metrics: null,
+  threshold_metrics: null,
+  artifact_manifest: null,
+  notes: null,
+  created_at: '2026-06-21T10:00:00Z',
+  completed_at: null,
+  failure_reason: null,
+}
+
+const MOCK_EVALUATION_SAMPLE_PREDICTIONS: EvaluationSamplePredictionRead[] = [
+  {
+    id: '99999999-9999-9999-9999-999999999991',
+    dataset_sample_id: MOCK_SAMPLE_ID_CORRECT,
+    sample_key: 'train-0000',
+    split: 'train',
+    ground_truth_label: 'normal',
+    predicted_class: 'normal',
+    probabilities: { normal: 0.9, tumor: 0.1 },
+    confidence: 0.9,
+    is_correct: true,
+    error_type: null,
+    inference_duration_ms: 12.5,
+  },
+  {
+    id: '99999999-9999-9999-9999-999999999992',
+    dataset_sample_id: MOCK_SAMPLE_ID_INCORRECT,
+    sample_key: 'train-0001',
+    split: 'train',
+    ground_truth_label: 'tumor',
+    predicted_class: 'normal',
+    probabilities: { normal: 0.6, tumor: 0.4 },
+    confidence: 0.6,
+    is_correct: false,
+    error_type: 'false_negative',
+    inference_duration_ms: 11.0,
+  },
+]
+
 function pngBytes(): Uint8Array {
   const binary = atob(TINY_PNG_BASE64)
   return Uint8Array.from(binary, (char) => char.charCodeAt(0))
@@ -439,4 +558,68 @@ export const handlers = [
     }
     return HttpResponse.json(predictOnSampleResponse(sample), { status: 201 })
   }),
+
+  http.get(`${API_BASE}/api/v1/research/evaluations`, ({ request }) => {
+    const url = new URL(request.url)
+    const datasetId = url.searchParams.get('dataset_id')
+    const status = url.searchParams.get('status')
+    const items = [MOCK_EVALUATION_RUN_COMPLETED, MOCK_EVALUATION_RUN_PENDING].filter(
+      (run) => (!datasetId || run.dataset_id === datasetId) && (!status || run.status === status),
+    )
+    return HttpResponse.json({ items, total: items.length, limit: 20, offset: 0 })
+  }),
+
+  http.get(`${API_BASE}/api/v1/research/evaluations/:evaluationId`, ({ params }) => {
+    const run = [MOCK_EVALUATION_RUN_COMPLETED, MOCK_EVALUATION_RUN_PENDING].find(
+      (item) => item.id === params.evaluationId,
+    )
+    if (!run) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Evaluation run not found.' } },
+        { status: 404 },
+      )
+    }
+    return HttpResponse.json(run)
+  }),
+
+  http.get(`${API_BASE}/api/v1/research/evaluations/:evaluationId/metrics`, ({ params }) => {
+    if (params.evaluationId !== MOCK_EVALUATION_ID_COMPLETED) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Evaluation run not found.' } },
+        { status: 404 },
+      )
+    }
+    return HttpResponse.json(MOCK_EVALUATION_METRICS)
+  }),
+
+  http.get(
+    `${API_BASE}/api/v1/research/evaluations/:evaluationId/confusion-matrix`,
+    ({ params }) => {
+      if (params.evaluationId !== MOCK_EVALUATION_ID_COMPLETED) {
+        return HttpResponse.json(
+          { error: { code: 'NOT_FOUND', message: 'Evaluation run not found.' } },
+          { status: 404 },
+        )
+      }
+      return HttpResponse.json(MOCK_CONFUSION_MATRIX)
+    },
+  ),
+
+  http.get(
+    `${API_BASE}/api/v1/research/evaluations/:evaluationId/errors`,
+    ({ params, request }) => {
+      if (params.evaluationId !== MOCK_EVALUATION_ID_COMPLETED) {
+        return HttpResponse.json(
+          { error: { code: 'NOT_FOUND', message: 'Evaluation run not found.' } },
+          { status: 404 },
+        )
+      }
+      const url = new URL(request.url)
+      const isCorrect = url.searchParams.get('is_correct')
+      const items = MOCK_EVALUATION_SAMPLE_PREDICTIONS.filter(
+        (item) => isCorrect === null || String(item.is_correct) === isCorrect,
+      )
+      return HttpResponse.json({ items, total: items.length, limit: 20, offset: 0 })
+    },
+  ),
 ]

@@ -1,0 +1,133 @@
+# Structured references registry (Phase 7, master-spec section 28).
+#
+# Every entry below was checked against a live web search on 2026-06-25 (titles, authors,
+# venue, year, and DOI/identifier cross-referenced against at least two independent sources -
+# the official venue page or GitHub repo, plus dblp/ACM/Springer) before being marked
+# `verification_status: verified`. Nothing here is invented: no entry exists for a reference
+# that wasn't actually checked, and any future addition that can't be verified this way must
+# be added with `verification_status: unverified` or `missing`, never silently as "verified".
+#
+# Model cards, dataset cards and research reports (Phase 7) resolve citations from this file
+# by `id` - see app.research.domain (future: a typed loader) and docs/PHASE_7_PROGRESS.md.
+
+- id: gradcam-selvaraju-2017
+  title: "Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization"
+  authors:
+    - "Ramprasaath R. Selvaraju"
+    - "Michael Cogswell"
+    - "Abhishek Das"
+    - "Ramakrishna Vedantam"
+    - "Devi Parikh"
+    - "Dhruv Batra"
+  year: 2017
+  publication: "Proceedings of the IEEE International Conference on Computer Vision (ICCV 2017), pp. 618-626"
+  doi: "10.1109/ICCV.2017.74"
+  official_url: "https://openaccess.thecvf.com/content_iccv_2017/html/Selvaraju_Grad-CAM_Visual_Explanations_ICCV_2017_paper.html"
+  citation_text: >
+    Selvaraju, R.R., Cogswell, M., Das, A., Vedantam, R., Parikh, D. and Batra, D. (2017).
+    Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization. 2017
+    IEEE International Conference on Computer Vision (ICCV), Venice, 618-626.
+  reference_type: explainability_method
+  usage_context: "medrisk_ml.explainability (Grad-CAM implementation); cited by every model card and the synthetic-demo study."
+  verification_status: verified
+  verification_note: "Confirmed via CVF Open Access (primary), dblp, and ACM/SciRP cross-references on 2026-06-25."
+
+- id: pcam-veeling-2018
+  title: "Rotation Equivariant CNNs for Digital Pathology"
+  authors:
+    - "Bastiaan S. Veeling"
+    - "Jasper Linmans"
+    - "Jim Winkens"
+    - "Taco Cohen"
+    - "Max Welling"
+  year: 2018
+  publication: "Medical Image Computing and Computer Assisted Intervention (MICCAI 2018), Part II, Springer LNCS"
+  doi: "10.1007/978-3-030-00934-2_24"
+  official_url: "https://github.com/basveeling/pcam"
+  citation_text: >
+    Veeling, B.S., Linmans, J., Winkens, J., Cohen, T. and Welling, M. (2018). Rotation
+    Equivariant CNNs for Digital Pathology. In: Medical Image Computing and Computer
+    Assisted Intervention - MICCAI 2018. Springer, Cham.
+  reference_type: dataset
+  usage_context: >
+    Describes the PatchCamelyon (PCam) dataset that medrisk_ml.data.datasets.PCamDataset wraps
+    (gated, not auto-downloaded). NOT used by the synthetic-demo study - the only data
+    currently evaluated in this repository is fully synthetic; this entry is retained for the
+    future study that actually trains/evaluates on real PCam data, and must not be cited from
+    any study that hasn't.
+  verification_status: verified
+  verification_note: "Confirmed via Springer chapter page, official basveeling/pcam GitHub repo, and arXiv:1806.03962 on 2026-06-25."
+
+- id: scikit-learn
+  title: "Scikit-learn: Machine Learning in Python"
+  authors:
+    - "Fabian Pedregosa"
+    - "Gaël Varoquaux"
+    - "Alexandre Gramfort"
+    - "Vincent Michel"
+    - "Bertrand Thirion"
+    - "Olivier Grisel"
+    - "Mathieu Blondel"
+    - "Peter Prettenhofer"
+    - "Ron Weiss"
+    - "Vincent Dubourg"
+    - "Jake Vanderplas"
+    - "Alexandre Passos"
+    - "David Cournapeau"
+    - "Matthieu Brucher"
+    - "Matthieu Perrot"
+    - "Édouard Duchesnay"
+  year: 2011
+  publication: "Journal of Machine Learning Research, vol. 12, pp. 2825-2830"
+  doi: null
+  official_url: "https://scikit-learn.org/stable/about.html"
+  citation_text: >
+    Pedregosa, F., Varoquaux, G., Gramfort, A., et al. (2011). Scikit-learn: Machine Learning
+    in Python. Journal of Machine Learning Research, 12, 2825-2830.
+  reference_type: software_documentation
+  usage_context: "medrisk_ml.evaluation.metrics (roc_auc_score, average_precision_score)."
+  verification_status: verified
+  verification_note: >
+    Confirmed via dblp, ACM Digital Library record (10.5555/1953048.2078195), and the
+    project's own "About us" page on 2026-06-25. No DOI is registered for this JMLR article
+    (JMLR did not assign DOIs to articles from this period) - left null rather than fabricated.
+
+- id: pytorch
+  title: "PyTorch: An Imperative Style, High-Performance Deep Learning Library"
+  authors:
+    - "Adam Paszke"
+    - "Sam Gross"
+    - "Francisco Massa"
+    - "Adam Lerer"
+    - "James Bradbury"
+    - "Gregory Chanan"
+    - "Trevor Killeen"
+    - "Zeming Lin"
+    - "Natalia Gimelshein"
+    - "Luca Antiga"
+    - "Alban Desmaison"
+    - "Andreas Köpf"
+    - "Edward Yang"
+    - "Zachary DeVito"
+    - "Martin Raison"
+    - "Alykhan Tejani"
+    - "Sasank Chilamkurthy"
+    - "Benoit Steiner"
+    - "Lu Fang"
+    - "Junjie Bai"
+    - "Soumith Chintala"
+  year: 2019
+  publication: "Advances in Neural Information Processing Systems 32 (NeurIPS 2019), pp. 8024-8035"
+  doi: null
+  official_url: "https://papers.nips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library"
+  citation_text: >
+    Paszke, A., Gross, S., Massa, F., et al. (2019). PyTorch: An Imperative Style,
+    High-Performance Deep Learning Library. Advances in Neural Information Processing
+    Systems 32, 8024-8035.
+  reference_type: software_documentation
+  usage_context: "medrisk_ml/medrisk_inference model definitions, training, autograd, and Grad-CAM hooks."
+  verification_status: verified
+  verification_note: >
+    Confirmed via the official NeurIPS proceedings page (papers.nips.cc) and dblp on
+    2026-06-25. NeurIPS proceedings of this era do not assign DOIs - left null rather than
+    fabricated.

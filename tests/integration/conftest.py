@@ -19,7 +19,9 @@ from app.repositories import dataset as dataset_repo
 from tests.conftest import TEST_DATASETS_ROOT
 
 _TEST_TABLES = (
-    "refresh_token_sessions, predictions, model_deployments, dataset_samples, datasets, users"
+    "refresh_token_sessions, evaluation_sample_predictions, evaluation_runs, experiment_runs, "
+    "dataset_quality_audits, dataset_leakage_audits, research_studies, predictions, "
+    "model_deployments, dataset_samples, datasets, users"
 )
 
 

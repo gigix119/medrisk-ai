@@ -1044,6 +1044,809 @@
         }
       }
     },
+    "/api/v1/research/studies": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "List research studies",
+        "operationId": "list_studies_api_v1_research_studies_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_StudyRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/studies/{study_id}": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Get one research study",
+        "operationId": "get_study_api_v1_research_studies__study_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/studies/{study_id}/validate": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Re-validate a study's stored configuration against the current schema",
+        "operationId": "validate_study_api_v1_research_studies__study_id__validate_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Study Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyValidationResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/datasets/{dataset_id}/quality": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Get the most recent dataset quality audit",
+        "operationId": "get_dataset_quality_api_v1_research_datasets__dataset_id__quality_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetQualityAuditRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/datasets/{dataset_id}/quality-audit": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Run a new dataset quality audit",
+        "operationId": "run_dataset_quality_audit_api_v1_research_datasets__dataset_id__quality_audit_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetQualityAuditRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/datasets/{dataset_id}/leakage": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Get the most recent dataset leakage audit",
+        "operationId": "get_dataset_leakage_api_v1_research_datasets__dataset_id__leakage_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetLeakageAuditRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/datasets/{dataset_id}/leakage-audit": {
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Run a new dataset leakage audit",
+        "operationId": "run_dataset_leakage_audit_api_v1_research_datasets__dataset_id__leakage_audit_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetLeakageAuditRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/evaluations": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "List evaluation runs",
+        "operationId": "list_evaluations_api_v1_research_evaluations_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "study_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Study Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/RunStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_EvaluationRunSummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Create a pending evaluation run",
+        "operationId": "create_evaluation_api_v1_research_evaluations_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEvaluationRunRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/evaluations/{evaluation_id}": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Get one evaluation run",
+        "operationId": "get_evaluation_api_v1_research_evaluations__evaluation_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "evaluation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Evaluation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/evaluations/{evaluation_id}/metrics": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Get one evaluation run's metrics",
+        "operationId": "get_evaluation_metrics_api_v1_research_evaluations__evaluation_id__metrics_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "evaluation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Evaluation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationMetricsRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/evaluations/{evaluation_id}/confusion-matrix": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "Get one evaluation run's confusion matrix",
+        "operationId": "get_evaluation_confusion_matrix_api_v1_research_evaluations__evaluation_id__confusion_matrix_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "evaluation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Evaluation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfusionMatrixRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/evaluations/{evaluation_id}/errors": {
+      "get": {
+        "tags": [
+          "research"
+        ],
+        "summary": "List per-sample predictions for one evaluation run (error analysis)",
+        "operationId": "list_evaluation_errors_api_v1_research_evaluations__evaluation_id__errors_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "evaluation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Evaluation Id"
+            }
+          },
+          {
+            "name": "is_correct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Correct"
+            }
+          },
+          {
+            "name": "ground_truth_label",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ground Truth Label"
+            }
+          },
+          {
+            "name": "predicted_class",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Predicted Class"
+            }
+          },
+          {
+            "name": "min_confidence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Confidence"
+            }
+          },
+          {
+            "name": "max_confidence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Confidence"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_EvaluationSamplePredictionRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -1188,6 +1991,18 @@
         ],
         "title": "ActiveModelResponse"
       },
+      "AuditStatus": {
+        "type": "string",
+        "enum": [
+          "passed",
+          "passed_with_warnings",
+          "failed",
+          "unknown",
+          "incomplete"
+        ],
+        "title": "AuditStatus",
+        "description": "Outcome of a dataset quality or leakage audit."
+      },
       "Body_login_api_v1_auth_login_post": {
         "properties": {
           "grant_type": {
@@ -1279,6 +2094,216 @@
           "file"
         ],
         "title": "Body_predict_histopathology_api_v1_predictions_histopathology_post"
+      },
+      "ConfusionMatrixRead": {
+        "properties": {
+          "evaluation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Evaluation Id"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "class_labels": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Labels"
+          },
+          "positive_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive Class"
+          },
+          "matrix": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matrix"
+          },
+          "normalized_matrix": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Matrix"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evaluation_id",
+          "available"
+        ],
+        "title": "ConfusionMatrixRead",
+        "description": "`available=False` (with `reason` set) when the run has no completed metrics yet, or\nits task type isn't one this phase derives a confusion matrix for - the master spec\nrequires unavailable analysis to be reported explicitly, never hidden or fabricated."
+      },
+      "CreateEvaluationRunRequest": {
+        "properties": {
+          "study_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Id"
+          },
+          "model_id": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Model Id"
+          },
+          "model_version": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Model Version"
+          },
+          "split_name": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Split Name"
+          },
+          "result_classification": {
+            "$ref": "#/components/schemas/ResultClassification"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "model_id",
+          "model_version",
+          "split_name",
+          "result_classification"
+        ],
+        "title": "CreateEvaluationRunRequest"
+      },
+      "DatasetLeakageAuditRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AuditStatus"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_id",
+          "status",
+          "summary",
+          "created_at"
+        ],
+        "title": "DatasetLeakageAuditRead"
+      },
+      "DatasetQualityAuditRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AuditStatus"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_id",
+          "status",
+          "summary",
+          "created_at"
+        ],
+        "title": "DatasetQualityAuditRead"
       },
       "DatasetRead": {
         "properties": {
@@ -1582,6 +2607,486 @@
           "image_url"
         ],
         "title": "DatasetSampleRead"
+      },
+      "EvaluationMetricsRead": {
+        "properties": {
+          "evaluation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Evaluation Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus"
+          },
+          "scalar_metrics": {
+            "items": {
+              "$ref": "#/components/schemas/MetricResult"
+            },
+            "type": "array",
+            "title": "Scalar Metrics"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          },
+          "confidence_intervals": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Intervals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evaluation_id",
+          "status",
+          "scalar_metrics",
+          "counts"
+        ],
+        "title": "EvaluationMetricsRead"
+      },
+      "EvaluationRunRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "experiment_run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experiment Run Id"
+          },
+          "study_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Id"
+          },
+          "dataset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Id"
+          },
+          "model_deployment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Deployment Id"
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "split_name": {
+            "type": "string",
+            "title": "Split Name"
+          },
+          "result_classification": {
+            "$ref": "#/components/schemas/ResultClassification"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus"
+          },
+          "protocol_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protocol Hash"
+          },
+          "primary_metric_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Metric Name"
+          },
+          "primary_metric_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Metric Value"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics"
+          },
+          "confidence_intervals": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Intervals"
+          },
+          "calibration_metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calibration Metrics"
+          },
+          "threshold_metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Metrics"
+          },
+          "artifact_manifest": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Manifest"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "failure_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "experiment_run_id",
+          "study_id",
+          "dataset_id",
+          "model_deployment_id",
+          "model_id",
+          "model_version",
+          "split_name",
+          "result_classification",
+          "status",
+          "protocol_hash",
+          "primary_metric_name",
+          "primary_metric_value",
+          "metrics",
+          "confidence_intervals",
+          "calibration_metrics",
+          "threshold_metrics",
+          "artifact_manifest",
+          "notes",
+          "created_at",
+          "completed_at",
+          "failure_reason"
+        ],
+        "title": "EvaluationRunRead"
+      },
+      "EvaluationRunSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "study_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Id"
+          },
+          "dataset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Id"
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "split_name": {
+            "type": "string",
+            "title": "Split Name"
+          },
+          "result_classification": {
+            "$ref": "#/components/schemas/ResultClassification"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus"
+          },
+          "primary_metric_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Metric Name"
+          },
+          "primary_metric_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Metric Value"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "study_id",
+          "dataset_id",
+          "model_id",
+          "model_version",
+          "split_name",
+          "result_classification",
+          "status",
+          "primary_metric_name",
+          "primary_metric_value",
+          "created_at",
+          "completed_at"
+        ],
+        "title": "EvaluationRunSummary",
+        "description": "Trimmed shape for list views."
+      },
+      "EvaluationSamplePredictionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "dataset_sample_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Sample Id"
+          },
+          "sample_key": {
+            "type": "string",
+            "title": "Sample Key"
+          },
+          "split": {
+            "type": "string",
+            "title": "Split"
+          },
+          "ground_truth_label": {
+            "type": "string",
+            "title": "Ground Truth Label"
+          },
+          "predicted_class": {
+            "type": "string",
+            "title": "Predicted Class"
+          },
+          "probabilities": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Probabilities"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "is_correct": {
+            "type": "boolean",
+            "title": "Is Correct"
+          },
+          "error_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Type"
+          },
+          "inference_duration_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inference Duration Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_sample_id",
+          "sample_key",
+          "split",
+          "ground_truth_label",
+          "predicted_class",
+          "probabilities",
+          "confidence",
+          "is_correct",
+          "error_type",
+          "inference_duration_ms"
+        ],
+        "title": "EvaluationSamplePredictionRead"
       },
       "ExplanationSchema": {
         "properties": {
@@ -1952,6 +3457,47 @@
         ],
         "title": "LogoutRequest"
       },
+      "MetricResult": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "value",
+          "status"
+        ],
+        "title": "MetricResult"
+      },
       "ModelHealthInfo": {
         "properties": {
           "model_id": {
@@ -2113,6 +3659,68 @@
         ],
         "title": "Page[DatasetSampleRead]"
       },
+      "Page_EvaluationRunSummary_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationRunSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[EvaluationRunSummary]"
+      },
+      "Page_EvaluationSamplePredictionRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationSamplePredictionRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[EvaluationSamplePredictionRead]"
+      },
       "Page_PredictionRead_": {
         "properties": {
           "items": {
@@ -2143,6 +3751,37 @@
           "offset"
         ],
         "title": "Page[PredictionRead]"
+      },
+      "Page_StudyRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StudyRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[StudyRead]"
       },
       "PredictOnSampleRequest": {
         "properties": {
@@ -2930,6 +4569,20 @@
         ],
         "title": "RegisterRequest"
       },
+      "ResultClassification": {
+        "type": "string",
+        "enum": [
+          "synthetic_demo",
+          "exploratory_validation",
+          "cross_validation",
+          "held_out_test",
+          "external_test",
+          "benchmark",
+          "unknown"
+        ],
+        "title": "ResultClassification",
+        "description": "How an evaluation run's numbers may be interpreted - never inferred from context,\nalways set explicitly when the run is created."
+      },
       "ReviewPolicySchema": {
         "properties": {
           "negative_probability_max": {
@@ -2947,6 +4600,174 @@
           "positive_probability_min"
         ],
         "title": "ReviewPolicySchema"
+      },
+      "RunStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed",
+          "cancelled",
+          "invalidated"
+        ],
+        "title": "RunStatus",
+        "description": "Lifecycle of an experiment run or evaluation run. A run's metrics/predictions must\nonly ever be trusted when status == COMPLETED - PENDING/RUNNING rows have no results\nyet, and FAILED/CANCELLED/INVALIDATED rows must never be presented as complete."
+      },
+      "ScientificMaturity": {
+        "type": "string",
+        "enum": [
+          "synthetic_demo",
+          "prototype",
+          "experimental",
+          "benchmark_candidate",
+          "selected_research_model",
+          "archived",
+          "unknown"
+        ],
+        "title": "ScientificMaturity",
+        "description": "Where a model sits on the path from \"proves the pipeline runs\" to \"a real research\ncandidate\" - distinct from `ResultClassification`, which describes one evaluation run\nrather than the model as a whole."
+      },
+      "StudyRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "research_question": {
+            "type": "string",
+            "title": "Research Question"
+          },
+          "hypothesis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hypothesis"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StudyStatus"
+          },
+          "scientific_maturity": {
+            "$ref": "#/components/schemas/ScientificMaturity"
+          },
+          "dataset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Id"
+          },
+          "dataset_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Version"
+          },
+          "configuration": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Configuration"
+          },
+          "configuration_hash": {
+            "type": "string",
+            "title": "Configuration Hash"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "research_question",
+          "hypothesis",
+          "status",
+          "scientific_maturity",
+          "dataset_id",
+          "dataset_version",
+          "configuration",
+          "configuration_hash",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StudyRead",
+        "description": "API-facing view of a persisted `ResearchStudy` row."
+      },
+      "StudyStatus": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "validated",
+          "running",
+          "completed",
+          "archived"
+        ],
+        "title": "StudyStatus"
+      },
+      "StudyValidationResult": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "configuration_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configuration Hash"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid"
+        ],
+        "title": "StudyValidationResult",
+        "description": "Result of re-validating a study's stored configuration against the current\n`StudyConfig` schema - never mutates the stored row."
       },
       "TimingsSchema": {
         "properties": {
@@ -3146,6 +4967,14 @@
     {
       "name": "models",
       "description": "Active model metadata."
+    },
+    {
+      "name": "datasets",
+      "description": "Dataset registry and controlled sample inference."
+    },
+    {
+      "name": "research",
+      "description": "Research studies, dataset quality/leakage audits, and evaluation runs. **This software is an educational and research portfolio project. It is not a medical device and must not be used for diagnosis, treatment decisions, or emergency medical guidance.**"
     }
   ]
 }

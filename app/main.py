@@ -141,6 +141,17 @@ def create_app() -> FastAPI:
                 "description": "Histopathology inference, prediction history and detail.",
             },
             {"name": "models", "description": "Active model metadata."},
+            {
+                "name": "datasets",
+                "description": "Dataset registry and controlled sample inference.",
+            },
+            {
+                "name": "research",
+                "description": (
+                    "Research studies, dataset quality/leakage audits, and evaluation runs. "
+                    f"**{MEDICAL_DISCLAIMER}**"
+                ),
+            },
         ],
         docs_url="/docs",
         redoc_url="/redoc",

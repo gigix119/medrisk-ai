@@ -339,6 +339,211 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/research/studies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List research studies */
+        get: operations["list_studies_api_v1_research_studies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/studies/{study_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one research study */
+        get: operations["get_study_api_v1_research_studies__study_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/studies/{study_id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Re-validate a study's stored configuration against the current schema */
+        post: operations["validate_study_api_v1_research_studies__study_id__validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/datasets/{dataset_id}/quality": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the most recent dataset quality audit */
+        get: operations["get_dataset_quality_api_v1_research_datasets__dataset_id__quality_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/datasets/{dataset_id}/quality-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run a new dataset quality audit */
+        post: operations["run_dataset_quality_audit_api_v1_research_datasets__dataset_id__quality_audit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/datasets/{dataset_id}/leakage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the most recent dataset leakage audit */
+        get: operations["get_dataset_leakage_api_v1_research_datasets__dataset_id__leakage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/datasets/{dataset_id}/leakage-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run a new dataset leakage audit */
+        post: operations["run_dataset_leakage_audit_api_v1_research_datasets__dataset_id__leakage_audit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List evaluation runs */
+        get: operations["list_evaluations_api_v1_research_evaluations_get"];
+        put?: never;
+        /** Create a pending evaluation run */
+        post: operations["create_evaluation_api_v1_research_evaluations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/evaluations/{evaluation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one evaluation run */
+        get: operations["get_evaluation_api_v1_research_evaluations__evaluation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/evaluations/{evaluation_id}/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one evaluation run's metrics */
+        get: operations["get_evaluation_metrics_api_v1_research_evaluations__evaluation_id__metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/evaluations/{evaluation_id}/confusion-matrix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one evaluation run's confusion matrix */
+        get: operations["get_evaluation_confusion_matrix_api_v1_research_evaluations__evaluation_id__confusion_matrix_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/evaluations/{evaluation_id}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List per-sample predictions for one evaluation run (error analysis) */
+        get: operations["list_evaluation_errors_api_v1_research_evaluations__evaluation_id__errors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/": {
         parameters: {
             query?: never;
@@ -401,6 +606,12 @@ export interface components {
              */
             disclaimer: string;
         };
+        /**
+         * AuditStatus
+         * @description Outcome of a dataset quality or leakage audit.
+         * @enum {string}
+         */
+        AuditStatus: "passed" | "passed_with_warnings" | "failed" | "unknown" | "incomplete";
         /** Body_login_api_v1_auth_login_post */
         Body_login_api_v1_auth_login_post: {
             /** Grant Type */
@@ -442,6 +653,94 @@ export interface components {
              * @description Optional non-sensitive client-side reference. Must not contain patient-identifying information.
              */
             client_reference?: string | null;
+        };
+        /**
+         * ConfusionMatrixRead
+         * @description `available=False` (with `reason` set) when the run has no completed metrics yet, or
+         *     its task type isn't one this phase derives a confusion matrix for - the master spec
+         *     requires unavailable analysis to be reported explicitly, never hidden or fabricated.
+         */
+        ConfusionMatrixRead: {
+            /**
+             * Evaluation Id
+             * Format: uuid
+             */
+            evaluation_id: string;
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason?: string | null;
+            /** Class Labels */
+            class_labels?: string[] | null;
+            /** Positive Class */
+            positive_class?: string | null;
+            /** Matrix */
+            matrix?: number[][] | null;
+            /** Normalized Matrix */
+            normalized_matrix?: number[][] | null;
+        };
+        /** CreateEvaluationRunRequest */
+        CreateEvaluationRunRequest: {
+            /** Study Id */
+            study_id?: string | null;
+            /**
+             * Dataset Id
+             * Format: uuid
+             */
+            dataset_id: string;
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            /** Split Name */
+            split_name: string;
+            result_classification: components["schemas"]["ResultClassification"];
+        };
+        /** DatasetLeakageAuditRead */
+        DatasetLeakageAuditRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Dataset Id
+             * Format: uuid
+             */
+            dataset_id: string;
+            status: components["schemas"]["AuditStatus"];
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** DatasetQualityAuditRead */
+        DatasetQualityAuditRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Dataset Id
+             * Format: uuid
+             */
+            dataset_id: string;
+            status: components["schemas"]["AuditStatus"];
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** DatasetRead */
         DatasetRead: {
@@ -558,6 +857,150 @@ export interface components {
              * @description Relative URL to GET the sample image; built by the endpoint, not a DB column.
              */
             image_url: string;
+        };
+        /** EvaluationMetricsRead */
+        EvaluationMetricsRead: {
+            /**
+             * Evaluation Id
+             * Format: uuid
+             */
+            evaluation_id: string;
+            status: components["schemas"]["RunStatus"];
+            /** Scalar Metrics */
+            scalar_metrics: components["schemas"]["MetricResult"][];
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Confidence Intervals */
+            confidence_intervals?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** EvaluationRunRead */
+        EvaluationRunRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Experiment Run Id */
+            experiment_run_id: string | null;
+            /** Study Id */
+            study_id: string | null;
+            /** Dataset Id */
+            dataset_id: string | null;
+            /** Model Deployment Id */
+            model_deployment_id: string | null;
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            /** Split Name */
+            split_name: string;
+            result_classification: components["schemas"]["ResultClassification"];
+            status: components["schemas"]["RunStatus"];
+            /** Protocol Hash */
+            protocol_hash: string | null;
+            /** Primary Metric Name */
+            primary_metric_name: string | null;
+            /** Primary Metric Value */
+            primary_metric_value: number | null;
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            } | null;
+            /** Confidence Intervals */
+            confidence_intervals: {
+                [key: string]: unknown;
+            } | null;
+            /** Calibration Metrics */
+            calibration_metrics: {
+                [key: string]: unknown;
+            } | null;
+            /** Threshold Metrics */
+            threshold_metrics: {
+                [key: string]: unknown;
+            } | null;
+            /** Artifact Manifest */
+            artifact_manifest: {
+                [key: string]: unknown;
+            } | null;
+            /** Notes */
+            notes: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Completed At */
+            completed_at: string | null;
+            /** Failure Reason */
+            failure_reason: string | null;
+        };
+        /**
+         * EvaluationRunSummary
+         * @description Trimmed shape for list views.
+         */
+        EvaluationRunSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Study Id */
+            study_id: string | null;
+            /** Dataset Id */
+            dataset_id: string | null;
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            /** Split Name */
+            split_name: string;
+            result_classification: components["schemas"]["ResultClassification"];
+            status: components["schemas"]["RunStatus"];
+            /** Primary Metric Name */
+            primary_metric_name: string | null;
+            /** Primary Metric Value */
+            primary_metric_value: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Completed At */
+            completed_at: string | null;
+        };
+        /** EvaluationSamplePredictionRead */
+        EvaluationSamplePredictionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Dataset Sample Id */
+            dataset_sample_id: string | null;
+            /** Sample Key */
+            sample_key: string;
+            /** Split */
+            split: string;
+            /** Ground Truth Label */
+            ground_truth_label: string;
+            /** Predicted Class */
+            predicted_class: string;
+            /** Probabilities */
+            probabilities: {
+                [key: string]: unknown;
+            };
+            /** Confidence */
+            confidence: number | null;
+            /** Is Correct */
+            is_correct: boolean;
+            /** Error Type */
+            error_type: string | null;
+            /** Inference Duration Ms */
+            inference_duration_ms: number | null;
         };
         /** ExplanationSchema */
         ExplanationSchema: {
@@ -683,6 +1126,17 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
+        /** MetricResult */
+        MetricResult: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: number | null;
+            /** Status */
+            status: string;
+            /** Reason */
+            reason?: string | null;
+        };
         /** ModelHealthInfo */
         ModelHealthInfo: {
             /** Model Id */
@@ -741,10 +1195,43 @@ export interface components {
             /** Offset */
             offset: number;
         };
+        /** Page[EvaluationRunSummary] */
+        Page_EvaluationRunSummary_: {
+            /** Items */
+            items: components["schemas"]["EvaluationRunSummary"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /** Page[EvaluationSamplePredictionRead] */
+        Page_EvaluationSamplePredictionRead_: {
+            /** Items */
+            items: components["schemas"]["EvaluationSamplePredictionRead"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
         /** Page[PredictionRead] */
         Page_PredictionRead_: {
             /** Items */
             items: components["schemas"]["PredictionRead"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /** Page[StudyRead] */
+        Page_StudyRead_: {
+            /** Items */
+            items: components["schemas"]["StudyRead"][];
             /** Total */
             total: number;
             /** Limit */
@@ -993,12 +1480,94 @@ export interface components {
             /** Full Name */
             full_name: string;
         };
+        /**
+         * ResultClassification
+         * @description How an evaluation run's numbers may be interpreted - never inferred from context,
+         *     always set explicitly when the run is created.
+         * @enum {string}
+         */
+        ResultClassification: "synthetic_demo" | "exploratory_validation" | "cross_validation" | "held_out_test" | "external_test" | "benchmark" | "unknown";
         /** ReviewPolicySchema */
         ReviewPolicySchema: {
             /** Negative Probability Max */
             negative_probability_max: number;
             /** Positive Probability Min */
             positive_probability_min: number;
+        };
+        /**
+         * RunStatus
+         * @description Lifecycle of an experiment run or evaluation run. A run's metrics/predictions must
+         *     only ever be trusted when status == COMPLETED - PENDING/RUNNING rows have no results
+         *     yet, and FAILED/CANCELLED/INVALIDATED rows must never be presented as complete.
+         * @enum {string}
+         */
+        RunStatus: "pending" | "running" | "completed" | "failed" | "cancelled" | "invalidated";
+        /**
+         * ScientificMaturity
+         * @description Where a model sits on the path from "proves the pipeline runs" to "a real research
+         *     candidate" - distinct from `ResultClassification`, which describes one evaluation run
+         *     rather than the model as a whole.
+         * @enum {string}
+         */
+        ScientificMaturity: "synthetic_demo" | "prototype" | "experimental" | "benchmark_candidate" | "selected_research_model" | "archived" | "unknown";
+        /**
+         * StudyRead
+         * @description API-facing view of a persisted `ResearchStudy` row.
+         */
+        StudyRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Research Question */
+            research_question: string;
+            /** Hypothesis */
+            hypothesis: string | null;
+            status: components["schemas"]["StudyStatus"];
+            scientific_maturity: components["schemas"]["ScientificMaturity"];
+            /** Dataset Id */
+            dataset_id: string | null;
+            /** Dataset Version */
+            dataset_version: string | null;
+            /** Configuration */
+            configuration: {
+                [key: string]: unknown;
+            };
+            /** Configuration Hash */
+            configuration_hash: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * StudyStatus
+         * @enum {string}
+         */
+        StudyStatus: "draft" | "validated" | "running" | "completed" | "archived";
+        /**
+         * StudyValidationResult
+         * @description Result of re-validating a study's stored configuration against the current
+         *     `StudyConfig` schema - never mutates the stored row.
+         */
+        StudyValidationResult: {
+            /** Valid */
+            valid: boolean;
+            /** Errors */
+            errors?: string[];
+            /** Configuration Hash */
+            configuration_hash?: string | null;
         };
         /** TimingsSchema */
         TimingsSchema: {
@@ -1639,6 +2208,424 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PredictOnSampleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_studies_api_v1_research_studies_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_StudyRead_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_study_api_v1_research_studies__study_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                study_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_study_api_v1_research_studies__study_id__validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                study_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudyValidationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dataset_quality_api_v1_research_datasets__dataset_id__quality_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetQualityAuditRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_dataset_quality_audit_api_v1_research_datasets__dataset_id__quality_audit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetQualityAuditRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dataset_leakage_api_v1_research_datasets__dataset_id__leakage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetLeakageAuditRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_dataset_leakage_audit_api_v1_research_datasets__dataset_id__leakage_audit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetLeakageAuditRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_evaluations_api_v1_research_evaluations_get: {
+        parameters: {
+            query?: {
+                dataset_id?: string | null;
+                study_id?: string | null;
+                status?: components["schemas"]["RunStatus"] | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_EvaluationRunSummary_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_evaluation_api_v1_research_evaluations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEvaluationRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_api_v1_research_evaluations__evaluation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_metrics_api_v1_research_evaluations__evaluation_id__metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationMetricsRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_confusion_matrix_api_v1_research_evaluations__evaluation_id__confusion_matrix_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfusionMatrixRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_evaluation_errors_api_v1_research_evaluations__evaluation_id__errors_get: {
+        parameters: {
+            query?: {
+                is_correct?: boolean | null;
+                ground_truth_label?: string | null;
+                predicted_class?: string | null;
+                min_confidence?: number | null;
+                max_confidence?: number | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_EvaluationSamplePredictionRead_"];
                 };
             };
             /** @description Validation Error */

@@ -14,8 +14,14 @@
 # tests/conftest.py builds a real (synthetic) model bundle at collection time, before any test
 # runs, so the full test suite - not just tests/inference and tests/integration - needs it
 # importable. This does NOT pull in requirements-ml.txt's training-only extras (pandas,
-# scikit-learn, matplotlib, tensorboard, h5py, PyYAML) - see tests/inference/test_import_isolation.py
+# scikit-learn, matplotlib, tensorboard, h5py) - see tests/inference/test_import_isolation.py
 # for what medrisk_inference (and therefore this fixture path) is guaranteed not to need.
+#
+# PyYAML - needed only by medrisk_research.cli (Phase 7's offline research-evaluation CLI,
+# see that package's docstring), which tests/integration exercises against the real test
+# database. Deliberately NOT added to requirements.txt itself: the live API
+# (app/main.py, app/api/*) never imports medrisk_research or yaml, so the production image
+# stays exactly as lean as before - this is purely a test/dev-tooling addition.
 
 -r requirements.txt
 -r requirements-inference.txt
@@ -27,3 +33,4 @@ httpx==0.27.2
 asgi-lifespan==2.1.0
 ruff==0.7.4
 mypy==1.13.0
+PyYAML==6.0.3
