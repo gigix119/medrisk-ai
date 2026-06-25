@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 import { ApiError } from '@/api/errors'
@@ -10,29 +11,36 @@ import { Button } from '@/components/ui/Button'
 import { PasswordField } from '@/components/ui/PasswordField'
 import { TextField } from '@/components/ui/TextField'
 import { useAuth } from '@/features/auth/use-auth'
-import { emailSchema, MIN_PASSWORD_LENGTH, newPasswordSchema } from '@/lib/validation'
+import { buildEmailSchema, buildPasswordSchema, MIN_PASSWORD_LENGTH } from '@/lib/validation'
 
-const registerSchema = z
-  .object({
-    fullName: z.string().trim().min(1, 'Enter your full name.').max(255),
-    email: emailSchema,
-    password: newPasswordSchema,
-    confirmPassword: z.string(),
-    acceptedResearchNotice: z.literal(true, {
-      error: 'You must acknowledge this is a research project before continuing.',
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match.',
-    path: ['confirmPassword'],
-  })
+type RegisterFormValues = z.infer<ReturnType<typeof buildRegisterSchema>>
 
-type RegisterFormValues = z.infer<typeof registerSchema>
+function buildRegisterSchema(t: (key: string, options?: Record<string, unknown>) => string) {
+  return z
+    .object({
+      fullName: z.string().trim().min(1, t('auth.register.fullNameRequired')).max(255),
+      email: buildEmailSchema(t),
+      password: buildPasswordSchema(t),
+      confirmPassword: z.string(),
+      acceptedResearchNotice: z.literal(true, { error: t('auth.register.researchNoticeRequired') }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('auth.register.passwordMismatch'),
+      path: ['confirmPassword'],
+    })
+}
 
 export function RegisterPage() {
+  const { t } = useTranslation()
   const { register: registerUser, login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [formError, setFormError] = useState<string | null>(null)
+
+  const registerSchema = useMemo(() => buildRegisterSchema(t), [t])
+
+  const redirectTo =
+    (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/app'
 
   const {
     register,
@@ -50,12 +58,12 @@ export function RegisterPage() {
         password: values.password,
       })
       await login({ email: values.email, password: values.password })
-      navigate('/app', { replace: true })
+      navigate(redirectTo, { replace: true })
     } catch (error) {
       if (error instanceof ApiError) {
         setFormError(error.message)
       } else {
-        setFormError('Something went wrong. Please try again.')
+        setFormError(t('auth.register.genericError'))
       }
     }
   }
@@ -63,35 +71,35 @@ export function RegisterPage() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4 py-16">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-h1 text-text-primary">Create an account</h1>
+        <h1 className="text-h1 text-text-primary">{t('auth.register.title')}</h1>
         <p className="text-base text-text-secondary">
-          Set up access to the {brand.name} research demo.
+          {t('auth.register.subtitle', { name: brand.shortName })}
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
         <TextField
-          label="Full name"
+          label={t('auth.register.fullNameLabel')}
           autoComplete="name"
           error={errors.fullName?.message}
           {...register('fullName')}
         />
         <TextField
-          label="Email"
+          label={t('auth.register.emailLabel')}
           type="email"
           autoComplete="email"
           error={errors.email?.message}
           {...register('email')}
         />
         <PasswordField
-          label="Password"
+          label={t('auth.register.passwordLabel')}
           autoComplete="new-password"
-          helperText={`At least ${MIN_PASSWORD_LENGTH} characters.`}
+          helperText={t('auth.register.passwordHelper', { count: MIN_PASSWORD_LENGTH })}
           error={errors.password?.message}
           {...register('password')}
         />
         <PasswordField
-          label="Confirm password"
+          label={t('auth.register.confirmPasswordLabel')}
           autoComplete="new-password"
           error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
@@ -103,10 +111,7 @@ export function RegisterPage() {
             className="mt-1 h-5 w-5 shrink-0 rounded-(--radius-sm) border-border-strong"
             {...register('acceptedResearchNotice')}
           />
-          <span>
-            I understand {brand.shortName} is a research and educational project, not a medical
-            device, and I will not upload personal or identifying medical information.
-          </span>
+          <span>{t('auth.register.researchNotice', { shortName: brand.shortName })}</span>
         </label>
         {errors.acceptedResearchNotice && (
           <p role="alert" className="text-sm font-medium text-danger">
@@ -121,13 +126,13 @@ export function RegisterPage() {
         )}
 
         <Button type="submit" size="full" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating account…' : 'Create account'}
+          {isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}
         </Button>
 
         <p className="text-center text-base text-text-secondary">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-primary hover:underline">
-            Log in
+          {t('auth.register.haveAccount')}{' '}
+          <Link to="/login" state={location.state} className="font-medium text-primary hover:underline">
+            {t('auth.register.login')}
           </Link>
         </p>
       </form>

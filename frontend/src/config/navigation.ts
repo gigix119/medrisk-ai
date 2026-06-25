@@ -3,11 +3,11 @@ import { Home, ImagePlus, MoreHorizontal, History } from 'lucide-react'
 import { routes } from './routes'
 
 export const publicNavItems = [
-  { label: 'Product', href: routes.home },
-  { label: 'How it works', href: routes.howItWorks },
-  { label: 'Technology', href: routes.technology },
-  { label: 'Model', href: routes.model },
-  { label: 'Safety', href: routes.limitations },
+  { labelKey: 'nav.product', href: routes.home },
+  { labelKey: 'nav.howItWorks', href: routes.howItWorks },
+  { labelKey: 'nav.technology', href: routes.technology },
+  { labelKey: 'nav.model', href: routes.model },
+  { labelKey: 'nav.safety', href: routes.limitations },
 ]
 
 export const appSidebarItems = [

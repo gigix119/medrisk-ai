@@ -15,9 +15,10 @@ void i18next
       en: { common: en },
       pl: { common: pl },
     },
-    fallbackLng: 'en',
+    // No `lng` here - it would force this language on every load and override the
+    // detector below, so a chosen language would never survive a page reload.
+    fallbackLng: env.defaultLocale,
     defaultNS: 'common',
-    lng: env.defaultLocale,
     interpolation: { escapeValue: false },
   })
 

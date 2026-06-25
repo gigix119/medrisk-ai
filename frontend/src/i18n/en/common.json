@@ -1,4 +1,57 @@
 {
+  "common": {
+    "disclaimer": "Research and educational project only. This is not a medical device and must not be used to diagnose, treat, or make decisions about real patients.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "validation": {
+    "email": "Enter a valid email address.",
+    "passwordMin": "Use at least {{count}} characters.",
+    "passwordMax": "Use at most {{count}} characters."
+  },
+  "notFound": {
+    "kicker": "404",
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or may have moved.",
+    "cta": "Go to homepage"
+  },
+  "landing": {
+    "kicker": "Research portfolio project · Educational use only",
+    "heroTitle": "Understand an AI prediction — not just the final number.",
+    "howItWorksCta": "See how it works"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "subtitle": "Continue your research session with {{name}}.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "passwordRequired": "Enter your password.",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "noAccount": "No account yet?",
+      "createAccount": "Create one",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Set up access to the {{name}} research demo.",
+      "fullNameLabel": "Full name",
+      "fullNameRequired": "Enter your full name.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "passwordHelper": "At least {{count}} characters.",
+      "confirmPasswordLabel": "Confirm password",
+      "passwordMismatch": "Passwords do not match.",
+      "researchNotice": "I understand {{shortName}} is a research and educational project, not a medical device, and I will not upload personal or identifying medical information.",
+      "researchNoticeRequired": "You must acknowledge this is a research project before continuing.",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "login": "Log in",
+      "genericError": "Something went wrong. Please try again."
+    }
+  },
   "nav": {
     "product": "Product",
     "howItWorks": "How it works",
@@ -7,10 +60,18 @@
     "safety": "Safety",
     "login": "Log in",
     "tryDemo": "Explore the research demo",
-    "language": "Language"
+    "language": "Language",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "footer": {
-    "disclaimer": "Research portfolio project. Educational use only - not a medical device."
+    "disclaimer": "Research portfolio project. Educational use only - not a medical device.",
+    "privacy": "Privacy",
+    "limitations": "Limitations",
+    "accessibility": "Accessibility",
+    "status": "Status",
+    "github": "GitHub"
   },
   "appNav": {
     "home": "Home",
@@ -128,6 +189,113 @@
       "empty": "You haven't analyzed any images yet.",
       "emptyCta": "Start a new analysis",
       "unknownClass": "Unknown"
+    }
+  },
+  "infoPages": {
+    "howItWorks": {
+      "kicker": "How it works",
+      "title": "From upload to a transparent result",
+      "intro": "The research demo follows three steps, every time.",
+      "sections": [
+        {
+          "heading": "1. Upload a patch",
+          "body": "You upload a single PNG or JPEG histopathology patch at the exact size the active model expects. The image is processed in memory and is never stored."
+        },
+        {
+          "heading": "2. Model inference",
+          "body": "A binary classifier scores the patch and returns a decision - negative, positive, or review required - along with calibrated probabilities for both classes."
+        },
+        {
+          "heading": "3. Grad-CAM explanation",
+          "body": "An optional Grad-CAM overlay highlights the regions that most influenced the model's output. It explains the model, not the underlying biology, and is not a diagnosis."
+        }
+      ]
+    },
+    "technology": {
+      "kicker": "Technology",
+      "title": "What this project is built with",
+      "intro": "A small, transparent stack chosen for clarity over scale.",
+      "sections": [
+        {
+          "heading": "Backend",
+          "body": "A FastAPI service backed by PostgreSQL, with a PyTorch model serving layer that enforces upload validation, concurrency limits, and safe error handling."
+        },
+        {
+          "heading": "Frontend",
+          "body": "A React and TypeScript single-page app with a typed client generated directly from the backend's OpenAPI schema, so the UI can't silently drift from the real API."
+        }
+      ]
+    },
+    "model": {
+      "kicker": "Model transparency",
+      "title": "What the active model actually is",
+      "intro": "Plain facts about the model behind this demo - no marketing claims.",
+      "sections": [
+        {
+          "heading": "A synthetic baseline, not a clinical model",
+          "body": "The model currently active in this demo is a small baseline CNN trained on synthetic data for engineering purposes. Its predictions have no medical meaning whatsoever."
+        },
+        {
+          "heading": "Binary classification with calibrated probabilities",
+          "body": "It outputs a calibrated probability for one of two classes, plus an optional Grad-CAM visual explanation. It has not been evaluated against any real clinical dataset."
+        }
+      ]
+    },
+    "privacy": {
+      "kicker": "Privacy",
+      "title": "What happens to an uploaded image",
+      "intro": "Designed so there is as little sensitive data to protect as possible.",
+      "sections": [
+        {
+          "heading": "Images are never stored",
+          "body": "An uploaded image is decoded, validated, and processed in memory for a single analysis, then discarded. The raw file is never written to disk or to the database."
+        },
+        {
+          "heading": "Only the result is kept",
+          "body": "Your account stores the prediction result (decision, probabilities, timestamps) so you can revisit it later - never the image itself or the Grad-CAM overlay."
+        }
+      ]
+    },
+    "limitations": {
+      "kicker": "Limitations",
+      "title": "What this demo cannot do",
+      "intro": "Read this before drawing any conclusion from a result.",
+      "sections": [
+        {
+          "heading": "Not validated for clinical use",
+          "body": "This is a research and educational portfolio project. It must never be used to diagnose, treat, or make decisions about real patients."
+        },
+        {
+          "heading": "One small, synthetic model",
+          "body": "Only one binary classifier, trained on synthetic data, is deployed. It does not support whole-slide images, multiple cancer types, or any real diagnostic workflow."
+        }
+      ]
+    },
+    "accessibility": {
+      "kicker": "Accessibility",
+      "title": "Built to be usable by more people",
+      "intro": "Accessibility preferences are available throughout the signed-in app.",
+      "sections": [
+        {
+          "heading": "Adjustable text size, contrast and motion",
+          "body": "Signed-in users can increase text size, switch to a higher-contrast theme, and reduce motion from the Accessibility page - the preference applies across the whole app."
+        },
+        {
+          "heading": "Keyboard and screen-reader support",
+          "body": "Interactive elements are keyboard-operable with visible focus states, and dynamic content (validation messages, analysis progress) is announced to screen readers."
+        }
+      ]
+    },
+    "status": {
+      "kicker": "System status",
+      "title": "About this deployment",
+      "intro": "Operational facts, not a guarantee.",
+      "sections": [
+        {
+          "heading": "A portfolio demo, not a production service",
+          "body": "This deployment has no uptime guarantee or service-level agreement. It may be restarted, reset, or unavailable without notice."
+        }
+      ]
     }
   }
 }

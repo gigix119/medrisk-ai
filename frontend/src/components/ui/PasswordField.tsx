@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react'
 import { forwardRef, type InputHTMLAttributes, useId, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib/cn'
 
@@ -11,6 +12,7 @@ export interface PasswordFieldProps extends InputHTMLAttributes<HTMLInputElement
 
 export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
   ({ label, error, helperText, id, className, ...props }, ref) => {
+    const { t } = useTranslation()
     const [visible, setVisible] = useState(false)
     const generatedId = useId()
     const inputId = id ?? generatedId
@@ -40,7 +42,7 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
           <button
             type="button"
             onClick={() => setVisible((v) => !v)}
-            aria-label={visible ? 'Hide password' : 'Show password'}
+            aria-label={visible ? t('common.hidePassword') : t('common.showPassword')}
             aria-pressed={visible}
             className="absolute inset-y-0 right-0 flex w-13 items-center justify-center text-text-muted hover:text-text-primary"
           >

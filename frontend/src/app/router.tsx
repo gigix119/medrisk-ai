@@ -14,6 +14,8 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { NotFoundPage } from '@/pages/errors/NotFoundPage'
 import { ComingSoonPage } from '@/pages/public/ComingSoonPage'
+import { DemoRedirectPage } from '@/pages/public/DemoRedirectPage'
+import { InfoPage } from '@/pages/public/InfoPage'
 import { LandingPage } from '@/pages/public/LandingPage'
 
 export function AppRoutes() {
@@ -23,14 +25,14 @@ export function AppRoutes() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path={routes.home} element={<LandingPage />} />
-          <Route path={routes.demo} element={<ComingSoonPage title="Guided product preview" />} />
-          <Route path={routes.howItWorks} element={<ComingSoonPage title="How it works" />} />
-          <Route path={routes.technology} element={<ComingSoonPage title="Technology" />} />
-          <Route path={routes.model} element={<ComingSoonPage title="Model transparency" />} />
-          <Route path={routes.privacy} element={<ComingSoonPage title="Privacy" />} />
-          <Route path={routes.limitations} element={<ComingSoonPage title="Limitations" />} />
-          <Route path={routes.accessibility} element={<ComingSoonPage title="Accessibility" />} />
-          <Route path={routes.status} element={<ComingSoonPage title="System status" />} />
+          <Route path={routes.demo} element={<DemoRedirectPage />} />
+          <Route path={routes.howItWorks} element={<InfoPage pageKey="howItWorks" />} />
+          <Route path={routes.technology} element={<InfoPage pageKey="technology" />} />
+          <Route path={routes.model} element={<InfoPage pageKey="model" />} />
+          <Route path={routes.privacy} element={<InfoPage pageKey="privacy" />} />
+          <Route path={routes.limitations} element={<InfoPage pageKey="limitations" />} />
+          <Route path={routes.accessibility} element={<InfoPage pageKey="accessibility" />} />
+          <Route path={routes.status} element={<InfoPage pageKey="status" />} />
           <Route path={routes.login} element={<LoginPage />} />
           <Route path={routes.register} element={<RegisterPage />} />
           <Route path="*" element={<NotFoundPage />} />

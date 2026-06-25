@@ -1,4 +1,57 @@
 {
+  "common": {
+    "disclaimer": "Wyłącznie projekt badawczy i edukacyjny. To nie jest wyrób medyczny i nie może być używany do diagnozowania, leczenia lub podejmowania decyzji dotyczących prawdziwych pacjentów.",
+    "showPassword": "Pokaż hasło",
+    "hidePassword": "Ukryj hasło"
+  },
+  "validation": {
+    "email": "Wpisz poprawny adres e-mail.",
+    "passwordMin": "Użyj co najmniej {{count}} znaków.",
+    "passwordMax": "Użyj maksymalnie {{count}} znaków."
+  },
+  "notFound": {
+    "kicker": "404",
+    "title": "Strony nie znaleziono",
+    "body": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+    "cta": "Przejdź do strony głównej"
+  },
+  "landing": {
+    "kicker": "Projekt portfolio badawczy · Wyłącznie do celów edukacyjnych",
+    "heroTitle": "Zrozum predykcję AI — nie tylko końcowy wynik.",
+    "howItWorksCta": "Zobacz, jak to działa"
+  },
+  "auth": {
+    "login": {
+      "title": "Zaloguj się",
+      "subtitle": "Kontynuuj sesję badawczą w {{name}}.",
+      "emailLabel": "E-mail",
+      "passwordLabel": "Hasło",
+      "passwordRequired": "Wpisz hasło.",
+      "submit": "Zaloguj się",
+      "submitting": "Logowanie…",
+      "noAccount": "Nie masz jeszcze konta?",
+      "createAccount": "Utwórz konto",
+      "genericError": "Coś poszło nie tak. Spróbuj ponownie."
+    },
+    "register": {
+      "title": "Utwórz konto",
+      "subtitle": "Skonfiguruj dostęp do demonstracji badawczej {{name}}.",
+      "fullNameLabel": "Imię i nazwisko",
+      "fullNameRequired": "Wpisz imię i nazwisko.",
+      "emailLabel": "E-mail",
+      "passwordLabel": "Hasło",
+      "passwordHelper": "Co najmniej {{count}} znaków.",
+      "confirmPasswordLabel": "Potwierdź hasło",
+      "passwordMismatch": "Hasła nie są identyczne.",
+      "researchNotice": "Rozumiem, że {{shortName}} jest projektem badawczym i edukacyjnym, a nie wyrobem medycznym, i nie będę wgrywać danych osobowych lub identyfikujących pacjenta.",
+      "researchNoticeRequired": "Musisz potwierdzić, że jest to projekt badawczy, aby przejść dalej.",
+      "submit": "Utwórz konto",
+      "submitting": "Tworzenie konta…",
+      "haveAccount": "Masz już konto?",
+      "login": "Zaloguj się",
+      "genericError": "Coś poszło nie tak. Spróbuj ponownie."
+    }
+  },
   "nav": {
     "product": "Produkt",
     "howItWorks": "Jak to działa",
@@ -7,10 +60,18 @@
     "safety": "Bezpieczeństwo",
     "login": "Zaloguj się",
     "tryDemo": "Zobacz demonstrację",
-    "language": "Język"
+    "language": "Język",
+    "menu": "Menu",
+    "openMenu": "Otwórz menu",
+    "closeMenu": "Zamknij menu"
   },
   "footer": {
-    "disclaimer": "Projekt portfolio badawczy. Wyłącznie do celów edukacyjnych - to nie jest wyrób medyczny."
+    "disclaimer": "Projekt portfolio badawczy. Wyłącznie do celów edukacyjnych - to nie jest wyrób medyczny.",
+    "privacy": "Prywatność",
+    "limitations": "Ograniczenia",
+    "accessibility": "Dostępność",
+    "status": "Status systemu",
+    "github": "GitHub"
   },
   "appNav": {
     "home": "Strona główna",

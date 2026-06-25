@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 
+import { DemoLink } from '@/components/navigation/DemoLink'
 import { LanguageSwitcher } from '@/components/navigation/LanguageSwitcher'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { brand } from '@/config/brand'
@@ -35,7 +36,7 @@ export function PublicLayout() {
                     : 'text-base font-medium text-text-secondary hover:text-text-primary'
                 }
               >
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ))}
           </nav>
@@ -45,19 +46,16 @@ export function PublicLayout() {
             <Link to={routes.login} className="text-base font-medium text-text-secondary">
               {t('nav.login')}
             </Link>
-            <Link
-              to={routes.demo}
-              className="h-11 rounded-(--radius-md) bg-primary px-5 text-base font-medium text-text-inverse flex items-center"
-            >
+            <DemoLink className="h-11 rounded-(--radius-md) bg-primary px-5 text-base font-medium text-text-inverse flex items-center">
               {t('nav.tryDemo')}
-            </Link>
+            </DemoLink>
           </div>
 
           <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
             <Dialog.Trigger asChild>
               <button
                 type="button"
-                aria-label="Open menu"
+                aria-label={t('nav.openMenu')}
                 className="flex h-11 w-11 items-center justify-center rounded-(--radius-md) text-text-primary lg:hidden"
               >
                 <Menu aria-hidden size={26} />
@@ -67,11 +65,11 @@ export function PublicLayout() {
               <Dialog.Overlay className="fixed inset-0 z-40 bg-(--color-overlay)" />
               <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col gap-6 bg-surface p-6 shadow-(--shadow-elevated)">
                 <div className="flex items-center justify-between">
-                  <Dialog.Title className="text-h3 text-text-primary">Menu</Dialog.Title>
+                  <Dialog.Title className="text-h3 text-text-primary">{t('nav.menu')}</Dialog.Title>
                   <Dialog.Close asChild>
                     <button
                       type="button"
-                      aria-label="Close menu"
+                      aria-label={t('nav.closeMenu')}
                       className="flex h-11 w-11 items-center justify-center rounded-(--radius-md) text-text-primary"
                     >
                       <X aria-hidden size={24} />
@@ -86,7 +84,7 @@ export function PublicLayout() {
                       onClick={() => setMenuOpen(false)}
                       className="rounded-(--radius-md) px-3 py-3 text-lg font-medium text-text-primary hover:bg-surface-subtle"
                     >
-                      {item.label}
+                      {t(item.labelKey)}
                     </NavLink>
                   ))}
                 </nav>
@@ -99,13 +97,12 @@ export function PublicLayout() {
                   >
                     {t('nav.login')}
                   </Link>
-                  <Link
-                    to={routes.demo}
+                  <DemoLink
                     onClick={() => setMenuOpen(false)}
                     className="h-13 flex items-center justify-center rounded-(--radius-md) bg-primary text-base font-medium text-text-inverse"
                   >
                     {t('nav.tryDemo')}
-                  </Link>
+                  </DemoLink>
                 </div>
               </Dialog.Content>
             </Dialog.Portal>
@@ -120,13 +117,13 @@ export function PublicLayout() {
       <footer className="border-t border-border bg-surface">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 text-sm text-text-muted">
           <div className="flex flex-wrap gap-4">
-            <Link to={routes.privacy}>Privacy</Link>
-            <Link to={routes.limitations}>Limitations</Link>
-            <Link to={routes.accessibility}>Accessibility</Link>
-            <Link to={routes.status}>Status</Link>
+            <Link to={routes.privacy}>{t('footer.privacy')}</Link>
+            <Link to={routes.limitations}>{t('footer.limitations')}</Link>
+            <Link to={routes.accessibility}>{t('footer.accessibility')}</Link>
+            <Link to={routes.status}>{t('footer.status')}</Link>
             {brand.githubUrl && (
               <a href={brand.githubUrl} target="_blank" rel="noreferrer">
-                GitHub
+                {t('footer.github')}
               </a>
             )}
           </div>
