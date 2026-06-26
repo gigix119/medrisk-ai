@@ -209,11 +209,11 @@ async def test_confusion_matrix_reflects_stored_counts(
 
 
 async def test_confusion_matrix_unavailable_for_pending_run(
-    client: AsyncClient, auth_tokens: AuthTokens, seeded_dataset: SeededDataset
+    client: AsyncClient, superuser_auth_tokens: AuthTokens, seeded_dataset: SeededDataset
 ) -> None:
     create_response = await client.post(
         "/api/v1/research/evaluations",
-        headers=auth_tokens.auth_header,
+        headers=superuser_auth_tokens.auth_header,
         json={
             "dataset_id": str(seeded_dataset.dataset_id),
             "model_id": "smoke-baseline-cnn",
@@ -225,7 +225,7 @@ async def test_confusion_matrix_unavailable_for_pending_run(
     evaluation_id = create_response.json()["id"]
     response = await client.get(
         f"/api/v1/research/evaluations/{evaluation_id}/confusion-matrix",
-        headers=auth_tokens.auth_header,
+        headers=superuser_auth_tokens.auth_header,
     )
     body = response.json()
     assert body["available"] is False
@@ -257,11 +257,11 @@ async def test_list_errors_filters_by_is_correct(
 
 
 async def test_create_pending_evaluation_with_unknown_dataset_returns_404(
-    client: AsyncClient, auth_tokens: AuthTokens
+    client: AsyncClient, superuser_auth_tokens: AuthTokens
 ) -> None:
     response = await client.post(
         "/api/v1/research/evaluations",
-        headers=auth_tokens.auth_header,
+        headers=superuser_auth_tokens.auth_header,
         json={
             "dataset_id": str(uuid.uuid4()),
             "model_id": "smoke-baseline-cnn",

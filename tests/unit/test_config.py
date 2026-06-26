@@ -27,6 +27,9 @@ def _base_kwargs(**overrides: object) -> dict[str, object]:
         "ALLOW_SYNTHETIC_MODEL": False,
         "DEV_SEED_USER_EMAIL": None,
         "DEV_SEED_USER_PASSWORD": None,
+        # Same reasoning: tests/conftest.py also forces RATE_LIMIT_ENABLED=false as a real
+        # env var for the whole session, so pin it back to the framework default here too.
+        "RATE_LIMIT_ENABLED": True,
     }
     kwargs.update(overrides)
     return kwargs

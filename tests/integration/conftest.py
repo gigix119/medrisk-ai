@@ -10,11 +10,12 @@ import pytest_asyncio
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 from PIL import Image
-from sqlalchemy import text
+from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import AsyncSessionLocal
 from app.main import app
+from app.models.user import User
 from app.repositories import dataset as dataset_repo
 from tests.conftest import TEST_DATASETS_ROOT
 
@@ -104,6 +105,36 @@ async def auth_tokens(client: AsyncClient, registered_user: RegisteredUser) -> A
     )
     assert response.status_code == 200, response.text
     body = response.json()
+    return AuthTokens(access_token=body["access_token"], refresh_token=body["refresh_token"])
+
+
+@pytest_asyncio.fixture
+async def superuser_auth_tokens(client: AsyncClient, db_session: AsyncSession) -> AuthTokens:
+    """Registers a fresh user through the normal `/auth/register` flow, then promotes it to
+    `is_superuser=True` directly via the database (there is no API for this - promoting an
+    administrator is an operator action, see scripts/promote_superuser.py), and logs in.
+
+    Used by tests that exercise the admin-only research write endpoints
+    (POST .../quality-audit, .../leakage-audit, .../evaluations - see
+    app.api.dependencies.CurrentSuperuserDep).
+    """
+    email = f"admin-{uuid.uuid4().hex[:12]}@example.com"
+    password = "correct-horse-battery-staple"
+    register_response = await client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": password, "full_name": "Admin User"},
+    )
+    assert register_response.status_code == 201, register_response.text
+    user_id = uuid.UUID(register_response.json()["id"])
+
+    await db_session.execute(update(User).where(User.id == user_id).values(is_superuser=True))
+    await db_session.commit()
+
+    login_response = await client.post(
+        "/api/v1/auth/login", data={"username": email, "password": password}
+    )
+    assert login_response.status_code == 200, login_response.text
+    body = login_response.json()
     return AuthTokens(access_token=body["access_token"], refresh_token=body["refresh_token"])
 
 

@@ -20,6 +20,7 @@ from app.api.dependencies import (
     SettingsDep,
 )
 from app.core.logging import get_request_id
+from app.core.rate_limit import InferenceRateLimitDep
 from app.models.prediction import PredictionModule, PredictionStatus
 from app.schemas.common import Page
 from app.schemas.prediction import (
@@ -56,6 +57,7 @@ async def predict_histopathology(
     settings: SettingsDep,
     active_model: ActiveHistopathologyModelDep,
     semaphore: InferenceSemaphoreDep,
+    _rate_limit: InferenceRateLimitDep,
     file: Annotated[UploadFile, File(description="A PNG or JPEG histopathology patch.")],
     include_explanation: Annotated[bool, Form()] = False,
     client_reference: Annotated[

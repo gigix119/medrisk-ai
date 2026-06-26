@@ -52,3 +52,8 @@ os.environ["MODEL_WARMUP_ENABLED"] = "true"
 os.environ["GRADCAM_ENABLED"] = "true"
 os.environ["ALLOW_SYNTHETIC_MODEL"] = "true"
 os.environ["DATASETS_ROOT"] = str(TEST_DATASETS_ROOT)
+# The integration test client always presents the same client address (httpx ASGITransport,
+# no real socket), and the rate limiters in app.core.rate_limit are process-wide singletons -
+# without this, one test file's repeated logins would trip limits in an unrelated test file.
+# Rate-limiting logic itself is covered directly in tests/unit/test_rate_limit.py.
+os.environ["RATE_LIMIT_ENABLED"] = "false"

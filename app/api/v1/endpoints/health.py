@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app.api.dependencies import DbSessionDep, SettingsDep
 from app.core.exceptions import ServiceUnavailableError
-from app.schemas.common import HealthStatus, ReadinessResponse
+from app.schemas.common import HealthStatus, ReadinessResponse, VersionResponse
 from app.schemas.model_deployment import ModelHealthInfo, ModelHealthResponse
 
 router = APIRouter(tags=["health"])
@@ -73,4 +73,21 @@ async def model_health(request: Request) -> ModelHealthResponse:
             device_type=health.device,
             warmup_completed=health.warmup_completed,
         ),
+    )
+
+
+@router.get("/version", response_model=VersionResponse, summary="Safe release metadata")
+async def version(request: Request, settings: SettingsDep) -> VersionResponse:
+    """Public, non-sensitive build/release info only - no environment dump, dependency list,
+    filesystem path, or database host. See VersionResponse's docstring for the "never
+    fabricated, only omitted" rule applied to git_commit/model_version."""
+    active = getattr(request.app.state, "histopathology_model", None)
+    model_health = active.runtime.health() if active is not None else None
+    return VersionResponse(
+        name=settings.APP_NAME,
+        version=settings.APP_VERSION,
+        environment=settings.ENVIRONMENT,
+        git_commit=settings.GIT_COMMIT_SHA,
+        model_version=model_health.model_version if model_health else None,
+        model_synthetic_only=bool(model_health.synthetic_only) if model_health else None,
     )

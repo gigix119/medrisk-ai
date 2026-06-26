@@ -15,8 +15,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query, status
 
-from app.api.dependencies import CurrentUserDep, DbSessionDep, SettingsDep
+from app.api.dependencies import CurrentSuperuserDep, CurrentUserDep, DbSessionDep, SettingsDep
 from app.core.exceptions import ResourceNotFoundError
+from app.core.rate_limit import ResearchWriteRateLimitDep
 from app.repositories import dataset as dataset_repo
 from app.research.domain.enums import RunStatus
 from app.research.repositories import study as study_repo
@@ -103,13 +104,14 @@ async def get_dataset_quality(
     "/datasets/{dataset_id}/quality-audit",
     response_model=DatasetQualityAuditRead,
     status_code=status.HTTP_201_CREATED,
-    summary="Run a new dataset quality audit",
+    summary="Run a new dataset quality audit (administrator only)",
 )
 async def run_dataset_quality_audit(
     dataset_id: uuid.UUID,
-    current_user: CurrentUserDep,
+    current_user: CurrentSuperuserDep,
     session: DbSessionDep,
     settings: SettingsDep,
+    _rate_limit: ResearchWriteRateLimitDep,
 ) -> DatasetQualityAuditRead:
     audit = await dataset_audit_service.run_and_persist_quality_audit(
         session, dataset_id=dataset_id, datasets_root=Path(settings.DATASETS_ROOT)
@@ -133,10 +135,13 @@ async def get_dataset_leakage(
     "/datasets/{dataset_id}/leakage-audit",
     response_model=DatasetLeakageAuditRead,
     status_code=status.HTTP_201_CREATED,
-    summary="Run a new dataset leakage audit",
+    summary="Run a new dataset leakage audit (administrator only)",
 )
 async def run_dataset_leakage_audit(
-    dataset_id: uuid.UUID, current_user: CurrentUserDep, session: DbSessionDep
+    dataset_id: uuid.UUID,
+    current_user: CurrentSuperuserDep,
+    session: DbSessionDep,
+    _rate_limit: ResearchWriteRateLimitDep,
 ) -> DatasetLeakageAuditRead:
     audit = await dataset_audit_service.run_and_persist_leakage_audit(
         session, dataset_id=dataset_id
@@ -179,10 +184,13 @@ async def list_evaluations(
     "/evaluations",
     response_model=EvaluationRunRead,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a pending evaluation run",
+    summary="Create a pending evaluation run (administrator only)",
 )
 async def create_evaluation(
-    payload: CreateEvaluationRunRequest, current_user: CurrentUserDep, session: DbSessionDep
+    payload: CreateEvaluationRunRequest,
+    current_user: CurrentSuperuserDep,
+    session: DbSessionDep,
+    _rate_limit: ResearchWriteRateLimitDep,
 ) -> EvaluationRunRead:
     dataset = await dataset_repo.get_by_id(session, payload.dataset_id)
     if dataset is None:

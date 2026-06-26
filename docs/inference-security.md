@@ -43,7 +43,7 @@ Every response that touches the active model (the prediction response, `/api/v1/
 
 ## Concurrency as a DoS consideration
 
-`INFERENCE_MAX_CONCURRENCY` (default 1) plus `INFERENCE_QUEUE_TIMEOUT_SECONDS` (default 5) bound how many requests can be doing inference at once and how long an excess request waits before failing fast with `429` (and a `Retry-After` header) rather than queuing unboundedly. This is concurrency control, not rate limiting — it stops the model from being overwhelmed by simultaneous requests, but a client can still send many requests sequentially. Combined with the pre-existing lack of rate limiting on other endpoints (see [security.md](security.md) "Known Phase 1 limitations"), a determined client can still consume significant CPU time over many sequential requests; this is accepted as out of scope for this phase, same as the auth endpoints' rate-limiting gap.
+`INFERENCE_MAX_CONCURRENCY` (default 1) plus `INFERENCE_QUEUE_TIMEOUT_SECONDS` (default 5) bound how many requests can be doing inference at once and how long an excess request waits before failing fast with `429` (and a `Retry-After` header) rather than queuing unboundedly. This is concurrency control, not rate limiting — it stops the model from being overwhelmed by simultaneous *concurrent* requests. As of Phase 8, both inference endpoints (`POST /predictions/histopathology` and `POST /datasets/{id}/samples/{id}/predict`) are additionally covered by `RATE_LIMIT_INFERENCE_PER_MINUTE` (`app/core/rate_limit.py`) to bound *sequential* requests from one client too — see [security.md](security.md) "Rate limiting (Phase 8)". The limiter is per-process/in-memory, not distributed (see [SECURITY_AUDIT.md](SECURITY_AUDIT.md)).
 
 ## Bundle loading trust boundary
 

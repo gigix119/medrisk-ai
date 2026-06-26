@@ -48,15 +48,36 @@ This is an educational/research portfolio project, not a system with the legal b
 - The application is not a medical device. Results — including the `/survival` placeholder's `501` response and the histopathology endpoint's real-but-synthetic-model output — must never be used for diagnosis, treatment decisions, or emergency medical guidance. Every prediction response carries this disclaimer explicitly.
 - The raw uploaded image is never persisted, on disk or in the database, under any circumstance — see [image-input-contract.md](image-input-contract.md) "What is never persisted or returned."
 
+## Rate limiting (Phase 8)
+
+`/auth/login`, `/auth/register`, `/auth/refresh`, both inference endpoints, and the three
+research write endpoints (`POST .../quality-audit`, `.../leakage-audit`, `.../evaluations`)
+are protected by an in-memory, per-process sliding-window limiter (`app/core/rate_limit.py`),
+returning `429` with a `Retry-After` header once exceeded. This is **instance-local, not
+distributed** — with multiple worker processes or replicas each keeps its own counters. See
+[THREAT_MODEL.md](THREAT_MODEL.md) and [SECURITY_AUDIT.md](SECURITY_AUDIT.md) for the full
+writeup of this limitation.
+
+## Authorization (Phase 8)
+
+`User.is_superuser` (present since Phase 1, never enforced until now) gates the three
+research write endpoints above via `CurrentSuperuserDep`
+(`app/api/dependencies.py::get_current_superuser`) — any other authenticated user gets `403
+AUTHORIZATION_FAILED`. There is currently no API to grant this flag; it is set with the
+operator-only `scripts/promote_superuser.py` (see
+[OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)). Every other endpoint remains open to any
+authenticated user, matching the public/authenticated/admin boundary in
+[THREAT_MODEL.md](THREAT_MODEL.md).
+
 ## Responsible reporting
 
 This is a personal portfolio project without a dedicated security team or bug-bounty program. See [SECURITY.md](../SECURITY.md) at the repository root for how to report a concern.
 
-## Known Phase 1 limitations
+## Known limitations
 
-- No rate limiting on `/auth/login` or `/auth/register` (brute-force/enumeration mitigation beyond the generic error message is not yet implemented).
-- No account lockout after repeated failed login attempts.
+- No account lockout after repeated failed login attempts (rate limiting reduces, but does not eliminate, brute-force risk — see above).
 - No email verification step on registration.
 - No CSRF protection — not currently needed because the API is token-based (Bearer auth, not cookies), but would need revisiting if cookie-based auth were ever added.
 - No revocation mechanism for access tokens before their natural (short) expiry.
 - No structured/JSON logging output yet (human-readable only) — the logging module is structured internally so this can change without touching call sites.
+- Rate limiting is per-process/in-memory, not distributed (see above).

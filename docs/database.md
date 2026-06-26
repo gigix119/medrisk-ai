@@ -20,7 +20,7 @@ PostgreSQL 16. Schema is managed entirely through Alembic migrations (`alembic/v
 | `hashed_password` | `varchar(255)` | Argon2 hash — never plaintext, never returned by any API schema |
 | `full_name` | `varchar(255)` | |
 | `is_active` | `boolean` | Default `true`. Inactive users cannot log in or refresh, even with a valid token |
-| `is_superuser` | `boolean` | Default `false`. Not currently used by any endpoint — reserved for future admin features |
+| `is_superuser` | `boolean` | Default `false`. Enforced since Phase 8 by `CurrentSuperuserDep` (`app/api/dependencies.py`) on the three research write endpoints — see [security.md](security.md) "Authorization (Phase 8)". Set via `scripts/promote_superuser.py`, the only way to grant it (no API does) |
 | `created_at`, `updated_at` | `timestamptz` | |
 
 ### `refresh_token_sessions`

@@ -123,3 +123,17 @@ class InferenceTimeoutError(AppError):
     status_code = 504
     error_code = "INFERENCE_TIMEOUT"
     default_message = "The inference request exceeded its deadline."
+
+
+class RateLimitExceededError(AppError):
+    """Raised when a caller exceeds a per-endpoint rate limit (app.core.rate_limit).
+
+    Limits are enforced per-process, not distributed - see docs/SECURITY_AUDIT.md.
+    """
+
+    status_code = 429
+    error_code = "RATE_LIMIT_EXCEEDED"
+    default_message = "Too many requests. Please slow down and try again shortly."
+
+    def __init__(self, message: str | None = None, *, retry_after_seconds: int = 60) -> None:
+        super().__init__(message, headers={"Retry-After": str(retry_after_seconds)})

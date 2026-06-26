@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
-from app.core.exceptions import ModelNotConfiguredError, ModelUnavailableError
+from app.core.exceptions import AuthorizationError, ModelNotConfiguredError, ModelUnavailableError
 from app.db.session import get_db_session
 from app.models.user import User
 from app.services.auth import get_authenticated_user
@@ -30,6 +30,18 @@ async def get_current_user(
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+async def get_current_superuser(current_user: CurrentUserDep) -> User:
+    """Gate for admin-only actions (registry mutation, audit/evaluation creation - see the
+    Phase 8 public/authenticated/admin boundary in docs/THREAT_MODEL.md). `is_superuser`
+    already existed on `User` (Phase 1) but was never enforced by any endpoint until now."""
+    if not current_user.is_superuser:
+        raise AuthorizationError("This action requires an administrator account.")
+    return current_user
+
+
+CurrentSuperuserDep = Annotated[User, Depends(get_current_superuser)]
 
 
 def get_client_user_agent(request: Request) -> str | None:

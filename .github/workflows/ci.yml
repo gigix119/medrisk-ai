@@ -5,8 +5,14 @@ on:
   push:
     branches: [main]
 
+# Least-privilege default (Phase 8): no job here pushes code, creates releases, or deploys,
+# so none of them need anything beyond reading the checked-out source.
+permissions:
+  contents: read
+
 env:
   PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
 
 jobs:
   test:
@@ -167,3 +173,100 @@ jobs:
 
       - name: Verify the registered bundle (checksums + smoke inference)
         run: python -m medrisk_ml.cli verify-bundle --model-id smoke-baseline-cnn:0.0.1-ci
+
+  frontend:
+    runs-on: ubuntu-latest
+    # Independent of `test`/`ml`: no Python, no Postgres - just the Vite/React app.
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Unit/component tests
+        run: npm run test
+
+      - name: Production build
+        run: npm run build
+
+  security:
+    runs-on: ubuntu-latest
+    # Awareness scanning, not a gate on correctness: known Python/JS dependency CVEs and
+    # accidental secrets. Independent of `test`/`ml`/`frontend` - no Postgres, no torch.
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install scanning tools
+        run: python -m pip install pip-audit==2.10.1 detect-secrets==1.5.0
+
+      - name: pip-audit - live API dependencies
+        run: python -m pip_audit -r requirements.txt
+
+      - name: pip-audit - inference dependencies
+        # CVE-2025-3000 (torch) is a memory-corruption issue specific to torch.jit.script on
+        # scripted classes with list attributes - this codebase never calls torch.jit.script
+        # (see docs/SECURITY_AUDIT.md finding F-4). Ignored here, not silently unscanned.
+        run: python -m pip_audit -r requirements-inference.txt --ignore-vuln CVE-2025-3000
+
+      - name: pip-audit - ML pipeline dependencies
+        run: python -m pip_audit -r requirements-ml.txt --ignore-vuln CVE-2025-3000
+
+      - name: Secret scan (diff against the committed baseline)
+        # Any *new* finding not already in .secrets.baseline updates the file on disk, which
+        # the following step then catches as an uncommitted diff - this fails the job without
+        # printing the secret value itself anywhere in the log.
+        run: |
+          detect-secrets scan \
+            --exclude-files '\.venv/' \
+            --exclude-files 'node_modules/' \
+            --exclude-files 'frontend/dist/' \
+            --exclude-files 'package-lock\.json' \
+            --exclude-files 'frontend/openapi\.json' \
+            --exclude-files 'frontend/src/api/generated/' \
+            --baseline .secrets.baseline
+          git diff --exit-code .secrets.baseline
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies (locked)
+        working-directory: frontend
+        run: npm ci
+
+      - name: npm audit - frontend dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=high

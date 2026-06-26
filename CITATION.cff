@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: >-
+  If you reference this project, please cite it as a research/engineering
+  portfolio project. It is not a peer-reviewed publication and has not been
+  clinically validated - see README.md and docs/KNOWN_LIMITATIONS.md.
+title: MedRisk AI
+type: software
+authors:
+  - alias: gigix119
+repository-code: "https://github.com/gigix119/medrisk-ai"
+license-raw: "Unlicensed - all rights reserved (see README.md License section)"
+keywords:
+  - histopathology
+  - medical-imaging
+  - deep-learning
+  - explainable-ai
+  - research-portfolio

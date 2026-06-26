@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.dependencies import ClientIpDep, ClientUserAgentDep, DbSessionDep, SettingsDep
+from app.core.rate_limit import LoginRateLimitDep, RegisterRateLimitDep
 from app.schemas.auth import LogoutRequest, RefreshRequest, RegisterRequest, TokenResponse
 from app.schemas.user import UserRead
 from app.services import auth as auth_service
@@ -19,7 +20,9 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     summary="Register a new user",
 )
-async def register(payload: RegisterRequest, session: DbSessionDep) -> UserRead:
+async def register(
+    payload: RegisterRequest, session: DbSessionDep, _rate_limit: RegisterRateLimitDep
+) -> UserRead:
     user = await auth_service.register_user(
         session,
         email=payload.email,
@@ -36,6 +39,7 @@ async def login(
     settings: SettingsDep,
     user_agent: ClientUserAgentDep,
     ip_address: ClientIpDep,
+    _rate_limit: LoginRateLimitDep,
 ) -> TokenResponse:
     token_pair = await auth_service.login(
         session,
@@ -59,6 +63,7 @@ async def refresh(
     settings: SettingsDep,
     user_agent: ClientUserAgentDep,
     ip_address: ClientIpDep,
+    _rate_limit: LoginRateLimitDep,
 ) -> TokenResponse:
     token_pair = await auth_service.rotate_refresh_token(
         session,

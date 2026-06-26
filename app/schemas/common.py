@@ -34,3 +34,18 @@ class HealthStatus(BaseModel):
 class ReadinessResponse(BaseModel):
     status: str
     dependencies: dict[str, str]
+
+
+class VersionResponse(BaseModel):
+    """Safe release metadata only - never a filesystem path, dependency list, or DB host.
+
+    `git_commit`/`model_version`/`model_synthetic_only` are `None` (not fabricated) whenever
+    the underlying source isn't available - see app.api.v1.endpoints.health.version.
+    """
+
+    name: str
+    version: str
+    environment: str
+    git_commit: str | None = None
+    model_version: str | None = None
+    model_synthetic_only: bool | None = None

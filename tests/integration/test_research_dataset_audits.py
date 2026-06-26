@@ -94,13 +94,14 @@ async def _build_clean_dataset(
 
 
 async def test_quality_audit_passes_on_internally_consistent_dataset(
-    client: AsyncClient, auth_tokens: AuthTokens, db_session: AsyncSession
+    client: AsyncClient, superuser_auth_tokens: AuthTokens, db_session: AsyncSession
 ) -> None:
     dataset_id = await _build_clean_dataset(
         db_session, splits={"train": [("a", b"AAA"), ("b", b"BBB")]}
     )
     response = await client.post(
-        f"/api/v1/research/datasets/{dataset_id}/quality-audit", headers=auth_tokens.auth_header
+        f"/api/v1/research/datasets/{dataset_id}/quality-audit",
+        headers=superuser_auth_tokens.auth_header,
     )
     assert response.status_code == 201, response.text
     body = response.json()
@@ -110,13 +111,13 @@ async def test_quality_audit_passes_on_internally_consistent_dataset(
 
 
 async def test_quality_audit_detects_checksum_mismatch(
-    client: AsyncClient, auth_tokens: AuthTokens, seeded_dataset: SeededDataset
+    client: AsyncClient, superuser_auth_tokens: AuthTokens, seeded_dataset: SeededDataset
 ) -> None:
     """`seeded_dataset`'s checksums ("0"*64 / "1"*64) never match the real PNG bytes - the
     audit must surface this as a critical, FAILED finding, not silently ignore it."""
     response = await client.post(
         f"/api/v1/research/datasets/{seeded_dataset.dataset_id}/quality-audit",
-        headers=auth_tokens.auth_header,
+        headers=superuser_auth_tokens.auth_header,
     )
     assert response.status_code == 201
     body = response.json()
@@ -137,27 +138,29 @@ async def test_quality_audit_get_before_any_run_returns_404(
 
 
 async def test_quality_audit_get_returns_latest_after_post(
-    client: AsyncClient, auth_tokens: AuthTokens, db_session: AsyncSession
+    client: AsyncClient, superuser_auth_tokens: AuthTokens, db_session: AsyncSession
 ) -> None:
     dataset_id = await _build_clean_dataset(db_session, splits={"train": [("a", b"AAA")]})
     post_response = await client.post(
-        f"/api/v1/research/datasets/{dataset_id}/quality-audit", headers=auth_tokens.auth_header
+        f"/api/v1/research/datasets/{dataset_id}/quality-audit",
+        headers=superuser_auth_tokens.auth_header,
     )
     get_response = await client.get(
-        f"/api/v1/research/datasets/{dataset_id}/quality", headers=auth_tokens.auth_header
+        f"/api/v1/research/datasets/{dataset_id}/quality", headers=superuser_auth_tokens.auth_header
     )
     assert get_response.status_code == 200
     assert get_response.json()["id"] == post_response.json()["id"]
 
 
 async def test_leakage_audit_reports_incomplete_without_subject_identifier(
-    client: AsyncClient, auth_tokens: AuthTokens, db_session: AsyncSession
+    client: AsyncClient, superuser_auth_tokens: AuthTokens, db_session: AsyncSession
 ) -> None:
     dataset_id = await _build_clean_dataset(
         db_session, splits={"train": [("a", b"AAA")], "test": [("b", b"BBB")]}
     )
     response = await client.post(
-        f"/api/v1/research/datasets/{dataset_id}/leakage-audit", headers=auth_tokens.auth_header
+        f"/api/v1/research/datasets/{dataset_id}/leakage-audit",
+        headers=superuser_auth_tokens.auth_header,
     )
     assert response.status_code == 201
     body = response.json()
@@ -166,7 +169,7 @@ async def test_leakage_audit_reports_incomplete_without_subject_identifier(
 
 
 async def test_leakage_audit_detects_cross_split_checksum_overlap(
-    client: AsyncClient, auth_tokens: AuthTokens, db_session: AsyncSession
+    client: AsyncClient, superuser_auth_tokens: AuthTokens, db_session: AsyncSession
 ) -> None:
     """Same byte content registered under both train and test must be flagged critical -
     the strongest possible exact-duplicate leakage signal."""
@@ -179,7 +182,8 @@ async def test_leakage_audit_detects_cross_split_checksum_overlap(
         },
     )
     response = await client.post(
-        f"/api/v1/research/datasets/{dataset_id}/leakage-audit", headers=auth_tokens.auth_header
+        f"/api/v1/research/datasets/{dataset_id}/leakage-audit",
+        headers=superuser_auth_tokens.auth_header,
     )
     assert response.status_code == 201
     body = response.json()

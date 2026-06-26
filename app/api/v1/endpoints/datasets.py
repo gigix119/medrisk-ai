@@ -21,6 +21,7 @@ from app.api.dependencies import (
     SettingsDep,
 )
 from app.core.logging import get_request_id
+from app.core.rate_limit import InferenceRateLimitDep
 from app.schemas.common import Page
 from app.schemas.dataset import (
     DatasetRead,
@@ -158,6 +159,7 @@ async def predict_on_sample(
     settings: SettingsDep,
     active_model: ActiveHistopathologyModelDep,
     semaphore: InferenceSemaphoreDep,
+    _rate_limit: InferenceRateLimitDep,
 ) -> PredictOnSampleResponse:
     prediction, result, dataset, sample = await dataset_service.run_sample_prediction(
         session,

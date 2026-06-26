@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     ENVIRONMENT: Environment = "development"
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
+    # Optional build provenance for GET /version, set via the Dockerfiles' GIT_COMMIT_SHA
+    # build ARG (see docs/DEPLOYMENT.md). Left None rather than fabricated when not built
+    # through that path (e.g. plain `uvicorn app.main:app` in local dev).
+    GIT_COMMIT_SHA: str | None = None
 
     # --- Database ---
     DATABASE_URL: str
@@ -111,6 +115,19 @@ class Settings(BaseSettings):
     # from the untracked .env file; never given a default, never logged.
     DEV_SEED_USER_EMAIL: str | None = None
     DEV_SEED_USER_PASSWORD: SecretStr | None = None
+
+    # --- Rate limiting (Phase 8) ---
+    # In-memory, per-process sliding-window limits on abuse-prone endpoints (login, register,
+    # refresh, inference, research audit/evaluation creation) - see app/core/rate_limit.py.
+    # Instance-local only: with multiple worker processes/replicas each keeps its own counters,
+    # this is not a distributed guarantee (documented in docs/SECURITY_AUDIT.md). Disabled in
+    # the test environment by tests/conftest.py so the shared ASGI test client (which always
+    # presents the same client address) doesn't trip limits across unrelated tests.
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_LOGIN_PER_MINUTE: int = 10
+    RATE_LIMIT_REGISTER_PER_MINUTE: int = 5
+    RATE_LIMIT_INFERENCE_PER_MINUTE: int = 30
+    RATE_LIMIT_RESEARCH_WRITE_PER_MINUTE: int = 10
 
     @field_validator("CORS_ORIGINS", "ALLOWED_HOSTS", mode="before")
     @classmethod
