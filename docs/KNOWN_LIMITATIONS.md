@@ -56,11 +56,16 @@ flattering document.
   against (see [DATABASE_RELEASE_AND_ROLLBACK.md](DATABASE_RELEASE_AND_ROLLBACK.md)).
 - **No load testing** of the rate limiter, the inference concurrency semaphore, or the API
   generally under realistic concurrent traffic.
-- **No browser-automation tool was available in this development environment** across every
-  phase of this project (Phases 4 through 8) — manual click-through verification (390px
-  mobile layout, real keyboard navigation, visual Grad-CAM rendering) was substituted with
-  React Testing Library coverage and direct dev-server HTTP checks. This is a tooling gap in
-  the development environment, not a deliberate scope decision.
+- **No browser-automation tool was available in this development environment across Phases 4
+  through 8** — manual click-through verification (390px mobile layout, real keyboard
+  navigation, visual Grad-CAM rendering) was substituted with React Testing Library coverage
+  and direct dev-server HTTP checks during those phases. **Update, 2026-06-26:** a
+  Playwright installation became available in this environment and was used for the portfolio
+  publication pass (real desktop/mobile screenshots in
+  [docs/assets/screenshots/](assets/screenshots/), captured against a locally running instance
+  with a throwaway account). This was a one-off manual screenshot session, not an added
+  automated visual-regression suite — no Playwright test files were added to `frontend/`, so
+  this remains a real gap in *automated* coverage, not merely a documentation update.
 
 ## Process
 

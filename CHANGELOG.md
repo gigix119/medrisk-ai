@@ -2,6 +2,20 @@
 
 Phase-by-phase history. Dates are commit dates from `git log`, not calendar estimates.
 
+## Portfolio publication pass (2026-06-26)
+
+- Captured real desktop (1440×1000) and mobile (390×844) screenshots of the running
+  application against a locally seeded instance, using a throwaway, non-personal reviewer
+  account — `docs/assets/screenshots/`.
+- Added `docs/PRODUCT_WALKTHROUGH.md` (page-by-page reviewer guide) and
+  `docs/RESEARCH_METHODOLOGY.md` (the evaluation protocol this repository supports).
+- Rewrote `docs/PORTFOLIO_CASE_STUDY.md` into a structured technical case study with
+  Mermaid architecture/data-model/sequence diagrams and a metric-by-metric definition table.
+- Updated `README.md` with a screenshot section and an OpenAPI client-generation workflow
+  note; corrected a stale Phase 1-era scope statement in `SECURITY.md`; clarified the
+  browser-automation limitation in `docs/KNOWN_LIMITATIONS.md` (a manual Playwright session
+  was used for this pass; no automated visual-regression suite was added).
+
 ## Phase 8 — Security hardening and portfolio release (2026-06-26)
 
 - Added per-process rate limiting (`app/core/rate_limit.py`) on login, register, refresh,

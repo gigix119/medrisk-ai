@@ -4,7 +4,7 @@ MedRisk AI is a personal educational/research portfolio project (see the disclai
 
 ## Supported scope
 
-Only the code in this repository, in its current Phase 1 (backend foundation) form. There is no deployed production instance to report issues against.
+Only the code currently on this repository's `main` branch. There is no deployed production instance to report issues against.
 
 ## Reporting a vulnerability
 
@@ -18,7 +18,9 @@ This is a learning project maintained by one person; please allow reasonable tim
 
 ## What's already documented
 
-- [docs/security.md](docs/security.md) — password hashing, JWT/refresh-token handling, secret management, logging rules, the no-real-patient-data policy, and currently known Phase 1 limitations (e.g. no login rate limiting yet).
+- [docs/security.md](docs/security.md) — password hashing, JWT/refresh-token handling, secret management, logging rules, and the no-real-patient-data policy.
+- [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) and [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md) — the formal threat model and the self-administered audit findings (Phase 8).
+- [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) — the full, currently-accepted security/process limitations list (e.g. per-process rate limiting, no account lockout).
 - [docs/decisions/ADR-001-backend-architecture.md](docs/decisions/ADR-001-backend-architecture.md) — why the stack (PyJWT, Argon2 via `pwdlib`, async SQLAlchemy, real-PostgreSQL tests, ...) was chosen.
 
 If your finding matches something already listed as a known limitation, a report is still welcome, but it likely won't be a surprise.

@@ -197,7 +197,7 @@ are now admin-gated.
 
 ## What Phase 8 did NOT do this session (deferred, not forgotten)
 
-- No actual deployment (user-deferred — see [DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+- No actual deployment (user-deferred — see [DEPLOYMENT.md](DEPLOYMENT.md)).
 - No CSP/security-header configuration (no deployed origin exists to attach headers to).
 - No accessibility/responsive manual browser pass (no browser-automation tool available in
   this environment — same gap as every prior phase).
@@ -214,7 +214,7 @@ are now admin-gated.
 Pick up the deferred items above in priority order: (1) watch the next CI run on GitHub
 Actions to confirm the new `frontend`/`security` jobs actually pass in that environment
 (local reasoning only so far); (2) if/when the owner decides to deploy, follow
-[DEPLOYMENT.md](docs/DEPLOYMENT.md)'s "Next exact action required" section; (3) consider
+[DEPLOYMENT.md](DEPLOYMENT.md)'s "Next exact action required" section; (3) consider
 `docs/RELEASE_CHECKLIST.md` once a real deployment target exists (a checklist for a
 deployment that doesn't exist yet would be premature).
 

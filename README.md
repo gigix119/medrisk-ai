@@ -25,8 +25,23 @@ dataset-sample research platform, **Phase 7** scientific evaluation/reproducibil
 **Project status:** actively developed, not deployed publicly (no live URL exists — see
 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)). Backend: 334 tests passing, ruff/mypy clean.
 Frontend: full test suite passing, typecheck/lint/build clean. See
-[docs/PORTFOLIO_CASE_STUDY.md](docs/PORTFOLIO_CASE_STUDY.md) for a recruiter-facing technical
-walkthrough of the whole system.
+[docs/PORTFOLIO_CASE_STUDY.md](docs/PORTFOLIO_CASE_STUDY.md) for a technical case study,
+[docs/PRODUCT_WALKTHROUGH.md](docs/PRODUCT_WALKTHROUGH.md) for a page-by-page reviewer guide,
+and [docs/RESEARCH_METHODOLOGY.md](docs/RESEARCH_METHODOLOGY.md) for the evaluation protocol.
+
+## Screenshots
+
+All screenshots below were captured from a locally running instance (native PostgreSQL +
+Uvicorn + Vite dev server) using a throwaway, non-personal reviewer account and the
+repository's own synthetic dataset/model. Full set, including mobile views and the
+sample-level error table: [docs/assets/screenshots/](docs/assets/screenshots/).
+
+| | |
+|---|---|
+| ![Landing page](docs/assets/screenshots/landing-page.png) Landing page | ![Dashboard](docs/assets/screenshots/dashboard.png) Authenticated dashboard |
+| ![Dataset registry](docs/assets/screenshots/dataset-registry.png) Dataset registry | ![Dataset sample](docs/assets/screenshots/dataset-sample-detail.png) Dataset sample, before inference |
+| ![Prediction result](docs/assets/screenshots/prediction-result.png) Prediction result with ground-truth comparison and Grad-CAM | ![Evaluation run](docs/assets/screenshots/research-evaluation-detail.png) Evaluation run: metrics, confusion matrix, per-sample predictions |
+| ![Research overview](docs/assets/screenshots/research-overview.png) Research evaluation overview | ![Mobile dashboard](docs/assets/screenshots/mobile-dashboard.png) Mobile dashboard (390×844) |
 
 ## Table of contents
 
@@ -338,7 +353,14 @@ npm ci                  # install locked dependencies
 npm run dev              # Vite dev server (proxies to the API - see frontend/.env.example)
 npm run build             # production build (frontend/dist)
 npm run check              # typecheck + lint + format:check + test, same gate as CI
+npm run api:generate        # export the live OpenAPI schema and regenerate the typed client
+npm run api:check           # same, then fail if that regeneration changed any committed file
 ```
+
+`api:generate` requires the backend to be running locally (it exports `/openapi.json` from a
+live process, not a static file) — see [frontend/README.md](frontend/README.md). Run it after
+any change to backend request/response schemas so the generated client in
+`frontend/src/api/generated/` never drifts from the real API.
 
 See [frontend/README.md](frontend/README.md) for the full local setup, and
 `frontend/.env.example` for `VITE_API_BASE_URL` and the other (all non-secret — see
@@ -547,8 +569,20 @@ used with this project — see the disclaimer at the top of this file.
 | [docs/OPERATIONS_RUNBOOK.md](docs/OPERATIONS_RUNBOOK.md) | How to actually run/operate the project (health checks, admin promotion, troubleshooting) |
 | [docs/DATA_AND_MODEL_PROVENANCE.md](docs/DATA_AND_MODEL_PROVENANCE.md) | Where every dataset/model artifact actually came from and what may be shown publicly |
 | [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) | The full, no-spin limitations list |
-| [docs/PORTFOLIO_CASE_STUDY.md](docs/PORTFOLIO_CASE_STUDY.md) | Recruiter-facing technical case study and interview-topic guide |
+| [docs/PORTFOLIO_CASE_STUDY.md](docs/PORTFOLIO_CASE_STUDY.md) | Technical case study: architecture, methodology, verified results, limitations |
+| [docs/PRODUCT_WALKTHROUGH.md](docs/PRODUCT_WALKTHROUGH.md) | Page-by-page reviewer guide, with screenshots, to every screen in the app |
+| [docs/RESEARCH_METHODOLOGY.md](docs/RESEARCH_METHODOLOGY.md) | The evaluation protocol this repository supports, and what it does not claim |
 | [docs/PHASE_7_PROGRESS.md](docs/PHASE_7_PROGRESS.md) / [docs/PHASE_8_PROGRESS.md](docs/PHASE_8_PROGRESS.md) | Session-by-session audit trail for the two most recent phases |
+
+## Reproducibility
+
+Every trained model's manifest records its dataset name/version/mode, git commit, and full
+validation/test metrics computed once. Every evaluation run persisted through the research
+platform records a protocol-config hash and an artifact manifest, so a reported number can be
+traced back to the exact configuration and sample set that produced it. See
+[docs/RESEARCH_METHODOLOGY.md](docs/RESEARCH_METHODOLOGY.md) "Reproducibility requirements"
+and [docs/PORTFOLIO_CASE_STUDY.md](docs/PORTFOLIO_CASE_STUDY.md) "Reproducibility" for the
+full mechanism.
 
 ## Known limitations
 
