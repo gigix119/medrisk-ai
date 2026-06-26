@@ -67,6 +67,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Safe release metadata
+         * @description Public, non-sensitive build/release info only - no environment dump, dependency list,
+         *     filesystem path, or database host. See VersionResponse's docstring for the "never
+         *     fabricated, only omitted" rule applied to git_commit/model_version.
+         */
+        get: operations["version_version_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/register": {
         parameters: {
             query?: never;
@@ -416,7 +438,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Run a new dataset quality audit */
+        /** Run a new dataset quality audit (administrator only) */
         post: operations["run_dataset_quality_audit_api_v1_research_datasets__dataset_id__quality_audit_post"];
         delete?: never;
         options?: never;
@@ -450,7 +472,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Run a new dataset leakage audit */
+        /** Run a new dataset leakage audit (administrator only) */
         post: operations["run_dataset_leakage_audit_api_v1_research_datasets__dataset_id__leakage_audit_post"];
         delete?: never;
         options?: never;
@@ -468,7 +490,7 @@ export interface paths {
         /** List evaluation runs */
         get: operations["list_evaluations_api_v1_research_evaluations_get"];
         put?: never;
-        /** Create a pending evaluation run */
+        /** Create a pending evaluation run (administrator only) */
         post: operations["create_evaluation_api_v1_research_evaluations_post"];
         delete?: never;
         options?: never;
@@ -1643,6 +1665,27 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * VersionResponse
+         * @description Safe release metadata only - never a filesystem path, dependency list, or DB host.
+         *
+         *     `git_commit`/`model_version`/`model_synthetic_only` are `None` (not fabricated) whenever
+         *     the underlying source isn't available - see app.api.v1.endpoints.health.version.
+         */
+        VersionResponse: {
+            /** Name */
+            name: string;
+            /** Version */
+            version: string;
+            /** Environment */
+            environment: string;
+            /** Git Commit */
+            git_commit?: string | null;
+            /** Model Version */
+            model_version?: string | null;
+            /** Model Synthetic Only */
+            model_synthetic_only?: boolean | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -1708,6 +1751,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ModelHealthResponse"];
+                };
+            };
+        };
+    };
+    version_version_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionResponse"];
                 };
             };
         };

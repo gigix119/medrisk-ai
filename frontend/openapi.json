@@ -72,6 +72,28 @@
         }
       }
     },
+    "/version": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Safe release metadata",
+        "description": "Public, non-sensitive build/release info only - no environment dump, dependency list,\nfilesystem path, or database host. See VersionResponse's docstring for the \"never\nfabricated, only omitted\" rule applied to git_commit/model_version.",
+        "operationId": "version_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "tags": [
@@ -1254,7 +1276,7 @@
         "tags": [
           "research"
         ],
-        "summary": "Run a new dataset quality audit",
+        "summary": "Run a new dataset quality audit (administrator only)",
         "operationId": "run_dataset_quality_audit_api_v1_research_datasets__dataset_id__quality_audit_post",
         "security": [
           {
@@ -1350,7 +1372,7 @@
         "tags": [
           "research"
         ],
-        "summary": "Run a new dataset leakage audit",
+        "summary": "Run a new dataset leakage audit (administrator only)",
         "operationId": "run_dataset_leakage_audit_api_v1_research_datasets__dataset_id__leakage_audit_post",
         "security": [
           {
@@ -1507,7 +1529,7 @@
         "tags": [
           "research"
         ],
-        "summary": "Create a pending evaluation run",
+        "summary": "Create a pending evaluation run (administrator only)",
         "operationId": "create_evaluation_api_v1_research_evaluations_post",
         "security": [
           {
@@ -4929,6 +4951,63 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VersionResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment"
+          },
+          "git_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Git Commit"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "model_synthetic_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Synthetic Only"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "environment"
+        ],
+        "title": "VersionResponse",
+        "description": "Safe release metadata only - never a filesystem path, dependency list, or DB host.\n\n`git_commit`/`model_version`/`model_synthetic_only` are `None` (not fabricated) whenever\nthe underlying source isn't available - see app.api.v1.endpoints.health.version."
       }
     },
     "securitySchemes": {
