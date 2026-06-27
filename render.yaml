@@ -31,7 +31,7 @@ services:
     # the `&&` - was looked up as a single executable name. scripts/render_start.sh sidesteps
     # this: Render executes it directly, and the explicit `/bin/sh` invocation below is what
     # actually provides the shell that runs the migration-then-serve sequence inside it.
-    startCommand: /bin/sh scripts/render_start.sh
+    dockerCommand: /bin/sh scripts/render_start.sh
     envVars:
       - key: ENVIRONMENT
         value: development
