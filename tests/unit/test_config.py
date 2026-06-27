@@ -136,11 +136,41 @@ def test_cors_origins_empty_string_parses_to_empty_list() -> None:
     assert settings.CORS_ORIGINS == []
 
 
-def test_database_url_must_use_asyncpg_scheme() -> None:
+def test_database_url_accepts_asyncpg_scheme_unchanged() -> None:
+    settings = Settings(
+        **_base_kwargs(
+            ENVIRONMENT="test",
+            DATABASE_URL="postgresql+asyncpg://user:pass@localhost:5432/db",
+        )
+    )
+    assert settings.DATABASE_URL == "postgresql+asyncpg://user:pass@localhost:5432/db"
+
+
+def test_database_url_normalizes_postgresql_scheme() -> None:
+    settings = Settings(
+        **_base_kwargs(
+            ENVIRONMENT="test",
+            DATABASE_URL="postgresql://user:pass@localhost:5432/db",
+        )
+    )
+    assert settings.DATABASE_URL == "postgresql+asyncpg://user:pass@localhost:5432/db"
+
+
+def test_database_url_normalizes_postgres_scheme() -> None:
+    settings = Settings(
+        **_base_kwargs(
+            ENVIRONMENT="test",
+            DATABASE_URL="postgres://user:pass@localhost:5432/db",
+        )
+    )
+    assert settings.DATABASE_URL == "postgresql+asyncpg://user:pass@localhost:5432/db"
+
+
+def test_database_url_rejects_unrelated_scheme() -> None:
     with pytest.raises(ValidationError, match=r"postgresql\+asyncpg"):
         Settings(
             **_base_kwargs(
                 ENVIRONMENT="test",
-                DATABASE_URL="postgresql://user:pass@localhost:5432/db",
+                DATABASE_URL="mysql://user:pass@localhost:3306/db",
             )
         )

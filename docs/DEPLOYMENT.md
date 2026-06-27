@@ -24,39 +24,26 @@ cannot satisfy without a real trained model. `ENVIRONMENT=development` with
 `MODEL_REQUIRED=false` is the honest, currently-correct choice for "deployed, but with no
 inference yet"; see "What deploying would require," point 3, below for the full reasoning.
 
-**Variables that must be set manually in the Render dashboard.** `render.yaml` marks these
-`sync: false`, meaning Render will prompt for a value at Blueprint creation time and never
-overwrite it on redeploy:
+**No manual dashboard step is required to stand this up.** Both `DATABASE_URL` and
+`JWT_SECRET_KEY` are provisioned automatically by the Blueprint:
 
-- `JWT_SECRET_KEY` - no safe default exists outside the test environment. Generate one
-  locally and paste it in:
+- `DATABASE_URL` is wired with `fromDatabase: { name: medrisk-db, property: connectionString }`
+  in `render.yaml`. Render's managed-Postgres connection string uses the plain
+  `postgresql://` scheme, while this app requires `postgresql+asyncpg://` for SQLAlchemy's
+  async driver (`app/core/config.py`'s `validate_database_url_scheme`). Rather than hand-edit
+  the value - which also wasn't possible at initial Blueprint creation time, since the
+  database doesn't exist yet to have a connection string to copy -
+  `Settings.normalize_database_url_scheme` rewrites `postgresql://`/`postgres://` to
+  `postgresql+asyncpg://` automatically at startup, before the scheme check runs. Values that
+  already use `postgresql+asyncpg://` (e.g. local `.env`) pass through unchanged; see
+  `tests/unit/test_config.py` for the covered cases.
+- `JWT_SECRET_KEY` uses `generateValue: true`, so Render generates and stores a random value
+  at Blueprint creation time and never overwrites it on redeploy. To roll it manually instead
+  (e.g. to reuse a specific secret), edit `render.yaml` to use `sync: false` for this key and
+  paste a value generated via:
   ```bash
   python -c "import secrets; print(secrets.token_urlsafe(64))"
   ```
-- `DATABASE_URL` - see the next section; it cannot be wired automatically from the managed
-  database because of a connection-string scheme mismatch.
-
-**Setting `DATABASE_URL` from the Render managed PostgreSQL connection string.** Render's
-Postgres "Internal Connection String" (use this, not the external one, since the API and
-database run in the same Render private network) looks like:
-
-```
-postgresql://medrisk:<password>@<host>/medrisk
-```
-
-`app/core/config.py`'s `validate_database_url_scheme` requires the `postgresql+asyncpg://`
-scheme (this project uses SQLAlchemy's async driver throughout), so take the Internal
-Connection String from the `medrisk-db` database's Render dashboard page and change only the
-scheme prefix:
-
-```
-postgresql+asyncpg://medrisk:<password>@<host>/medrisk
-```
-
-Paste the result as `medrisk-api`'s `DATABASE_URL` value. This is also why `render.yaml`
-cannot use a `fromDatabase: connectionString` reference for this variable - Render's
-generated string and this app's required scheme don't match, and Blueprint syntax has no way
-to rewrite a referenced value in place.
 
 **No real model bundle is deployed.** The Docker image built from the plain `Dockerfile`
 contains no model weights and no PyTorch runtime (see the image's own header comment).

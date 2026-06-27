@@ -1,6 +1,7 @@
 # Render Blueprint - see docs/DEPLOYMENT.md "Render deployment" for the full walkthrough,
-# including why ENVIRONMENT=development (not "production") is used here and which variables
-# below still require a manual step in the Render dashboard.
+# including why ENVIRONMENT=development (not "production") is used here. DATABASE_URL and
+# JWT_SECRET_KEY are both provisioned automatically (see their envVars entries below) - no
+# manual dashboard step is required to stand this up.
 #
 # This deploys the plain `Dockerfile` (no PyTorch/inference runtime, no model bundle) - the
 # initial deployment has MODEL_REQUIRED=false and serves no real predictions. Switch to
@@ -34,13 +35,16 @@ services:
         value: "false"
 
       # --- Database ---
-      # DATABASE_URL must use the postgresql+asyncpg:// scheme (app/core/config.py
-      # validate_database_url_scheme), but Render's managed-Postgres connection string uses
-      # postgresql://. There is no Blueprint syntax to rewrite a fromDatabase value in place,
-      # so this is intentionally sync: false - set it manually once from the Render dashboard.
-      # See docs/DEPLOYMENT.md for the exact conversion.
+      # Render's managed-Postgres connectionString uses the postgresql:// scheme; the app
+      # requires postgresql+asyncpg:// for SQLAlchemy's async driver.
+      # normalize_database_url_scheme (app/core/config.py) rewrites it automatically at
+      # startup, so this can be wired straight from the database below - no manual copy/edit
+      # step, and no dependency on the database already existing when the Blueprint is first
+      # created. See docs/DEPLOYMENT.md.
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: medrisk-db
+          property: connectionString
       # Required by Settings but only ever read when ENVIRONMENT=test, which this service
       # never runs as. A schema-valid placeholder, not a real reachable database.
       - key: TEST_DATABASE_URL
@@ -53,10 +57,15 @@ services:
           property: password
 
       # --- JWT ---
-      # No safe default exists outside of tests - generate one locally and paste it in:
+      # No safe default exists outside of tests. Render generates and stores a random value
+      # for this at Blueprint creation time (and never overwrites it on redeploy) - if that
+      # value were ever too short or otherwise insecure,
+      # Settings.validate_jwt_secret_strength fails startup loudly rather than accepting it
+      # silently. To roll it manually instead, replace generateValue: true with sync: false
+      # and paste a value generated via:
       #   python -c "import secrets; print(secrets.token_urlsafe(64))"
       - key: JWT_SECRET_KEY
-        sync: false
+        generateValue: true
 
       # --- CORS / hosts ---
       # ALLOWED_HOSTS (TrustedHostMiddleware) is this API's own Host header allowlist - the

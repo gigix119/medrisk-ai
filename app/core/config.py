@@ -134,12 +134,27 @@ class Settings(BaseSettings):
     def parse_comma_separated_lists(cls, value: Any) -> Any:
         return _split_comma_separated(value)
 
+    @field_validator("DATABASE_URL", "TEST_DATABASE_URL", mode="before")
+    @classmethod
+    def normalize_database_url_scheme(cls, value: Any) -> Any:
+        """Rewrite the plain 'postgresql://'/'postgres://' scheme that managed-database
+        providers (e.g. Render's Blueprint `fromDatabase: connectionString`) hand back into
+        the 'postgresql+asyncpg://' scheme this app requires for SQLAlchemy's async driver.
+        Lets DATABASE_URL be wired automatically instead of hand-edited - see render.yaml.
+        """
+        if isinstance(value, str):
+            for legacy_scheme in ("postgresql://", "postgres://"):
+                if value.startswith(legacy_scheme):
+                    return "postgresql+asyncpg://" + value[len(legacy_scheme) :]
+        return value
+
     @field_validator("DATABASE_URL", "TEST_DATABASE_URL")
     @classmethod
     def validate_database_url_scheme(cls, value: str) -> str:
         if not value.startswith("postgresql+asyncpg://"):
             raise ValueError(
-                "Database URL must use the 'postgresql+asyncpg://' scheme, "
+                "Database URL must use the 'postgresql+asyncpg://' scheme "
+                "('postgresql://'/'postgres://' are normalized automatically), "
                 f"got: {value.split('://', 1)[0]}://..."
             )
         return value
