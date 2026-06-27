@@ -11,10 +11,15 @@ for what is and isn't actually deployed.
 repository's plain `Dockerfile` (no PyTorch/inference runtime - the initial deployment runs
 with `MODEL_REQUIRED=false` and serves no real predictions; see
 [model-deployment.md](model-deployment.md) and `Dockerfile.inference` for what switching to
-real inference later would involve). The service's `dockerCommand` runs
-`alembic upgrade head` once per deploy and then starts Uvicorn bound to Render's `$PORT`. In
-the Render dashboard: New → Blueprint → point at this repository → Render parses
-`render.yaml` and shows a plan before creating anything.
+real inference later would involve). The service's `startCommand` runs
+`/bin/sh scripts/render_start.sh`, which applies the Alembic migration chain
+(`alembic upgrade head`) once per deploy and then `exec`s into Uvicorn bound to Render's
+`$PORT`, replacing the shell process rather than running underneath it. The script exists
+because Render does not invoke a shell to parse `dockerCommand`/`startCommand` strings - a
+literal `sh -c "alembic upgrade head && uvicorn ..."` value was looked up as one (nonexistent)
+executable name and failed with exit 127, rather than being split on `&&`. In the Render
+dashboard: New → Blueprint → point at this repository → Render parses `render.yaml` and shows
+a plan before creating anything.
 
 `render.yaml` deliberately uses `ENVIRONMENT=development`, not `production`. The repository's
 only model bundle is synthetic-only, and `Settings.validate_production_model_policy`

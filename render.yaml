@@ -26,8 +26,12 @@ services:
     # Render injects $PORT; migrations run once per deploy before Uvicorn starts. This is
     # the same migrate-then-serve sequencing compose.yaml uses locally (see compose.yaml),
     # just without the wait_for_db/seed steps, which are local-dev-only conveniences.
-    dockerCommand: >-
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    # A literal `sh -c "... && ..."` string here previously failed at startup (exit 127):
+    # Render does not invoke a shell to parse dockerCommand, so the entire string - including
+    # the `&&` - was looked up as a single executable name. scripts/render_start.sh sidesteps
+    # this: Render executes it directly, and the explicit `/bin/sh` invocation below is what
+    # actually provides the shell that runs the migration-then-serve sequence inside it.
+    startCommand: /bin/sh scripts/render_start.sh
     envVars:
       - key: ENVIRONMENT
         value: development
