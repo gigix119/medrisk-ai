@@ -1,5 +1,8 @@
 # MedRisk AI API - production-conscious image for local/Compose use.
-# Phase 1: no ML frameworks, no model weights - just the FastAPI backend.
+# app/services/model_deployment.py imports medrisk_inference unconditionally at startup
+# (regardless of MODEL_REQUIRED), which in turn imports torch/torchvision/medrisk_ml at
+# module scope - so this image needs the CPU-only inference runtime even when no model
+# bundle is configured. No model weights are baked in either way.
 
 FROM python:3.12-slim
 
@@ -17,10 +20,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Dependency layer first, so code-only changes don't invalidate the pip install cache.
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# torch/torchvision are installed explicitly from PyTorch's own CPU index first, to
+# guarantee a minimal CPU-only install regardless of platform (see Dockerfile.inference).
+COPY requirements.txt requirements-inference.txt ./
+RUN pip install --no-cache-dir torch==2.11.0 torchvision==0.26.0 \
+        --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt -r requirements-inference.txt
 
 COPY app ./app
+COPY medrisk_ml ./medrisk_ml
+COPY medrisk_inference ./medrisk_inference
 COPY alembic ./alembic
 COPY alembic.ini ./
 COPY scripts ./scripts
