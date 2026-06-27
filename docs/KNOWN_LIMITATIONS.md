@@ -69,8 +69,6 @@ flattering document.
 
 ## Process
 
-- **License status: unlicensed (intentional).** "All rights reserved" until the repository
-  owner makes an explicit choice — see [README.md](../README.md) "License."
 - **Single-maintainer project.** No code review from a second person, no bus-factor
   mitigation beyond documentation.
 - **`research/references.yaml` covers 4 entries**, not every method/library used in this

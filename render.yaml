@@ -1,0 +1,81 @@
+# Render Blueprint - see docs/DEPLOYMENT.md "Render deployment" for the full walkthrough,
+# including why ENVIRONMENT=development (not "production") is used here and which variables
+# below still require a manual step in the Render dashboard.
+#
+# This deploys the plain `Dockerfile` (no PyTorch/inference runtime, no model bundle) - the
+# initial deployment has MODEL_REQUIRED=false and serves no real predictions. Switch to
+# `Dockerfile.inference` and flip MODEL_REQUIRED/ALLOW_SYNTHETIC_MODEL once inference is
+# actually wanted on the deployed instance.
+
+databases:
+  - name: medrisk-db
+    databaseName: medrisk
+    user: medrisk
+    plan: free
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: medrisk-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health/live
+    # Render injects $PORT; migrations run once per deploy before Uvicorn starts. This is
+    # the same migrate-then-serve sequencing compose.yaml uses locally (see compose.yaml),
+    # just without the wait_for_db/seed steps, which are local-dev-only conveniences.
+    dockerCommand: >-
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ENVIRONMENT
+        value: development
+      - key: DEBUG
+        value: "false"
+
+      # --- Database ---
+      # DATABASE_URL must use the postgresql+asyncpg:// scheme (app/core/config.py
+      # validate_database_url_scheme), but Render's managed-Postgres connection string uses
+      # postgresql://. There is no Blueprint syntax to rewrite a fromDatabase value in place,
+      # so this is intentionally sync: false - set it manually once from the Render dashboard.
+      # See docs/DEPLOYMENT.md for the exact conversion.
+      - key: DATABASE_URL
+        sync: false
+      # Required by Settings but only ever read when ENVIRONMENT=test, which this service
+      # never runs as. A schema-valid placeholder, not a real reachable database.
+      - key: TEST_DATABASE_URL
+        value: postgresql+asyncpg://unused:unused@localhost:5432/medrisk_test_unused
+      # Required by Settings (no default); wired automatically from the managed database
+      # below so it always matches, even though the app itself never reads it at runtime.
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: medrisk-db
+          property: password
+
+      # --- JWT ---
+      # No safe default exists outside of tests - generate one locally and paste it in:
+      #   python -c "import secrets; print(secrets.token_urlsafe(64))"
+      - key: JWT_SECRET_KEY
+        sync: false
+
+      # --- CORS / hosts ---
+      # ALLOWED_HOSTS (TrustedHostMiddleware) is this API's own Host header allowlist - the
+      # default Render subdomain for the service name below. Update if the name suffix
+      # differs once deployed, or once a custom domain is attached.
+      - key: ALLOWED_HOSTS
+        value: medrisk-api.onrender.com
+      # CORS_ORIGINS is the allowed *caller* origin (the frontend), not this API's own
+      # domain - left empty until a frontend is actually deployed somewhere. Same-origin
+      # use (e.g. /docs Swagger UI) doesn't need CORS at all.
+      - key: CORS_ORIGINS
+        value: ""
+
+      # --- Histopathology model deployment ---
+      # No model bundle ships in this image (see Dockerfile) - MODEL_REQUIRED=false so the
+      # app starts and serves everything except real inference. Do not set
+      # ALLOW_SYNTHETIC_MODEL=true here: ENVIRONMENT=development already allows it
+      # implicitly if a bundle is later configured, but the only bundle in this repository
+      # remains synthetic-only and must never be reachable from a public deployment without
+      # a deliberate, documented decision (see docs/DEPLOYMENT.md).
+      - key: MODEL_REQUIRED
+        value: "false"

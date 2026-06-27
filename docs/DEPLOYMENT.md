@@ -1,5 +1,76 @@
 # Deployment
 
+## Render deployment
+
+A `render.yaml` Blueprint exists in the repository root and implements the "Chosen target"
+decision below. It is a config file, not a deployment record - see the rest of this document
+for what is and isn't actually deployed.
+
+**Blueprint approach.** Render reads `render.yaml` and provisions two resources from it: a
+`medrisk-db` managed PostgreSQL 16 database, and a `medrisk-api` web service built from the
+repository's plain `Dockerfile` (no PyTorch/inference runtime - the initial deployment runs
+with `MODEL_REQUIRED=false` and serves no real predictions; see
+[model-deployment.md](model-deployment.md) and `Dockerfile.inference` for what switching to
+real inference later would involve). The service's `dockerCommand` runs
+`alembic upgrade head` once per deploy and then starts Uvicorn bound to Render's `$PORT`. In
+the Render dashboard: New → Blueprint → point at this repository → Render parses
+`render.yaml` and shows a plan before creating anything.
+
+`render.yaml` deliberately uses `ENVIRONMENT=development`, not `production`. The repository's
+only model bundle is synthetic-only, and `Settings.validate_production_model_policy`
+(`app/core/config.py`) refuses to start with `ENVIRONMENT=production` unless
+`MODEL_REQUIRED=true` *and* `ALLOW_SYNTHETIC_MODEL=false` - a combination this repository
+cannot satisfy without a real trained model. `ENVIRONMENT=development` with
+`MODEL_REQUIRED=false` is the honest, currently-correct choice for "deployed, but with no
+inference yet"; see "What deploying would require," point 3, below for the full reasoning.
+
+**Variables that must be set manually in the Render dashboard.** `render.yaml` marks these
+`sync: false`, meaning Render will prompt for a value at Blueprint creation time and never
+overwrite it on redeploy:
+
+- `JWT_SECRET_KEY` - no safe default exists outside the test environment. Generate one
+  locally and paste it in:
+  ```bash
+  python -c "import secrets; print(secrets.token_urlsafe(64))"
+  ```
+- `DATABASE_URL` - see the next section; it cannot be wired automatically from the managed
+  database because of a connection-string scheme mismatch.
+
+**Setting `DATABASE_URL` from the Render managed PostgreSQL connection string.** Render's
+Postgres "Internal Connection String" (use this, not the external one, since the API and
+database run in the same Render private network) looks like:
+
+```
+postgresql://medrisk:<password>@<host>/medrisk
+```
+
+`app/core/config.py`'s `validate_database_url_scheme` requires the `postgresql+asyncpg://`
+scheme (this project uses SQLAlchemy's async driver throughout), so take the Internal
+Connection String from the `medrisk-db` database's Render dashboard page and change only the
+scheme prefix:
+
+```
+postgresql+asyncpg://medrisk:<password>@<host>/medrisk
+```
+
+Paste the result as `medrisk-api`'s `DATABASE_URL` value. This is also why `render.yaml`
+cannot use a `fromDatabase: connectionString` reference for this variable - Render's
+generated string and this app's required scheme don't match, and Blueprint syntax has no way
+to rewrite a referenced value in place.
+
+**No real model bundle is deployed.** The Docker image built from the plain `Dockerfile`
+contains no model weights and no PyTorch runtime (see the image's own header comment).
+`MODEL_REQUIRED=false` in `render.yaml` reflects that honestly: the deployed instance starts
+and serves every endpoint except real inference, rather than failing startup or silently
+serving a synthetic prediction as if it were real. Do not set `MODEL_REQUIRED=true` or
+`ALLOW_SYNTHETIC_MODEL=true` for this deployment without first rebuilding from
+`Dockerfile.inference` and making the deliberate, documented decision described in "Chosen
+target" and "What deploying would require" below - the synthetic bundle's lack of medical
+meaning must stay as visible in a deployed instance as it already is in this repository's
+disclaimers.
+
+---
+
 **Status: not deployed. No live URL exists for this project as of this writing.** This
 document records the deployment *decision* (what target, why, what's required) so the next
 session can execute it, rather than re-litigate it — per the Phase 8 ground rules, actually

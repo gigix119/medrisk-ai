@@ -598,4 +598,4 @@ If you reference this project, see [CITATION.cff](CITATION.cff).
 
 ## License
 
-No license has been chosen yet for this portfolio project. All rights reserved by the author until a license is added.
+This project is released under the [MIT License](LICENSE).
