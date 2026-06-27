@@ -22,6 +22,11 @@
 # database. Deliberately NOT added to requirements.txt itself: the live API
 # (app/main.py, app/api/*) never imports medrisk_research or yaml, so the production image
 # stays exactly as lean as before - this is purely a test/dev-tooling addition.
+#
+# types-PyYAML - PyYAML ships no inline type stubs; medrisk_research/cli.py's `import yaml`
+# otherwise fails `mypy app scripts medrisk_inference medrisk_research` with
+# "Library stubs not installed for yaml". Same fix already applied to the `ml` job via
+# requirements-ml-dev.txt's own types-PyYAML pin.
 
 -r requirements.txt
 -r requirements-inference.txt
@@ -34,3 +39,4 @@ asgi-lifespan==2.1.0
 ruff==0.7.4
 mypy==1.13.0
 PyYAML==6.0.3
+types-PyYAML==6.0.12.20260518

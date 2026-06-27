@@ -95,10 +95,17 @@ jobs:
         run: python -m ruff check .
 
       - name: mypy
-        run: python -m mypy app scripts medrisk_inference medrisk_research
+        # scripts/ml/* is excluded here: those are thin wrappers around medrisk_ml.cli, which
+        # transitively imports pandas/matplotlib/tqdm - none of which this job installs (see
+        # requirements-dev.txt). The `ml` job's mypy step type-checks scripts/ml instead,
+        # where those libraries (and their stub packages) actually exist.
+        run: python -m mypy app scripts medrisk_inference medrisk_research --exclude '^scripts/ml/'
 
       - name: pytest with coverage
-        run: python -m pytest --cov=app --cov=medrisk_inference --cov=medrisk_research --cov-report=term-missing --cov-report=xml
+        # --ignore=tests/ml: those tests import medrisk_ml submodules needing pandas/scikit-learn
+        # (requirements-ml.txt), which this job deliberately never installs - see the `ml` job,
+        # which runs tests/ml instead with the matching environment.
+        run: python -m pytest --ignore=tests/ml --cov=app --cov=medrisk_inference --cov=medrisk_research --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage report
         if: always()
@@ -139,10 +146,18 @@ jobs:
         run: python -m ruff check medrisk_ml scripts/ml tests/ml
 
       - name: mypy (ML code)
-        run: python -m mypy medrisk_ml
+        # Includes scripts/ml (thin CLI wrappers around medrisk_ml.cli) - this job is the one
+        # with pandas/matplotlib/tqdm and their stub packages actually installed.
+        run: python -m mypy medrisk_ml scripts/ml
 
       - name: pytest (ML pipeline, synthetic data only)
-        run: python -m pytest tests/ml --cov=medrisk_ml --cov-report=term-missing --cov-report=xml
+        # -c / --cov-config point at dedicated configs instead of pyproject.toml's: that file's
+        # [tool.pytest.ini_options] sets asyncio_mode/asyncio_default_*_loop_scope (pytest-asyncio
+        # option names - not installed in this job) and [tool.coverage.run] sets
+        # concurrency=["greenlet"] (needed for app's SQLAlchemy async coverage, not installed
+        # here either). Both turn into hard failures here via filterwarnings=error /
+        # coverage.exceptions.ConfigError before any test runs - see pytest.ml.ini / .coveragerc.ml.
+        run: python -m pytest -c pytest.ml.ini tests/ml --cov=medrisk_ml --cov-config=.coveragerc.ml --cov-report=term-missing --cov-report=xml
 
       - name: Upload ML coverage report
         if: always()
@@ -244,7 +259,11 @@ jobs:
       - name: Secret scan (diff against the committed baseline)
         # Any *new* finding not already in .secrets.baseline updates the file on disk, which
         # the following step then catches as an uncommitted diff - this fails the job without
-        # printing the secret value itself anywhere in the log.
+        # printing the secret value itself anywhere in the log. `-I '"generated_at":'` ignores
+        # only that one timestamp line: detect_secrets.core.baseline.format_for_output()
+        # rewrites it on every `scan` call regardless of whether any finding changed, so a
+        # plain `git diff --exit-code` would fail here on every run, even with zero new
+        # secrets. Actual finding/hash/line-number changes still fail the job.
         run: |
           detect-secrets scan \
             --exclude-files '\.venv/' \
@@ -254,7 +273,7 @@ jobs:
             --exclude-files 'frontend/openapi\.json' \
             --exclude-files 'frontend/src/api/generated/' \
             --baseline .secrets.baseline
-          git diff --exit-code .secrets.baseline
+          git diff --exit-code -I '"generated_at":' .secrets.baseline
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
